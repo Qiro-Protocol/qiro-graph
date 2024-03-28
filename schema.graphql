@@ -1,0 +1,42 @@
+type Deny @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PoolCreated @entity(immutable: true) {
+  id: Bytes!
+  QiroFactory_id: BigInt! # uint256
+  deployer: Bytes! # address
+  root: Bytes! # address
+  LenderDeployer: Bytes! # address
+  borrowerDeployer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PoolDeployed @entity(immutable: true) {
+  id: Bytes!
+  QiroFactory_id: BigInt! # uint256
+  seniorRate: BigInt! # uint256
+  interestRate: BigInt! # uint256
+  periodLength: BigInt! # uint256
+  periodCount: BigInt! # uint256
+  gracePeriod: BigInt! # uint256
+  operator: Bytes! # address
+  shelf: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Rely @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

@@ -1,0 +1,35 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: QiroFactory
+    network: mumbai
+    source:
+      address: "0xEa3867B5564B09744F032Cb5C986C2b5fEa46431"
+      abi: QiroFactory
+      startBlock: 47580969
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Deny
+        - PoolCreated
+        - PoolDeployed
+        - Rely
+      abis:
+        - name: QiroFactory
+          file: ./abis/QiroFactory.json
+      eventHandlers:
+        - event: Deny(indexed address)
+          handler: handleDeny
+        - event: PoolCreated(uint256,address,address,address,address)
+          handler: handlePoolCreated
+        - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
+          handler: handlePoolDeployed
+        - event: Rely(indexed address)
+          handler: handleRely
+      file: ./src/qiro-factory.ts
