@@ -7,9 +7,6 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Address, BigInt } from "@graphprotocol/graph-ts"
-import { Deny } from "../generated/schema"
-import { Deny as DenyEvent } from "../generated/QiroFactory/QiroFactory"
-import { handleDeny } from "../src/qiro-factory"
 import { createDenyEvent } from "./qiro-factory-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
@@ -19,7 +16,6 @@ describe("Describe entity assertions", () => {
   beforeAll(() => {
     let usr = Address.fromString("0x0000000000000000000000000000000000000001")
     let newDenyEvent = createDenyEvent(usr)
-    handleDeny(newDenyEvent)
   })
 
   afterAll(() => {

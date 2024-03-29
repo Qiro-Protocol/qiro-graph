@@ -2,7 +2,7 @@ specVersion: 1.0.0
 indexerHints:
   prune: auto
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: QiroFactory
@@ -22,13 +22,13 @@ dataSources:
         - Rely
       abis:
         - name: QiroFactory
-          file: ./abis/QiroFactory.json
+          file: QiroFactory/abis/QiroFactory.json
       eventHandlers:
         - event: PoolCreated(uint256,address,address,address,address)
           handler: handlePoolCreated
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
-      file: ./src/qiro-factory.ts
+      file: QiroFactory/QiroFactory.wasm
 templates:
   - name: Operator
     kind: ethereum/contract
@@ -39,13 +39,13 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/operator.ts
+      file: templates/Operator/Operator.wasm
       entities:
         - Supply
         - Redeem
       abis:
         - name: WhitelistOperator
-          file: ./abis/WhitelistOperator.json
+          file: Operator/abis/WhitelistOperator.json
       eventHandlers:
         - event: Supply(uint256,string,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
