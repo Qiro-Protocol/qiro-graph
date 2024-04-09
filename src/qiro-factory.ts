@@ -21,17 +21,7 @@ import { Operator } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { getUser } from "./util";
-// enum TxnTypes {
-//   MINT
-//   SENIOR_DEPOSIT
-//   JUNIOR_DEPOSIT
-//   SENIOR_REDEEM
-//   JUNIOR_REDEEM
-//   POOL_CREATED
-//   POOL_INITIALED
-//   BORROWER_WITHDRAW
-//   BORROWER_REPAY
-// }
+
 export function handlePoolDeployed(event: PoolDeployedEvent): void {
   let entity = new PoolDeployed(
     event.transaction.hash.concatI32(event.logIndex.toI32())
