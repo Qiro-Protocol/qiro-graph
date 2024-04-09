@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: mumbai
     source:
-      address: "0x22cb2fAbcDff15B7cDE0D08b3bBcDDe64549812b"
+      address: "0x8A50706c8EBd05a337E78c78267704C5c9FD0c16"
       abi: QiroFactory
-      startBlock: 47629991
+      startBlock: 47804725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -24,8 +24,6 @@ dataSources:
         - name: QiroFactory
           file: QiroFactory/abis/QiroFactory.json
       eventHandlers:
-        - event: PoolCreated(uint256,address,address,address,address)
-          handler: handlePoolCreated
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
       file: QiroFactory/QiroFactory.wasm
@@ -51,3 +49,30 @@ templates:
           handler: handleSupply
         - event: Redeem(uint256,string,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRedeem
+  - name: Shelf
+    kind: ethereum/contract
+    network: mumbai
+    source:
+      abi: Shelf
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: templates/Shelf/Shelf.wasm
+      entities:
+        - LoanStarted
+        - LoanEnded
+        - LoanRepayed
+        - LoanWithdrawn
+      abis:
+        - name: Shelf
+          file: Shelf/abis/Shelf.json
+      eventHandlers:
+        - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanStarted
+        - event: LoanEnded(uint256,address,uint256,uint256,uint256)
+          handler: handleLoanEnded
+        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanRepayed
+        - event: LoanWithdrawn(uint256,address,uint256,uint256)
+          handler: handleLoanWithdrawn

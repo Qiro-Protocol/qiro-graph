@@ -19,3 +19,13 @@ export class Operator extends DataSourceTemplate {
     );
   }
 }
+
+export class Shelf extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("Shelf", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext("Shelf", [address.toHex()], context);
+  }
+}

@@ -1,16 +1,3 @@
-
-type PoolCreated @entity(immutable: true) {
-  id: Bytes!
-  poolId: BigInt! # uint256
-  deployer: Bytes! # address
-  root: Bytes! # address
-  LenderDeployer: Bytes! # address
-  borrowerDeployer: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type PoolDeployed @entity(immutable: true) {
   id: Bytes!
   poolId: BigInt! # uint256
@@ -25,7 +12,6 @@ type PoolDeployed @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
-
 
 type Supply @entity(immutable: true) {
   id: Bytes!
@@ -54,9 +40,9 @@ type Redeem @entity(immutable: true) {
 }
 
 enum PoolStatus {
-  CAPITAL_FORMATION,
-  PENDING,
-  ACTIVE,
+  CAPITAL_FORMATION
+  PENDING
+  ACTIVE
   ENDED
 }
 # main Schema
@@ -99,13 +85,87 @@ type Tranche @entity(immutable: false) {
   blockTimestamp: BigInt!
 }
 
+type LoanStarted @entity(immutable: true) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LoanEnded @entity(immutable: true) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LoanRepayed @entity(immutable: true) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  amountRepayed: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LoanWithdrawn @entity(immutable: true) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  amountWithdrawn: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type Lender @entity(immutable: false) {
   id: Bytes!
   address: Bytes!
   pools: [BigInt!]!
-  currencyAmount: BigInt!
-  totalPoolBalance: BigInt!
-  juniorPoolBalance: BigInt!
-  seniorPoolBalance: BigInt!
+  totalInvested: BigInt!
+  juniorInvestedBalance: BigInt!
+  seniorInvestedBalance: BigInt!
   blockTimestamp: BigInt!
+}
+
+type Borrower @entity(immutable: false) {
+  id: Bytes!
+  address: Bytes!
+  poolsBorrowedFrom: [BigInt!]!
+  totalBorrowed: BigInt!
+  totalRepaid: BigInt!
+  blockTimestamp: BigInt!
+}
+
+enum TxnTypes {
+  MINT
+  SENIOR_DEPOSIT
+  JUNIOR_DEPOSIT
+  SENIOR_REDEEM
+  JUNIOR_REDEEM
+  POOL_CREATED
+  POOL_INITIALED
+  BORROWER_WITHDRAW
+  BORROWER_REPAY
+}
+
+type Transaction @entity(immutable: true) {
+  id: Bytes!
+  hash: Bytes!
+  name: TxnTypes
+  timestamp: BigInt!
+  amountUSDC: BigInt!
+  amount: BigInt!
+  from: Bytes!
+}
+
+type User @entity(immutable: false) {
+  id: Bytes!
+  address: Bytes!
+  isLender: Boolean!
+  isBorrower: Boolean!
+  poolsBorrowedFrom: [BigInt!]!
+  poolsLendedIn: [BigInt!]!
+  totalLended: BigInt!
+  totalInterestEarned: BigInt!
+  totalBorrowed: BigInt!
+  totalRepayed: BigInt!
+  transactionHistory: [Transaction!]!
 }

@@ -3,9 +3,10 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/Operator/WhitelistOperator";
 
-import { Supply, Redeem, Pool, Tranche } from "../../generated/schema";
+import { Supply, Redeem, Pool, Tranche, User } from "../../generated/schema";
 import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
+import { createTxnAndUpdateUser } from "../qiro-factory";
 
 export function handleSupply(event: SupplyEvent): void {
   let entity = new Supply(
@@ -27,6 +28,24 @@ export function handleSupply(event: SupplyEvent): void {
     event.params.juniorPoolBalance,
     event.params.seniorPoolBalance
   );
+  let type =
+    event.params.tranche == "senior" ? "SENIOR_DEPOSIT" : "JUNIOR_DEPOSIT";
+  createTxnAndUpdateUser(
+    type,
+    event.transaction.from,
+    event.transaction.hash,
+    event.block.timestamp,
+    event.transaction.value,
+    event.params.amount
+  );
+
+  let user = User.load(event.transaction.from);
+  user!.isLender = true;
+  if (user!.poolsLendedIn.includes(event.params.poolId)) {
+    user!.poolsLendedIn.push(event.params.poolId);
+  }
+  user!.totalLended = user!.totalLended.plus(event.params.amount);
+  user!.save();
 }
 
 export function handleRedeem(event: RedeemEvent): void {
@@ -51,6 +70,19 @@ export function handleRedeem(event: RedeemEvent): void {
     event.params.juniorPoolBalance,
     event.params.seniorPoolBalance
   );
+
+  createTxnAndUpdateUser(
+    event.params.tranche == "senior" ? "SENIOR_REDEEM" : "JUNIOR_REDEEM",
+    event.transaction.from,
+    event.transaction.hash,
+    event.block.timestamp,
+    event.transaction.value,
+    event.params.currencyAmount
+  );
+
+  let user = User.load(event.transaction.from);
+  user!.totalLended = user!.totalLended.minus(event.params.currencyAmount);
+  user!.save();
 }
 
 function updatePoolBalance(
@@ -80,5 +112,4 @@ function updatePoolBalance(
   pool.save();
   seniorTranche.save();
   juniorTranche.save();
-
 }
