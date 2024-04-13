@@ -89,8 +89,12 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   let user = User.load(event.transaction.from);
   user!.isBorrower = true;
   user!.totalBorrowed = user!.totalBorrowed.plus(event.params.currencyAmount)
-  if(!user!.poolsBorrowedFrom.includes(event.params.poolId)) {
-    user!.poolsBorrowedFrom.push(event.params.poolId);
+  if(!user!.poolsBorrowedFromIDs.includes(event.params.poolId)) {
+    let pID = Bytes.fromByteArray(
+      crypto.keccak256(ByteArray.fromBigInt(event.params.poolId))
+    );
+    user!.poolsBorrowedFromIDs.push(event.params.poolId);
+    user!.poolsBorrowedFrom.push(pID);
   }
   user!.save();
 }

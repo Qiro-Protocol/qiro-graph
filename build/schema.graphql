@@ -161,8 +161,10 @@ type User @entity(immutable: false) {
   address: Bytes!
   isLender: Boolean!
   isBorrower: Boolean!
-  poolsBorrowedFrom: [BigInt!]!
-  poolsLendedIn: [BigInt!]!
+  poolsBorrowedFromIDs: [BigInt!]!
+  poolsBorrowedFrom: [Pool!]!
+  poolsLendedInIDs: [BigInt!]!
+  poolsLendedIn: [Pool!]!
   totalLended: BigInt!
   totalInterestEarned: BigInt!
   totalBorrowed: BigInt!

@@ -1794,21 +1794,34 @@ export class User extends Entity {
     this.set("isBorrower", Value.fromBoolean(value));
   }
 
-  get poolsBorrowedFrom(): Array<BigInt> {
+  get poolsBorrowedFromIDs(): Array<BigInt> {
+    let value = this.get("poolsBorrowedFromIDs");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set poolsBorrowedFromIDs(value: Array<BigInt>) {
+    this.set("poolsBorrowedFromIDs", Value.fromBigIntArray(value));
+  }
+
+  get poolsBorrowedFrom(): Array<Bytes> {
     let value = this.get("poolsBorrowedFrom");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigIntArray();
+      return value.toBytesArray();
     }
   }
 
-  set poolsBorrowedFrom(value: Array<BigInt>) {
-    this.set("poolsBorrowedFrom", Value.fromBigIntArray(value));
+  set poolsBorrowedFrom(value: Array<Bytes>) {
+    this.set("poolsBorrowedFrom", Value.fromBytesArray(value));
   }
 
-  get poolsLendedIn(): Array<BigInt> {
-    let value = this.get("poolsLendedIn");
+  get poolsLendedInIDs(): Array<BigInt> {
+    let value = this.get("poolsLendedInIDs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1816,8 +1829,21 @@ export class User extends Entity {
     }
   }
 
-  set poolsLendedIn(value: Array<BigInt>) {
-    this.set("poolsLendedIn", Value.fromBigIntArray(value));
+  set poolsLendedInIDs(value: Array<BigInt>) {
+    this.set("poolsLendedInIDs", Value.fromBigIntArray(value));
+  }
+
+  get poolsLendedIn(): Array<Bytes> {
+    let value = this.get("poolsLendedIn");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set poolsLendedIn(value: Array<Bytes>) {
+    this.set("poolsLendedIn", Value.fromBytesArray(value));
   }
 
   get totalLended(): BigInt {
