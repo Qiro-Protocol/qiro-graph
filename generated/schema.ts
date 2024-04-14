@@ -1794,19 +1794,6 @@ export class User extends Entity {
     this.set("isBorrower", Value.fromBoolean(value));
   }
 
-  get poolsBorrowedFromIDs(): Array<BigInt> {
-    let value = this.get("poolsBorrowedFromIDs");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set poolsBorrowedFromIDs(value: Array<BigInt>) {
-    this.set("poolsBorrowedFromIDs", Value.fromBigIntArray(value));
-  }
-
   get poolsBorrowedFrom(): Array<Bytes> {
     let value = this.get("poolsBorrowedFrom");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1818,19 +1805,6 @@ export class User extends Entity {
 
   set poolsBorrowedFrom(value: Array<Bytes>) {
     this.set("poolsBorrowedFrom", Value.fromBytesArray(value));
-  }
-
-  get poolsLendedInIDs(): Array<BigInt> {
-    let value = this.get("poolsLendedInIDs");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set poolsLendedInIDs(value: Array<BigInt>) {
-    this.set("poolsLendedInIDs", Value.fromBigIntArray(value));
   }
 
   get poolsLendedIn(): Array<Bytes> {

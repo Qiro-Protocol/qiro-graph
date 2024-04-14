@@ -89,11 +89,8 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   let user = User.load(event.transaction.from);
   user!.isBorrower = true;
   user!.totalBorrowed = user!.totalBorrowed.plus(event.params.currencyAmount)
-  if(!user!.poolsBorrowedFromIDs.includes(event.params.poolId)) {
-    let pID = Bytes.fromByteArray(
-      crypto.keccak256(ByteArray.fromBigInt(event.params.poolId))
-    );
-    user!.poolsBorrowedFromIDs.push(event.params.poolId);
+
+  if(user!.poolsBorrowedFrom.includes(pID) == false) {
     user!.poolsBorrowedFrom.push(pID);
   }
   user!.save();
@@ -150,7 +147,7 @@ function updatePoolBalance(poolId: BigInt, total: BigInt): void {
   pool.save();
 }
 
-function updatePoolStatus(poolId: BigInt, status: string): void {
+export function updatePoolStatus(poolId: BigInt, status: string): void {
   // todo - update pool entity
   let pID = Bytes.fromByteArray(crypto.keccak256(ByteArray.fromBigInt(poolId)));
   let pool = Pool.load(pID);

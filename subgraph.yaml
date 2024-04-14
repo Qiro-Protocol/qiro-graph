@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: mumbai
+    network: polygon-amoy	
     source:
-      address: "0x8A50706c8EBd05a337E78c78267704C5c9FD0c16"
+      address: "0x61eD9E42c1e65675144156AEc993a643F85366Aa"
       abi: QiroFactory
-      startBlock: 47804725
+      startBlock: 5860463
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -30,7 +30,7 @@ dataSources:
 templates:
   - name: Operator
     kind: ethereum/contract
-    network: mumbai
+    network: polygon-amoy	
     source:
       abi: WhitelistOperator
     mapping:
@@ -51,7 +51,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: mumbai
+    network: polygon-amoy	
     source:
       abi: Shelf
     mapping:
