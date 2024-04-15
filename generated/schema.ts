@@ -855,6 +855,32 @@ export class Pool extends Entity {
   set transactionHash(value: Bytes) {
     this.set("transactionHash", Value.fromBytes(value));
   }
+
+  get lenders(): Array<Bytes> {
+    let value = this.get("lenders");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set lenders(value: Array<Bytes>) {
+    this.set("lenders", Value.fromBytesArray(value));
+  }
+
+  get borrowers(): Array<Bytes> {
+    let value = this.get("borrowers");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set borrowers(value: Array<Bytes>) {
+    this.set("borrowers", Value.fromBytesArray(value));
+  }
 }
 
 export class Tranche extends Entity {
@@ -1794,30 +1820,20 @@ export class User extends Entity {
     this.set("isBorrower", Value.fromBoolean(value));
   }
 
-  get poolsBorrowedFrom(): Array<Bytes> {
-    let value = this.get("poolsBorrowedFrom");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytesArray();
-    }
+  get poolsBorrowedFrom(): PoolLoader {
+    return new PoolLoader(
+      "User",
+      this.get("id")!.toBytes().toHexString(),
+      "poolsBorrowedFrom",
+    );
   }
 
-  set poolsBorrowedFrom(value: Array<Bytes>) {
-    this.set("poolsBorrowedFrom", Value.fromBytesArray(value));
-  }
-
-  get poolsLendedIn(): Array<Bytes> {
-    let value = this.get("poolsLendedIn");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set poolsLendedIn(value: Array<Bytes>) {
-    this.set("poolsLendedIn", Value.fromBytesArray(value));
+  get poolsLendedIn(): PoolLoader {
+    return new PoolLoader(
+      "User",
+      this.get("id")!.toBytes().toHexString(),
+      "poolsLendedIn",
+    );
   }
 
   get totalLended(): BigInt {
@@ -1883,5 +1899,23 @@ export class User extends Entity {
 
   set transactionHistory(value: Array<Bytes>) {
     this.set("transactionHistory", Value.fromBytesArray(value));
+  }
+}
+
+export class PoolLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Pool[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Pool[]>(value);
   }
 }

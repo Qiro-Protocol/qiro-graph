@@ -8,8 +8,6 @@ export function getUser(address: Bytes): User {
     user = new User(address);
     user.address = address;
     user.transactionHistory = [];
-    user.poolsBorrowedFrom = [];
-    user.poolsLendedIn = [];
     user.isBorrower = false;
     user.isLender = false;
     user.totalLended = new BigInt(0);

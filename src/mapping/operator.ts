@@ -39,14 +39,18 @@ export function handleSupply(event: SupplyEvent): void {
     event.params.amount
   );
 
-  let user = User.load(event.transaction.from);
   let pID = Bytes.fromByteArray(
     crypto.keccak256(ByteArray.fromBigInt(event.params.poolId))
   );
+  let pool = Pool.load(pID);
+  let user = User.load(event.transaction.from);
+  // if (!pool!.lenders.includes(user!.id)) {
+    pool!.lenders.push(event.transaction.from);
+  // }
+  pool!.save();
   user!.isLender = true;
-  if (user!.poolsLendedIn.includes(pID) == false) {
-    user!.poolsLendedIn.push(pID);
-  }
+  // is this wrong?
+
   user!.totalLended = user!.totalLended.plus(event.params.amount);
   user!.save();
 }

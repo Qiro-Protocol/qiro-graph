@@ -72,6 +72,8 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
     ]);
     return;
   }
+  pool.borrowers.push(pool.id);
+  pool.save()
   updatePoolBalance(
     event.params.poolId,
     pool.totalBalance.minus(event.params.currencyAmount)
@@ -89,10 +91,6 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   let user = User.load(event.transaction.from);
   user!.isBorrower = true;
   user!.totalBorrowed = user!.totalBorrowed.plus(event.params.currencyAmount)
-
-  if(user!.poolsBorrowedFrom.includes(pID) == false) {
-    user!.poolsBorrowedFrom.push(pID);
-  }
   user!.save();
 }
 

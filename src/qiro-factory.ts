@@ -86,6 +86,8 @@ function handlePool(pool: PoolDeployed): void {
   entity.capitalFormationPeriodEnd = pool.blockTimestamp.plus(
     entity.capitalFormationPeriod
   );
+  entity.lenders = []
+  entity.borrowers = []
   // @Todo
   entity.poolStatus = "CAPITAL_FORMATION";
 
