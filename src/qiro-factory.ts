@@ -94,7 +94,7 @@ function handlePool(pool: PoolDeployed): void {
   entity.transactionHash = pool.transactionHash;
   entity.save();
 
-  let operator =  WhitelistOperator.bind(pool.operator)
+  let operator =  WhitelistOperator.bind(pool.operator as Address)
   let juniorTranch = operator.junior();
   let seniorTranch = operator.senior();
 
@@ -102,7 +102,7 @@ function handlePool(pool: PoolDeployed): void {
   juniorTranche.trancheType = "JUNIOR";
   juniorTranche.totalTokenSupply = new BigInt(0);
   juniorTranche.totalBalance = new BigInt(0);
-  juniorTranche.trancheAddress = new Address(0);
+  juniorTranche.trancheAddress = juniorTranch;
   juniorTranche.tokenAddress = new Address(0);
   juniorTranche.tokenPrice = new BigInt(1);
   juniorTranche.blockTimestamp = pool.blockTimestamp;
@@ -112,7 +112,7 @@ function handlePool(pool: PoolDeployed): void {
   seniorTranche.trancheType = "SENIOR";
   seniorTranche.totalTokenSupply = new BigInt(0);
   seniorTranche.totalBalance = new BigInt(0);
-  seniorTranche.trancheAddress = new Address(0);
+  seniorTranche.trancheAddress = seniorTranch;
   seniorTranche.tokenAddress = new Address(0);
   seniorTranche.tokenPrice = new BigInt(1);
   seniorTranche.blockTimestamp = pool.blockTimestamp;
