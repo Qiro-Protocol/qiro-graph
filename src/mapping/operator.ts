@@ -3,7 +3,7 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/Operator/WhitelistOperator";
 
-import { Supply, Redeem, Pool, Tranche, User } from "../../generated/schema";
+import { Supply, Redeem, Pool, Tranche, User, UserPool } from "../../generated/schema";
 import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
@@ -44,12 +44,12 @@ export function handleSupply(event: SupplyEvent): void {
   );
   let pool = Pool.load(pID);
   let user = User.load(event.transaction.from);
-  // if (!pool!.lenders.includes(user!.id)) {
-    pool!.lenders.push(event.transaction.from);
-  // }
-  pool!.save();
   user!.isLender = true;
-  // is this wrong?
+  
+  let userPool = new UserPool(pID.concat(event.transaction.from));
+  userPool.lendedPool = pID;
+  userPool.user = event.transaction.from;
+  userPool.save();
 
   user!.totalLended = user!.totalLended.plus(event.params.amount);
   user!.save();

@@ -71,9 +71,9 @@ type Pool @entity(immutable: false) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-  lenders: [User!]!
-  borrowers: [User!]!
-}
+  lenders: [UserPool!] @derivedFrom(field: "lendedPool")
+  borrower: BorrowerPool 
+  }
 
 type Tranche @entity(immutable: false) {
   id: Bytes!
@@ -163,11 +163,23 @@ type User @entity(immutable: false) {
   address: Bytes!
   isLender: Boolean!
   isBorrower: Boolean!
-  poolsBorrowedFrom: [Pool!]! @derivedFrom(field: "borrowers")
-  poolsLendedIn: [Pool!]!  @derivedFrom(field: "lenders")
+  poolsBorrowedFrom: [BorrowerPool!]! @derivedFrom(field: "user")
+  poolsLendedIn: [UserPool!]  @derivedFrom(field: "user")
   totalLended: BigInt!
   totalInterestEarned: BigInt!
   totalBorrowed: BigInt!
   totalRepayed: BigInt!
   transactionHistory: [Transaction!]!
+}
+
+type UserPool @entity{
+  id: Bytes!
+  user: User!
+  lendedPool: Pool!
+}
+
+type BorrowerPool @entity{
+  id: Bytes!
+  user: User!
+  borrowedPool: Pool!
 }

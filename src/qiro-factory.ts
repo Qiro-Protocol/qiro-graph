@@ -86,8 +86,6 @@ function handlePool(pool: PoolDeployed): void {
   entity.capitalFormationPeriodEnd = pool.blockTimestamp.plus(
     entity.capitalFormationPeriod
   );
-  entity.lenders = []
-  entity.borrowers = []
   // @Todo
   entity.poolStatus = "CAPITAL_FORMATION";
 
@@ -96,9 +94,9 @@ function handlePool(pool: PoolDeployed): void {
   entity.transactionHash = pool.transactionHash;
   entity.save();
 
-  // let operator =  WhitelistOperator.bind(pool.operator)
-  // let juniorTranch = operator.junior();
-  // let seniorTranch = operator.senior();
+  let operator =  WhitelistOperator.bind(pool.operator)
+  let juniorTranch = operator.junior();
+  let seniorTranch = operator.senior();
 
   juniorTranche.poolId = pool.poolId;
   juniorTranche.trancheType = "JUNIOR";

@@ -13,6 +13,7 @@ import {
   Pool,
   Tranche,
   User,
+  BorrowerPool,
 } from "../../generated/schema";
 import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
@@ -72,7 +73,6 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
     ]);
     return;
   }
-  pool.borrowers.push(pool.id);
   pool.save()
   updatePoolBalance(
     event.params.poolId,
@@ -92,6 +92,12 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   user!.isBorrower = true;
   user!.totalBorrowed = user!.totalBorrowed.plus(event.params.currencyAmount)
   user!.save();
+
+  // map pool and borrower, for user to 
+  let userPool = new BorrowerPool(pID.concat(event.transaction.from));
+  userPool.borrowedPool = pID;
+  userPool.user = event.transaction.from;
+  userPool.save();
 }
 
 export function handleLoanRepayed(event: LoanRepayedEvent): void {

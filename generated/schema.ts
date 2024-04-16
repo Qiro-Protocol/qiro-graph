@@ -856,30 +856,29 @@ export class Pool extends Entity {
     this.set("transactionHash", Value.fromBytes(value));
   }
 
-  get lenders(): Array<Bytes> {
-    let value = this.get("lenders");
+  get lenders(): UserPoolLoader {
+    return new UserPoolLoader(
+      "Pool",
+      this.get("id")!.toBytes().toHexString(),
+      "lenders",
+    );
+  }
+
+  get borrower(): Bytes | null {
+    let value = this.get("borrower");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toBytesArray();
+      return value.toBytes();
     }
   }
 
-  set lenders(value: Array<Bytes>) {
-    this.set("lenders", Value.fromBytesArray(value));
-  }
-
-  get borrowers(): Array<Bytes> {
-    let value = this.get("borrowers");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+  set borrower(value: Bytes | null) {
+    if (!value) {
+      this.unset("borrower");
     } else {
-      return value.toBytesArray();
+      this.set("borrower", Value.fromBytes(<Bytes>value));
     }
-  }
-
-  set borrowers(value: Array<Bytes>) {
-    this.set("borrowers", Value.fromBytesArray(value));
   }
 }
 
@@ -1820,16 +1819,16 @@ export class User extends Entity {
     this.set("isBorrower", Value.fromBoolean(value));
   }
 
-  get poolsBorrowedFrom(): PoolLoader {
-    return new PoolLoader(
+  get poolsBorrowedFrom(): BorrowerPoolLoader {
+    return new BorrowerPoolLoader(
       "User",
       this.get("id")!.toBytes().toHexString(),
       "poolsBorrowedFrom",
     );
   }
 
-  get poolsLendedIn(): PoolLoader {
-    return new PoolLoader(
+  get poolsLendedIn(): UserPoolLoader {
+    return new UserPoolLoader(
       "User",
       this.get("id")!.toBytes().toHexString(),
       "poolsLendedIn",
@@ -1902,7 +1901,145 @@ export class User extends Entity {
   }
 }
 
-export class PoolLoader extends Entity {
+export class UserPool extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UserPool entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type UserPool must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("UserPool", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): UserPool | null {
+    return changetype<UserPool | null>(
+      store.get_in_block("UserPool", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): UserPool | null {
+    return changetype<UserPool | null>(store.get("UserPool", id.toHexString()));
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get lendedPool(): Bytes {
+    let value = this.get("lendedPool");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendedPool(value: Bytes) {
+    this.set("lendedPool", Value.fromBytes(value));
+  }
+}
+
+export class BorrowerPool extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save BorrowerPool entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type BorrowerPool must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("BorrowerPool", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): BorrowerPool | null {
+    return changetype<BorrowerPool | null>(
+      store.get_in_block("BorrowerPool", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): BorrowerPool | null {
+    return changetype<BorrowerPool | null>(
+      store.get("BorrowerPool", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get borrowedPool(): Bytes {
+    let value = this.get("borrowedPool");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set borrowedPool(value: Bytes) {
+    this.set("borrowedPool", Value.fromBytes(value));
+  }
+}
+
+export class UserPoolLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -1914,8 +2051,26 @@ export class PoolLoader extends Entity {
     this._field = field;
   }
 
-  load(): Pool[] {
+  load(): UserPool[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Pool[]>(value);
+    return changetype<UserPool[]>(value);
+  }
+}
+
+export class BorrowerPoolLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): BorrowerPool[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<BorrowerPool[]>(value);
   }
 }
