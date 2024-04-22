@@ -25,6 +25,8 @@ dataSources:
       abis:
         - name: QiroFactory
           file: QiroFactory/abis/QiroFactory.json
+        - name: WhitelistOperator
+          file: QiroFactory/abis/WhitelistOperator.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed

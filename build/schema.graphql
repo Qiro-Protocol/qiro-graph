@@ -176,6 +176,7 @@ type UserPool @entity{
   id: Bytes!
   user: User!
   lendedPool: Pool!
+
 }
 
 type BorrowerPool @entity{

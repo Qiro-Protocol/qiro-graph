@@ -45,11 +45,15 @@ export function handleSupply(event: SupplyEvent): void {
   let pool = Pool.load(pID);
   let user = User.load(event.transaction.from);
   user!.isLender = true;
-  
-  let userPool = new UserPool(pID.concat(event.transaction.from));
-  userPool.lendedPool = pID;
-  userPool.user = event.transaction.from;
-  userPool.save();
+
+  let uPool = UserPool.load(pID.concat(event.transaction.from)); 
+  if(uPool == null) {
+    let userPool = new UserPool(pID.concat(event.transaction.from));
+    userPool.lendedPool = pID;
+    userPool.user = event.transaction.from;
+    userPool.save();
+  }
+  // uPool.amountLended += event.params.amount;
 
   user!.totalLended = user!.totalLended.plus(event.params.amount);
   user!.save();
