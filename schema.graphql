@@ -187,7 +187,7 @@ type BorrowerPool @entity {
   borrowedPool: Pool!
 }
 
-type Subscription @entity {
+type ComputeSubscription @entity {
   id: Bytes!
   subscriptionId: BigInt!
   blockTimestamp: BigInt!
@@ -198,7 +198,7 @@ type Subscription @entity {
 
 type SubscriptionResponse @entity {
   id: Bytes!
-  subscription: Subscription!
+  subscription: ComputeSubscription!
   output: Bytes!
   input: Bytes!
   proof: Bytes!

@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: polygon-amoy
+    network: sepolia
     source:
       address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
       abi: QiroFactory
-      startBlock: 7664034
+      startBlock: 6012072
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -39,17 +39,17 @@ dataSources:
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
-    network: polygon-amoy
+    network: sepolia
     source:
-      address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
+      address: "0xe053DF33562600A21c5bD587892d01dc6A0E49D2"
       abi: Coordinator
-      startBlock: 7664034
+      startBlock: 6012072
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Subscription
+        - ComputeSubscription
         - SubscriptionResponses
       abis:
         - name: Coordinator
@@ -63,7 +63,7 @@ dataSources:
 templates:
   - name: Operator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: sepolia
     source:
       abi: WhitelistOperator
     mapping:
@@ -86,7 +86,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: sepolia
     source:
       abi: Shelf
     mapping:
