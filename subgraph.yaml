@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xb8D2F76d68790207807CBfBdc1f97666790F3Ebc"
+      address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
       abi: QiroFactory
-      startBlock: 5860463
+      startBlock: 7664034
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -27,10 +27,39 @@ dataSources:
           file: ./abis/QiroFactory.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
+        - name: Shelf
+          file: ./abis/Shelf.json
+        - name: Tranche
+          file: ./abis/Tranche.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
       file: ./src/qiro-factory.ts
+  - kind: ethereum
+    name: Coordinator
+    network: polygon-amoy
+    source:
+      address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
+      abi: Coordinator
+      startBlock: 7664034
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Subscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: ./abis/Coordinator.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: ./src/coordinator.ts
 templates:
   - name: Operator
     kind: ethereum/contract

@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xb8D2F76d68790207807CBfBdc1f97666790F3Ebc"
+      address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
       abi: QiroFactory
-      startBlock: 5860463
+      startBlock: 7664034
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -27,6 +27,12 @@ dataSources:
           file: QiroFactory/abis/QiroFactory.json
         - name: WhitelistOperator
           file: QiroFactory/abis/WhitelistOperator.json
+        - name: Shelf
+          file: QiroFactory/abis/Shelf.json
+        - name: Tranche
+          file: QiroFactory/abis/Tranche.json
+        - name: ERC20
+          file: QiroFactory/abis/ERC20.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed

@@ -817,6 +817,19 @@ export class Pool extends Entity {
     this.set("capitalFormationPeriodEnd", Value.fromBigInt(value));
   }
 
+  get nextExpectedRepayment(): BigInt {
+    let value = this.get("nextExpectedRepayment");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set nextExpectedRepayment(value: BigInt) {
+    this.set("nextExpectedRepayment", Value.fromBigInt(value));
+  }
+
   get blockNumber(): BigInt {
     let value = this.get("blockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1012,6 +1025,32 @@ export class Tranche extends Entity {
 
   set tokenPrice(value: BigInt) {
     this.set("tokenPrice", Value.fromBigInt(value));
+  }
+
+  get tokenName(): string {
+    let value = this.get("tokenName");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set tokenName(value: string) {
+    this.set("tokenName", Value.fromString(value));
+  }
+
+  get tokenSymbol(): string {
+    let value = this.get("tokenSymbol");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set tokenSymbol(value: string) {
+    this.set("tokenSymbol", Value.fromString(value));
   }
 
   get blockTimestamp(): BigInt {
@@ -2039,6 +2078,232 @@ export class BorrowerPool extends Entity {
   }
 }
 
+export class Subscription extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Subscription entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type Subscription must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("Subscription", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): Subscription | null {
+    return changetype<Subscription | null>(
+      store.get_in_block("Subscription", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): Subscription | null {
+    return changetype<Subscription | null>(
+      store.get("Subscription", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get subscriptionId(): BigInt {
+    let value = this.get("subscriptionId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set subscriptionId(value: BigInt) {
+    this.set("subscriptionId", Value.fromBigInt(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+
+  get subscriptionResponses(): SubscriptionResponseLoader {
+    return new SubscriptionResponseLoader(
+      "Subscription",
+      this.get("id")!.toBytes().toHexString(),
+      "subscriptionResponses",
+    );
+  }
+}
+
+export class SubscriptionResponse extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SubscriptionResponse entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type SubscriptionResponse must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("SubscriptionResponse", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): SubscriptionResponse | null {
+    return changetype<SubscriptionResponse | null>(
+      store.get_in_block("SubscriptionResponse", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): SubscriptionResponse | null {
+    return changetype<SubscriptionResponse | null>(
+      store.get("SubscriptionResponse", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get subscription(): Bytes {
+    let value = this.get("subscription");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set subscription(value: Bytes) {
+    this.set("subscription", Value.fromBytes(value));
+  }
+
+  get output(): Bytes {
+    let value = this.get("output");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set output(value: Bytes) {
+    this.set("output", Value.fromBytes(value));
+  }
+
+  get input(): Bytes {
+    let value = this.get("input");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set input(value: Bytes) {
+    this.set("input", Value.fromBytes(value));
+  }
+
+  get proof(): Bytes {
+    let value = this.get("proof");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set proof(value: Bytes) {
+    this.set("proof", Value.fromBytes(value));
+  }
+
+  get nodeAddress(): Bytes {
+    let value = this.get("nodeAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set nodeAddress(value: Bytes) {
+    this.set("nodeAddress", Value.fromBytes(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
+
 export class UserPoolLoader extends Entity {
   _entity: string;
   _field: string;
@@ -2072,5 +2337,23 @@ export class BorrowerPoolLoader extends Entity {
   load(): BorrowerPool[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<BorrowerPool[]>(value);
+  }
+}
+
+export class SubscriptionResponseLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): SubscriptionResponse[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<SubscriptionResponse[]>(value);
   }
 }

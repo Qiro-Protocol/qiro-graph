@@ -68,6 +68,7 @@ type Pool @entity(immutable: false) {
   interestRepaid: BigInt! # uint256
   capitalFormationPeriod: BigInt! # uint256
   capitalFormationPeriodEnd: BigInt! # uint256
+  nextExpectedRepayment: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -84,6 +85,8 @@ type Tranche @entity(immutable: false) {
   totalBalance: BigInt!
   totalTokenSupply: BigInt!
   tokenPrice: BigInt!
+  tokenName: String!
+  tokenSymbol: String!
   blockTimestamp: BigInt!
 }
 
@@ -176,7 +179,6 @@ type UserPool @entity{
   id: Bytes!
   user: User!
   lendedPool: Pool!
-
 }
 
 type BorrowerPool @entity{

@@ -15,16 +15,24 @@ import {
   User,
   BorrowerPool,
 } from "../../generated/schema";
-import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigInt,
+  bigInt,
+  ByteArray,
+  Bytes,
+  log,
+} from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
-
+import { Shelf } from "../../generated/templates/Shelf/Shelf";
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.poolId = event.params.poolId;
   entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
   entity.save();
 
   updatePoolStatus(event.params.poolId, "ACTIVE");
@@ -38,9 +46,24 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
     new BigInt(0)
   );
 
-  let user = User.load(event.params.borrower);
+  let user = User.load(event.transaction.from);
   user!.isBorrower = true;
+  user!.totalBorrowed = user!.totalBorrowed.plus(event.params.principalAmount);
   user!.save();
+  let pID = Bytes.fromByteArray(
+    crypto.keccak256(ByteArray.fromBigInt(event.params.poolId))
+  );
+  // map pool and borrower, for user to
+  let userPool = new BorrowerPool(pID.concat(event.transaction.from));
+  userPool.borrowedPool = pID;
+  userPool.user = event.transaction.from;
+  userPool.save();
+
+  let pool = Pool.load(pID);
+  let shelf = Shelf.bind(Address.fromBytes(pool!.shelf));
+  let str = shelf.expectedRepaymentAmount().value0;
+  pool!.nextExpectedRepayment = str;
+  pool!.save()
 }
 
 export function handleLoanEnded(event: LoanEndedEvent): void {
@@ -49,10 +72,10 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   );
   entity.poolId = event.params.poolId;
   entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
   entity.save();
 
   updatePoolStatus(event.params.poolId, "ENDED");
-  
 }
 
 export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
@@ -61,6 +84,8 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   );
   entity.poolId = event.params.poolId;
   entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.amountWithdrawn = event.params.currencyAmount;
   entity.save();
 
   let pID = Bytes.fromByteArray(
@@ -73,7 +98,7 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
     ]);
     return;
   }
-  pool.save()
+  pool.save();
   updatePoolBalance(
     event.params.poolId,
     pool.totalBalance.minus(event.params.currencyAmount)
@@ -87,17 +112,6 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
     event.transaction.value,
     event.params.currencyAmount
   );
-
-  let user = User.load(event.transaction.from);
-  user!.isBorrower = true;
-  user!.totalBorrowed = user!.totalBorrowed.plus(event.params.currencyAmount)
-  user!.save();
-
-  // map pool and borrower, for user to 
-  let userPool = new BorrowerPool(pID.concat(event.transaction.from));
-  userPool.borrowedPool = pID;
-  userPool.user = event.transaction.from;
-  userPool.save();
 }
 
 export function handleLoanRepayed(event: LoanRepayedEvent): void {
@@ -106,6 +120,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   );
   entity.poolId = event.params.poolId;
   entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.amountRepayed = event.params.currencyAmount;
   entity.save();
 
   let pID = Bytes.fromByteArray(
@@ -119,6 +135,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     ]);
     return;
   }
+  pool.nextExpectedRepayment = event.params.nextExpectedRepaymentAmount;
   updatePoolBalance(
     event.params.poolId,
     pool.totalBalance.plus(event.params.currencyAmount)
@@ -134,7 +151,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   );
 
   let user = User.load(event.transaction.from);
-  user!.totalRepayed = event.params.totalRepayedAmount
+  user!.totalRepayed = event.params.totalRepayedAmount;
   user!.save();
 }
 
