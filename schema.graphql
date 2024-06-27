@@ -206,3 +206,23 @@ type SubscriptionResponse @entity {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type MonitoringSubscription @entity {
+  id: Bytes!
+  subscriptionId: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  subscriptionResponses: [MonitoringResponse!]!
+    @derivedFrom(field: "subscription")
+}
+
+type MonitoringResponse @entity {
+  id: Bytes!
+  subscription: MonitoringSubscription!
+  output: Bytes!
+  input: Bytes!
+  proof: Bytes!
+  nodeAddress: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

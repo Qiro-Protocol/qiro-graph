@@ -10,6 +10,68 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class NodeActivated extends ethereum.Event {
+  get params(): NodeActivated__Params {
+    return new NodeActivated__Params(this);
+  }
+}
+
+export class NodeActivated__Params {
+  _event: NodeActivated;
+
+  constructor(event: NodeActivated) {
+    this._event = event;
+  }
+
+  get node(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class NodeDeactivated extends ethereum.Event {
+  get params(): NodeDeactivated__Params {
+    return new NodeDeactivated__Params(this);
+  }
+}
+
+export class NodeDeactivated__Params {
+  _event: NodeDeactivated;
+
+  constructor(event: NodeDeactivated) {
+    this._event = event;
+  }
+
+  get node(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class NodeRegistered extends ethereum.Event {
+  get params(): NodeRegistered__Params {
+    return new NodeRegistered__Params(this);
+  }
+}
+
+export class NodeRegistered__Params {
+  _event: NodeRegistered;
+
+  constructor(event: NodeRegistered) {
+    this._event = event;
+  }
+
+  get node(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get registerer(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get cooldownStart(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class SubscriptionCancelled extends ethereum.Event {
   get params(): SubscriptionCancelled__Params {
     return new SubscriptionCancelled__Params(this);
@@ -68,6 +130,31 @@ export class SubscriptionFulfilled__Params {
   }
 }
 
+export class Coordinator__createSubscriptionDelegateeResult {
+  value0: BigInt;
+  value1: boolean;
+
+  constructor(value0: BigInt, value1: boolean) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromBoolean(this.value1));
+    return map;
+  }
+
+  getValue0(): BigInt {
+    return this.value0;
+  }
+
+  getValue1(): boolean {
+    return this.value1;
+  }
+}
+
 export class Coordinator__createSubscriptionDelegateeInputSubStruct extends ethereum.Tuple {
   get owner(): Address {
     return this[0].toAddress();
@@ -89,28 +176,20 @@ export class Coordinator__createSubscriptionDelegateeInputSubStruct extends ethe
     return this[4].toI32();
   }
 
-  get containerId(): Bytes {
-    return this[5].toBytes();
+  get maxGasPrice(): BigInt {
+    return this[5].toBigInt();
   }
 
-  get lazy(): boolean {
-    return this[6].toBoolean();
+  get maxGasLimit(): BigInt {
+    return this[6].toBigInt();
   }
 
-  get verifier(): Address {
-    return this[7].toAddress();
+  get containerId(): string {
+    return this[7].toString();
   }
 
-  get paymentAmount(): BigInt {
-    return this[8].toBigInt();
-  }
-
-  get paymentToken(): Address {
-    return this[9].toAddress();
-  }
-
-  get wallet(): Address {
-    return this[10].toAddress();
+  get inputs(): Bytes {
+    return this[8].toBytes();
   }
 }
 
@@ -182,87 +261,193 @@ export class Coordinator__eip712DomainResult {
   }
 }
 
-export class Coordinator__getSubscriptionResultValue0Struct extends ethereum.Tuple {
-  get owner(): Address {
-    return this[0].toAddress();
-  }
+export class Coordinator__nodeInfoResult {
+  value0: i32;
+  value1: BigInt;
 
-  get activeAt(): BigInt {
-    return this[1].toBigInt();
-  }
-
-  get period(): BigInt {
-    return this[2].toBigInt();
-  }
-
-  get frequency(): BigInt {
-    return this[3].toBigInt();
-  }
-
-  get redundancy(): i32 {
-    return this[4].toI32();
-  }
-
-  get containerId(): Bytes {
-    return this[5].toBytes();
-  }
-
-  get lazy(): boolean {
-    return this[6].toBoolean();
-  }
-
-  get verifier(): Address {
-    return this[7].toAddress();
-  }
-
-  get paymentAmount(): BigInt {
-    return this[8].toBigInt();
-  }
-
-  get paymentToken(): Address {
-    return this[9].toAddress();
-  }
-
-  get wallet(): Address {
-    return this[10].toAddress();
-  }
-}
-
-export class Coordinator__proofRequestsResult {
-  value0: BigInt;
-  value1: Address;
-  value2: BigInt;
-
-  constructor(value0: BigInt, value1: Address, value2: BigInt) {
+  constructor(value0: i32, value1: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
-    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set(
+      "value0",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0)),
+    );
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
 
-  getExpiry(): BigInt {
+  getStatus(): i32 {
     return this.value0;
   }
 
-  getNodeWallet(): Address {
+  getCooldownStart(): BigInt {
+    return this.value1;
+  }
+}
+
+export class Coordinator__subscriptionsResult {
+  value0: Address;
+  value1: BigInt;
+  value2: BigInt;
+  value3: BigInt;
+  value4: i32;
+  value5: BigInt;
+  value6: BigInt;
+  value7: string;
+  value8: Bytes;
+
+  constructor(
+    value0: Address,
+    value1: BigInt,
+    value2: BigInt,
+    value3: BigInt,
+    value4: i32,
+    value5: BigInt,
+    value6: BigInt,
+    value7: string,
+    value8: Bytes,
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
+    this.value5 = value5;
+    this.value6 = value6;
+    this.value7 = value7;
+    this.value8 = value8;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set(
+      "value4",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value4)),
+    );
+    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
+    map.set("value6", ethereum.Value.fromUnsignedBigInt(this.value6));
+    map.set("value7", ethereum.Value.fromString(this.value7));
+    map.set("value8", ethereum.Value.fromBytes(this.value8));
+    return map;
+  }
+
+  getOwner(): Address {
+    return this.value0;
+  }
+
+  getActiveAt(): BigInt {
     return this.value1;
   }
 
-  getConsumerEscrowed(): BigInt {
+  getPeriod(): BigInt {
     return this.value2;
+  }
+
+  getFrequency(): BigInt {
+    return this.value3;
+  }
+
+  getRedundancy(): i32 {
+    return this.value4;
+  }
+
+  getMaxGasPrice(): BigInt {
+    return this.value5;
+  }
+
+  getMaxGasLimit(): BigInt {
+    return this.value6;
+  }
+
+  getContainerId(): string {
+    return this.value7;
+  }
+
+  getInputs(): Bytes {
+    return this.value8;
   }
 }
 
 export class Coordinator extends ethereum.SmartContract {
   static bind(address: Address): Coordinator {
     return new Coordinator("Coordinator", address);
+  }
+
+  DELEGATEE_OVERHEAD_CACHED_WEI(): BigInt {
+    let result = super.call(
+      "DELEGATEE_OVERHEAD_CACHED_WEI",
+      "DELEGATEE_OVERHEAD_CACHED_WEI():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_DELEGATEE_OVERHEAD_CACHED_WEI(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "DELEGATEE_OVERHEAD_CACHED_WEI",
+      "DELEGATEE_OVERHEAD_CACHED_WEI():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  DELEGATEE_OVERHEAD_CREATE_WEI(): BigInt {
+    let result = super.call(
+      "DELEGATEE_OVERHEAD_CREATE_WEI",
+      "DELEGATEE_OVERHEAD_CREATE_WEI():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_DELEGATEE_OVERHEAD_CREATE_WEI(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "DELEGATEE_OVERHEAD_CREATE_WEI",
+      "DELEGATEE_OVERHEAD_CREATE_WEI():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  DELIVERY_OVERHEAD_WEI(): BigInt {
+    let result = super.call(
+      "DELIVERY_OVERHEAD_WEI",
+      "DELIVERY_OVERHEAD_WEI():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_DELIVERY_OVERHEAD_WEI(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "DELIVERY_OVERHEAD_WEI",
+      "DELIVERY_OVERHEAD_WEI():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   EIP712_NAME(): string {
@@ -299,30 +484,41 @@ export class Coordinator extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
+  cooldown(): BigInt {
+    let result = super.call("cooldown", "cooldown():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_cooldown(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("cooldown", "cooldown():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   createSubscription(
     containerId: string,
+    inputs: Bytes,
+    maxGasPrice: BigInt,
+    maxGasLimit: BigInt,
     frequency: BigInt,
     period: BigInt,
     redundancy: i32,
-    lazy: boolean,
-    paymentToken: Address,
-    paymentAmount: BigInt,
-    wallet: Address,
-    verifier: Address,
   ): BigInt {
     let result = super.call(
       "createSubscription",
-      "createSubscription(string,uint32,uint32,uint16,bool,address,uint256,address,address):(uint32)",
+      "createSubscription(string,bytes,uint48,uint32,uint32,uint32,uint16):(uint32)",
       [
         ethereum.Value.fromString(containerId),
+        ethereum.Value.fromBytes(inputs),
+        ethereum.Value.fromUnsignedBigInt(maxGasPrice),
+        ethereum.Value.fromUnsignedBigInt(maxGasLimit),
         ethereum.Value.fromUnsignedBigInt(frequency),
         ethereum.Value.fromUnsignedBigInt(period),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(redundancy)),
-        ethereum.Value.fromBoolean(lazy),
-        ethereum.Value.fromAddress(paymentToken),
-        ethereum.Value.fromUnsignedBigInt(paymentAmount),
-        ethereum.Value.fromAddress(wallet),
-        ethereum.Value.fromAddress(verifier),
       ],
     );
 
@@ -331,28 +527,24 @@ export class Coordinator extends ethereum.SmartContract {
 
   try_createSubscription(
     containerId: string,
+    inputs: Bytes,
+    maxGasPrice: BigInt,
+    maxGasLimit: BigInt,
     frequency: BigInt,
     period: BigInt,
     redundancy: i32,
-    lazy: boolean,
-    paymentToken: Address,
-    paymentAmount: BigInt,
-    wallet: Address,
-    verifier: Address,
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "createSubscription",
-      "createSubscription(string,uint32,uint32,uint16,bool,address,uint256,address,address):(uint32)",
+      "createSubscription(string,bytes,uint48,uint32,uint32,uint32,uint16):(uint32)",
       [
         ethereum.Value.fromString(containerId),
+        ethereum.Value.fromBytes(inputs),
+        ethereum.Value.fromUnsignedBigInt(maxGasPrice),
+        ethereum.Value.fromUnsignedBigInt(maxGasLimit),
         ethereum.Value.fromUnsignedBigInt(frequency),
         ethereum.Value.fromUnsignedBigInt(period),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(redundancy)),
-        ethereum.Value.fromBoolean(lazy),
-        ethereum.Value.fromAddress(paymentToken),
-        ethereum.Value.fromUnsignedBigInt(paymentAmount),
-        ethereum.Value.fromAddress(wallet),
-        ethereum.Value.fromAddress(verifier),
       ],
     );
     if (result.reverted) {
@@ -369,10 +561,10 @@ export class Coordinator extends ethereum.SmartContract {
     v: i32,
     r: Bytes,
     s: Bytes,
-  ): BigInt {
+  ): Coordinator__createSubscriptionDelegateeResult {
     let result = super.call(
       "createSubscriptionDelegatee",
-      "createSubscriptionDelegatee(uint32,uint32,(address,uint32,uint32,uint32,uint16,bytes32,bool,address,uint256,address,address),uint8,bytes32,bytes32):(uint32)",
+      "createSubscriptionDelegatee(uint32,uint32,(address,uint32,uint32,uint32,uint16,uint48,uint32,string,bytes),uint8,bytes32,bytes32):(uint32,bool)",
       [
         ethereum.Value.fromUnsignedBigInt(nonce),
         ethereum.Value.fromUnsignedBigInt(expiry),
@@ -383,7 +575,10 @@ export class Coordinator extends ethereum.SmartContract {
       ],
     );
 
-    return result[0].toBigInt();
+    return new Coordinator__createSubscriptionDelegateeResult(
+      result[0].toBigInt(),
+      result[1].toBoolean(),
+    );
   }
 
   try_createSubscriptionDelegatee(
@@ -393,10 +588,10 @@ export class Coordinator extends ethereum.SmartContract {
     v: i32,
     r: Bytes,
     s: Bytes,
-  ): ethereum.CallResult<BigInt> {
+  ): ethereum.CallResult<Coordinator__createSubscriptionDelegateeResult> {
     let result = super.tryCall(
       "createSubscriptionDelegatee",
-      "createSubscriptionDelegatee(uint32,uint32,(address,uint32,uint32,uint32,uint16,bytes32,bool,address,uint256,address,address),uint8,bytes32,bytes32):(uint32)",
+      "createSubscriptionDelegatee(uint32,uint32,(address,uint32,uint32,uint32,uint16,uint48,uint32,string,bytes),uint8,bytes32,bytes32):(uint32,bool)",
       [
         ethereum.Value.fromUnsignedBigInt(nonce),
         ethereum.Value.fromUnsignedBigInt(expiry),
@@ -410,7 +605,12 @@ export class Coordinator extends ethereum.SmartContract {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(
+      new Coordinator__createSubscriptionDelegateeResult(
+        value[0].toBigInt(),
+        value[1].toBoolean(),
+      ),
+    );
   }
 
   delegateCreatedIds(param0: Bytes): BigInt {
@@ -473,39 +673,6 @@ export class Coordinator extends ethereum.SmartContract {
         value[4].toAddress(),
         value[5].toBytes(),
         value[6].toBigIntArray(),
-      ),
-    );
-  }
-
-  getSubscription(
-    subscriptionId: BigInt,
-  ): Coordinator__getSubscriptionResultValue0Struct {
-    let result = super.call(
-      "getSubscription",
-      "getSubscription(uint32):((address,uint32,uint32,uint32,uint16,bytes32,bool,address,uint256,address,address))",
-      [ethereum.Value.fromUnsignedBigInt(subscriptionId)],
-    );
-
-    return changetype<Coordinator__getSubscriptionResultValue0Struct>(
-      result[0].toTuple(),
-    );
-  }
-
-  try_getSubscription(
-    subscriptionId: BigInt,
-  ): ethereum.CallResult<Coordinator__getSubscriptionResultValue0Struct> {
-    let result = super.tryCall(
-      "getSubscription",
-      "getSubscription(uint32):((address,uint32,uint32,uint32,uint16,bytes32,bool,address,uint256,address,address))",
-      [ethereum.Value.fromUnsignedBigInt(subscriptionId)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      changetype<Coordinator__getSubscriptionResultValue0Struct>(
-        value[0].toTuple(),
       ),
     );
   }
@@ -580,6 +747,32 @@ export class Coordinator extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  nodeInfo(param0: Address): Coordinator__nodeInfoResult {
+    let result = super.call("nodeInfo", "nodeInfo(address):(uint8,uint32)", [
+      ethereum.Value.fromAddress(param0),
+    ]);
+
+    return new Coordinator__nodeInfoResult(
+      result[0].toI32(),
+      result[1].toBigInt(),
+    );
+  }
+
+  try_nodeInfo(
+    param0: Address,
+  ): ethereum.CallResult<Coordinator__nodeInfoResult> {
+    let result = super.tryCall("nodeInfo", "nodeInfo(address):(uint8,uint32)", [
+      ethereum.Value.fromAddress(param0),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Coordinator__nodeInfoResult(value[0].toI32(), value[1].toBigInt()),
+    );
+  }
+
   nodeResponded(param0: Bytes): boolean {
     let result = super.call("nodeResponded", "nodeResponded(bytes32):(bool)", [
       ethereum.Value.fromFixedBytes(param0),
@@ -599,41 +792,6 @@ export class Coordinator extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  proofRequests(param0: Bytes): Coordinator__proofRequestsResult {
-    let result = super.call(
-      "proofRequests",
-      "proofRequests(bytes32):(uint32,address,uint256)",
-      [ethereum.Value.fromFixedBytes(param0)],
-    );
-
-    return new Coordinator__proofRequestsResult(
-      result[0].toBigInt(),
-      result[1].toAddress(),
-      result[2].toBigInt(),
-    );
-  }
-
-  try_proofRequests(
-    param0: Bytes,
-  ): ethereum.CallResult<Coordinator__proofRequestsResult> {
-    let result = super.tryCall(
-      "proofRequests",
-      "proofRequests(bytes32):(uint32,address,uint256)",
-      [ethereum.Value.fromFixedBytes(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new Coordinator__proofRequestsResult(
-        value[0].toBigInt(),
-        value[1].toAddress(),
-        value[2].toBigInt(),
-      ),
-    );
   }
 
   redundancyCount(param0: Bytes): i32 {
@@ -658,34 +816,77 @@ export class Coordinator extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toI32());
   }
-}
 
-export class ConstructorCall extends ethereum.Call {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
+  subscriptions(param0: BigInt): Coordinator__subscriptionsResult {
+    let result = super.call(
+      "subscriptions",
+      "subscriptions(uint32):(address,uint32,uint32,uint32,uint16,uint48,uint32,string,bytes)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
+
+    return new Coordinator__subscriptionsResult(
+      result[0].toAddress(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+      result[3].toBigInt(),
+      result[4].toI32(),
+      result[5].toBigInt(),
+      result[6].toBigInt(),
+      result[7].toString(),
+      result[8].toBytes(),
+    );
   }
 
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
+  try_subscriptions(
+    param0: BigInt,
+  ): ethereum.CallResult<Coordinator__subscriptionsResult> {
+    let result = super.tryCall(
+      "subscriptions",
+      "subscriptions(uint32):(address,uint32,uint32,uint32,uint16,uint48,uint32,string,bytes)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Coordinator__subscriptionsResult(
+        value[0].toAddress(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+        value[3].toBigInt(),
+        value[4].toI32(),
+        value[5].toBigInt(),
+        value[6].toBigInt(),
+        value[7].toString(),
+        value[8].toBytes(),
+      ),
+    );
   }
 }
 
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
+export class ActivateNodeCall extends ethereum.Call {
+  get inputs(): ActivateNodeCall__Inputs {
+    return new ActivateNodeCall__Inputs(this);
+  }
 
-  constructor(call: ConstructorCall) {
+  get outputs(): ActivateNodeCall__Outputs {
+    return new ActivateNodeCall__Outputs(this);
+  }
+}
+
+export class ActivateNodeCall__Inputs {
+  _call: ActivateNodeCall;
+
+  constructor(call: ActivateNodeCall) {
     this._call = call;
   }
-
-  get registry(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
 }
 
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
+export class ActivateNodeCall__Outputs {
+  _call: ActivateNodeCall;
 
-  constructor(call: ConstructorCall) {
+  constructor(call: ActivateNodeCall) {
     this._call = call;
   }
 }
@@ -741,36 +942,28 @@ export class CreateSubscriptionCall__Inputs {
     return this._call.inputValues[0].value.toString();
   }
 
-  get frequency(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+  get inputs(): Bytes {
+    return this._call.inputValues[1].value.toBytes();
   }
 
-  get period(): BigInt {
+  get maxGasPrice(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 
+  get maxGasLimit(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get frequency(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
+  }
+
+  get period(): BigInt {
+    return this._call.inputValues[5].value.toBigInt();
+  }
+
   get redundancy(): i32 {
-    return this._call.inputValues[3].value.toI32();
-  }
-
-  get lazy(): boolean {
-    return this._call.inputValues[4].value.toBoolean();
-  }
-
-  get paymentToken(): Address {
-    return this._call.inputValues[5].value.toAddress();
-  }
-
-  get paymentAmount(): BigInt {
-    return this._call.inputValues[6].value.toBigInt();
-  }
-
-  get wallet(): Address {
-    return this._call.inputValues[7].value.toAddress();
-  }
-
-  get verifier(): Address {
-    return this._call.inputValues[8].value.toAddress();
+    return this._call.inputValues[6].value.toI32();
   }
 }
 
@@ -840,6 +1033,10 @@ export class CreateSubscriptionDelegateeCall__Outputs {
   get value0(): BigInt {
     return this._call.outputValues[0].value.toBigInt();
   }
+
+  get value1(): boolean {
+    return this._call.outputValues[1].value.toBoolean();
+  }
 }
 
 export class CreateSubscriptionDelegateeCallSubStruct extends ethereum.Tuple {
@@ -863,28 +1060,46 @@ export class CreateSubscriptionDelegateeCallSubStruct extends ethereum.Tuple {
     return this[4].toI32();
   }
 
-  get containerId(): Bytes {
-    return this[5].toBytes();
+  get maxGasPrice(): BigInt {
+    return this[5].toBigInt();
   }
 
-  get lazy(): boolean {
-    return this[6].toBoolean();
+  get maxGasLimit(): BigInt {
+    return this[6].toBigInt();
   }
 
-  get verifier(): Address {
-    return this[7].toAddress();
+  get containerId(): string {
+    return this[7].toString();
   }
 
-  get paymentAmount(): BigInt {
-    return this[8].toBigInt();
+  get inputs(): Bytes {
+    return this[8].toBytes();
+  }
+}
+
+export class DeactivateNodeCall extends ethereum.Call {
+  get inputs(): DeactivateNodeCall__Inputs {
+    return new DeactivateNodeCall__Inputs(this);
   }
 
-  get paymentToken(): Address {
-    return this[9].toAddress();
+  get outputs(): DeactivateNodeCall__Outputs {
+    return new DeactivateNodeCall__Outputs(this);
   }
+}
 
-  get wallet(): Address {
-    return this[10].toAddress();
+export class DeactivateNodeCall__Inputs {
+  _call: DeactivateNodeCall;
+
+  constructor(call: DeactivateNodeCall) {
+    this._call = call;
+  }
+}
+
+export class DeactivateNodeCall__Outputs {
+  _call: DeactivateNodeCall;
+
+  constructor(call: DeactivateNodeCall) {
+    this._call = call;
   }
 }
 
@@ -923,10 +1138,6 @@ export class DeliverComputeCall__Inputs {
 
   get proof(): Bytes {
     return this._call.inputValues[4].value.toBytes();
-  }
-
-  get nodeWallet(): Address {
-    return this._call.inputValues[5].value.toAddress();
   }
 }
 
@@ -996,10 +1207,6 @@ export class DeliverComputeDelegateeCall__Inputs {
   get proof(): Bytes {
     return this._call.inputValues[9].value.toBytes();
   }
-
-  get nodeWallet(): Address {
-    return this._call.inputValues[10].value.toAddress();
-  }
 }
 
 export class DeliverComputeDelegateeCall__Outputs {
@@ -1031,69 +1238,49 @@ export class DeliverComputeDelegateeCallSubStruct extends ethereum.Tuple {
     return this[4].toI32();
   }
 
-  get containerId(): Bytes {
-    return this[5].toBytes();
+  get maxGasPrice(): BigInt {
+    return this[5].toBigInt();
   }
 
-  get lazy(): boolean {
-    return this[6].toBoolean();
+  get maxGasLimit(): BigInt {
+    return this[6].toBigInt();
   }
 
-  get verifier(): Address {
-    return this[7].toAddress();
+  get containerId(): string {
+    return this[7].toString();
   }
 
-  get paymentAmount(): BigInt {
-    return this[8].toBigInt();
-  }
-
-  get paymentToken(): Address {
-    return this[9].toAddress();
-  }
-
-  get wallet(): Address {
-    return this[10].toAddress();
+  get inputs(): Bytes {
+    return this[8].toBytes();
   }
 }
 
-export class FinalizeProofVerificationCall extends ethereum.Call {
-  get inputs(): FinalizeProofVerificationCall__Inputs {
-    return new FinalizeProofVerificationCall__Inputs(this);
+export class RegisterNodeCall extends ethereum.Call {
+  get inputs(): RegisterNodeCall__Inputs {
+    return new RegisterNodeCall__Inputs(this);
   }
 
-  get outputs(): FinalizeProofVerificationCall__Outputs {
-    return new FinalizeProofVerificationCall__Outputs(this);
+  get outputs(): RegisterNodeCall__Outputs {
+    return new RegisterNodeCall__Outputs(this);
   }
 }
 
-export class FinalizeProofVerificationCall__Inputs {
-  _call: FinalizeProofVerificationCall;
+export class RegisterNodeCall__Inputs {
+  _call: RegisterNodeCall;
 
-  constructor(call: FinalizeProofVerificationCall) {
+  constructor(call: RegisterNodeCall) {
     this._call = call;
   }
 
-  get subscriptionId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get interval(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
   get node(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get valid(): boolean {
-    return this._call.inputValues[3].value.toBoolean();
+    return this._call.inputValues[0].value.toAddress();
   }
 }
 
-export class FinalizeProofVerificationCall__Outputs {
-  _call: FinalizeProofVerificationCall;
+export class RegisterNodeCall__Outputs {
+  _call: RegisterNodeCall;
 
-  constructor(call: FinalizeProofVerificationCall) {
+  constructor(call: RegisterNodeCall) {
     this._call = call;
   }
 }
