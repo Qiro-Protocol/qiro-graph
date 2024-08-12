@@ -190,10 +190,15 @@ type BorrowerPool @entity {
 type ComputeSubscription @entity {
   id: Bytes!
   subscriptionId: BigInt!
+  tokenId: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   subscriptionResponses: [SubscriptionResponse!]!
     @derivedFrom(field: "subscription")
+  average_prob_of_default: BigInt!
+  average_loss_given_default: BigInt!
+  average_risk_score: BigInt!
+  average_exposure_at_default: BigInt!
 }
 
 type SubscriptionResponse @entity {
@@ -203,6 +208,11 @@ type SubscriptionResponse @entity {
   input: Bytes!
   proof: Bytes!
   nodeAddress: Bytes!
+  isProofVerifiedOnchain: Boolean!
+  prob_of_default: BigInt!
+  loss_given_default: BigInt!
+  risk_score: BigInt!
+  exposure_at_default: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }

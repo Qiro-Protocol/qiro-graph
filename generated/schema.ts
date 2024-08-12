@@ -2134,6 +2134,19 @@ export class ComputeSubscription extends Entity {
     this.set("subscriptionId", Value.fromBigInt(value));
   }
 
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
+  }
+
   get blockTimestamp(): BigInt {
     let value = this.get("blockTimestamp");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2166,6 +2179,58 @@ export class ComputeSubscription extends Entity {
       this.get("id")!.toBytes().toHexString(),
       "subscriptionResponses",
     );
+  }
+
+  get average_prob_of_default(): BigInt {
+    let value = this.get("average_prob_of_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set average_prob_of_default(value: BigInt) {
+    this.set("average_prob_of_default", Value.fromBigInt(value));
+  }
+
+  get average_loss_given_default(): BigInt {
+    let value = this.get("average_loss_given_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set average_loss_given_default(value: BigInt) {
+    this.set("average_loss_given_default", Value.fromBigInt(value));
+  }
+
+  get average_risk_score(): BigInt {
+    let value = this.get("average_risk_score");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set average_risk_score(value: BigInt) {
+    this.set("average_risk_score", Value.fromBigInt(value));
+  }
+
+  get average_exposure_at_default(): BigInt {
+    let value = this.get("average_exposure_at_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set average_exposure_at_default(value: BigInt) {
+    this.set("average_exposure_at_default", Value.fromBigInt(value));
   }
 }
 
@@ -2275,6 +2340,71 @@ export class SubscriptionResponse extends Entity {
 
   set nodeAddress(value: Bytes) {
     this.set("nodeAddress", Value.fromBytes(value));
+  }
+
+  get isProofVerifiedOnchain(): boolean {
+    let value = this.get("isProofVerifiedOnchain");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isProofVerifiedOnchain(value: boolean) {
+    this.set("isProofVerifiedOnchain", Value.fromBoolean(value));
+  }
+
+  get prob_of_default(): BigInt {
+    let value = this.get("prob_of_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set prob_of_default(value: BigInt) {
+    this.set("prob_of_default", Value.fromBigInt(value));
+  }
+
+  get loss_given_default(): BigInt {
+    let value = this.get("loss_given_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set loss_given_default(value: BigInt) {
+    this.set("loss_given_default", Value.fromBigInt(value));
+  }
+
+  get risk_score(): BigInt {
+    let value = this.get("risk_score");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set risk_score(value: BigInt) {
+    this.set("risk_score", Value.fromBigInt(value));
+  }
+
+  get exposure_at_default(): BigInt {
+    let value = this.get("exposure_at_default");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set exposure_at_default(value: BigInt) {
+    this.set("exposure_at_default", Value.fromBigInt(value));
   }
 
   get blockTimestamp(): BigInt {

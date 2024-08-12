@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: sepolia
     source:
-      address: "0xF7D4862Bf3856566B27427903430D600d44208B5"
+      address: "0x5aa22d57E91B1a8C5798CA187a12921087d8ee55"
       abi: QiroFactory
-      startBlock: 6012072
+      startBlock: 6421237
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -41,9 +41,9 @@ dataSources:
     name: Coordinator
     network: sepolia
     source:
-      address: "0xe053DF33562600A21c5bD587892d01dc6A0E49D2"
+      address: "0xBA4132229e49A466afFA976f2850C3eDF4E01615"
       abi: Coordinator
-      startBlock: 6012072
+      startBlock: 6404540
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -54,11 +54,34 @@ dataSources:
       abis:
         - name: Coordinator
           file: ./abis/Coordinator.json
+        - name: RitualConsumer
+          file: ./abis/RitualConsumer.json
       eventHandlers:
         - event: SubscriptionCreated(indexed uint32)
           handler: handleSubscriptionCreated
         - event: SubscriptionFulfilled(indexed uint32,indexed address)
           handler: handleSubscriptionFulfilled
+      file: ./src/coordinator.ts
+  - kind: ethereum
+    name: RitualConsumer
+    network: sepolia
+    source:
+      address: "0xbECC91666573987E07D668174beeDe169d2f3097"
+      abi: RitualConsumer
+      startBlock: 6283091
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: RitualConsumer
+          file: ./abis/RitualConsumer.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
       file: ./src/coordinator.ts
 templates:
   - name: Operator
