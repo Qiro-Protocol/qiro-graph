@@ -23,10 +23,10 @@ import { crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Coordinator } from "../generated/Coordinator/Coordinator";
 
 let coordinatorAddress = Address.fromString(
-  "0xBA4132229e49A466afFA976f2850C3eDF4E01615"
+  "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
 );
 let consumerAddress = Address.fromString(
-  "0x8F80036c01692df40e1aC95Bda71d0E2ea6da6a6"
+  "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
 );
 
 export function handleSubscriptionCreated(
@@ -50,10 +50,13 @@ export function handleSubscriptionCreated(
     // entity.tokenId = consumer.subIdToTokenId(event.params.id);
     // } catch (error) {
     const tokenId = consumer.try_subIdToTokenId(event.params.id);
-    if (tokenId.reverted == false) {
+    if (!tokenId.reverted && tokenId.value.notEqual(new BigInt(0))) {
       entity.tokenId = tokenId.value;
+      log.info("Valid tokenId found for subId {} {}", [entity.tokenId.toString(), event.params.id.toString()]);
     } else {
-      entity.tokenId = new BigInt(0);
+      // Set default tokenId to 1 if tokenId is 0 or the call reverted
+      entity.tokenId = BigInt.fromString("1");
+      log.info("Default tokenId set to 1 for subId {} {}", [entity.tokenId.toString(), event.params.id.toString()]);
     }
     // }
     entity.average_prob_of_default = new BigInt(0);

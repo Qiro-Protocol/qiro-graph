@@ -136,10 +136,10 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     return;
   }
   pool.nextExpectedRepayment = event.params.nextExpectedRepaymentAmount;
-  updatePoolBalance(
-    event.params.poolId,
-    pool.totalBalance.plus(event.params.currencyAmount)
-  );
+  pool.totalBalance = pool.totalBalance.plus(event.params.currencyAmount);
+  pool.totalRepaid = pool.totalRepaid.plus(event.params.currencyAmount);
+  // @Todo totalTokenSupply and tokenPrice change too
+  pool.save();
 
   createTxnAndUpdateUser(
     "BORROWER_REPAY",

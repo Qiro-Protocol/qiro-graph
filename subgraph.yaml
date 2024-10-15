@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: sepolia
+    network: polygon-amoy
     source:
-      address: "0x5aa22d57E91B1a8C5798CA187a12921087d8ee55"
+      address: "0xCEC6b4EdFb77e65D6d0f966F3CE088973e3B0183"
       abi: QiroFactory
-      startBlock: 6421237
+      startBlock: 13163879
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -39,11 +39,11 @@ dataSources:
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
-    network: sepolia
+    network: polygon-amoy
     source:
-      address: "0xBA4132229e49A466afFA976f2850C3eDF4E01615"
+      address: "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
       abi: Coordinator
-      startBlock: 6404540
+      startBlock: 11914748
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -64,11 +64,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: RitualConsumer
-    network: sepolia
+    network: polygon-amoy
     source:
-      address: "0xbECC91666573987E07D668174beeDe169d2f3097"
+      address: "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
       abi: RitualConsumer
-      startBlock: 6283091
+      startBlock: 12966945
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -86,7 +86,7 @@ dataSources:
 templates:
   - name: Operator
     kind: ethereum/contract
-    network: sepolia
+    network: polygon-amoy
     source:
       abi: WhitelistOperator
     mapping:
@@ -109,7 +109,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: sepolia
+    network: polygon-amoy
     source:
       abi: Shelf
     mapping:
