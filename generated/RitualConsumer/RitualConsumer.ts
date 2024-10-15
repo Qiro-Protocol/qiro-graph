@@ -47,70 +47,78 @@ export class Rely__Params {
 }
 
 export class RitualConsumer__subIdToAggregatedResultResult {
-  value0: BigInt;
+  value0: boolean;
   value1: BigInt;
   value2: BigInt;
-  value3: BigInt;
-  value4: BigInt;
-  value5: BigInt;
-  value6: boolean;
+  value3: boolean;
 
   constructor(
-    value0: BigInt,
+    value0: boolean,
     value1: BigInt,
     value2: BigInt,
-    value3: BigInt,
-    value4: BigInt,
-    value5: BigInt,
-    value6: boolean,
+    value3: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
-    this.value4 = value4;
-    this.value5 = value5;
-    this.value6 = value6;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromBoolean(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromBoolean(this.value3));
+    return map;
+  }
+
+  getPushInferenceAvgToNftContract(): boolean {
+    return this.value0;
+  }
+
+  getResponseCount(): BigInt {
+    return this.value1;
+  }
+
+  getRequestedCount(): BigInt {
+    return this.value2;
+  }
+
+  getFulfilled(): boolean {
+    return this.value3;
+  }
+}
+
+export class RitualConsumer__subIdToAllInferencesResult {
+  value0: BigInt;
+  value1: Address;
+  value2: Bytes;
+
+  constructor(value0: BigInt, value1: Address, value2: Bytes) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
-    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
-    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
-    map.set("value6", ethereum.Value.fromBoolean(this.value6));
+    map.set("value1", ethereum.Value.fromAddress(this.value1));
+    map.set("value2", ethereum.Value.fromFixedBytes(this.value2));
     return map;
   }
 
-  getProb_of_default(): BigInt {
+  getInterval(): BigInt {
     return this.value0;
   }
 
-  getLoss_given_default(): BigInt {
+  getNode(): Address {
     return this.value1;
   }
 
-  getRisk_score(): BigInt {
+  getContainerId(): Bytes {
     return this.value2;
-  }
-
-  getExposure_at_default(): BigInt {
-    return this.value3;
-  }
-
-  getResponseCount(): BigInt {
-    return this.value4;
-  }
-
-  getRequestedCount(): BigInt {
-    return this.value5;
-  }
-
-  getFulfilled(): boolean {
-    return this.value6;
   }
 }
 
@@ -119,21 +127,142 @@ export class RitualConsumer extends ethereum.SmartContract {
     return new RitualConsumer("RitualConsumer", address);
   }
 
-  isUnderwritingPending(): boolean {
+  computeResponsePendingSubId(): BigInt {
     let result = super.call(
-      "isUnderwritingPending",
-      "isUnderwritingPending():(bool)",
+      "computeResponsePendingSubId",
+      "computeResponsePendingSubId():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_computeResponsePendingSubId(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "computeResponsePendingSubId",
+      "computeResponsePendingSubId():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getContainerInputs(
+    subscriptionId: BigInt,
+    interval: BigInt,
+    timestamp: BigInt,
+    caller: Address,
+  ): Bytes {
+    let result = super.call(
+      "getContainerInputs",
+      "getContainerInputs(uint32,uint32,uint32,address):(bytes)",
+      [
+        ethereum.Value.fromUnsignedBigInt(subscriptionId),
+        ethereum.Value.fromUnsignedBigInt(interval),
+        ethereum.Value.fromUnsignedBigInt(timestamp),
+        ethereum.Value.fromAddress(caller),
+      ],
+    );
+
+    return result[0].toBytes();
+  }
+
+  try_getContainerInputs(
+    subscriptionId: BigInt,
+    interval: BigInt,
+    timestamp: BigInt,
+    caller: Address,
+  ): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "getContainerInputs",
+      "getContainerInputs(uint32,uint32,uint32,address):(bytes)",
+      [
+        ethereum.Value.fromUnsignedBigInt(subscriptionId),
+        ethereum.Value.fromUnsignedBigInt(interval),
+        ethereum.Value.fromUnsignedBigInt(timestamp),
+        ethereum.Value.fromAddress(caller),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  hasDeliveredCompute(param0: Address, param1: BigInt): boolean {
+    let result = super.call(
+      "hasDeliveredCompute",
+      "hasDeliveredCompute(address,uint256):(bool)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_hasDeliveredCompute(
+    param0: Address,
+    param1: BigInt,
+  ): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "hasDeliveredCompute",
+      "hasDeliveredCompute(address,uint256):(bool)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isComputeResponsePending(): boolean {
+    let result = super.call(
+      "isComputeResponsePending",
+      "isComputeResponsePending():(bool)",
       [],
     );
 
     return result[0].toBoolean();
   }
 
-  try_isUnderwritingPending(): ethereum.CallResult<boolean> {
+  try_isComputeResponsePending(): ethereum.CallResult<boolean> {
     let result = super.tryCall(
-      "isUnderwritingPending",
-      "isUnderwritingPending():(bool)",
+      "isComputeResponsePending",
+      "isComputeResponsePending():(bool)",
       [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isProofVerified(param0: Bytes): boolean {
+    let result = super.call(
+      "isProofVerified",
+      "isProofVerified(bytes):(bool)",
+      [ethereum.Value.fromBytes(param0)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isProofVerified(param0: Bytes): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isProofVerified",
+      "isProofVerified(bytes):(bool)",
+      [ethereum.Value.fromBytes(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -199,48 +328,104 @@ export class RitualConsumer extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  requestUnderwrite(
+  nodeWeights(param0: Address): BigInt {
+    let result = super.call("nodeWeights", "nodeWeights(address):(uint256)", [
+      ethereum.Value.fromAddress(param0),
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_nodeWeights(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "nodeWeights",
+      "nodeWeights(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  proofFileArweaveTxn(param0: Bytes): string {
+    let result = super.call(
+      "proofFileArweaveTxn",
+      "proofFileArweaveTxn(bytes):(string)",
+      [ethereum.Value.fromBytes(param0)],
+    );
+
+    return result[0].toString();
+  }
+
+  try_proofFileArweaveTxn(param0: Bytes): ethereum.CallResult<string> {
+    let result = super.tryCall(
+      "proofFileArweaveTxn",
+      "proofFileArweaveTxn(bytes):(string)",
+      [ethereum.Value.fromBytes(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  requestCompute(
     model: string,
     inputs: Bytes,
-    maxGasPrice: BigInt,
-    maxGasLimit: BigInt,
     redundancy: i32,
+    paymentToken: Address,
+    paymentAmount: BigInt,
+    wallet: Address,
+    verifier: Address,
     tokenId: BigInt,
+    pushInferenceAvgToNftContract: boolean,
   ): BigInt {
     let result = super.call(
-      "requestUnderwrite",
-      "requestUnderwrite(string,bytes,uint48,uint32,uint16,uint256):(uint256)",
+      "requestCompute",
+      "requestCompute(string,bytes,uint16,address,uint256,address,address,uint256,bool):(uint256)",
       [
         ethereum.Value.fromString(model),
         ethereum.Value.fromBytes(inputs),
-        ethereum.Value.fromUnsignedBigInt(maxGasPrice),
-        ethereum.Value.fromUnsignedBigInt(maxGasLimit),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(redundancy)),
+        ethereum.Value.fromAddress(paymentToken),
+        ethereum.Value.fromUnsignedBigInt(paymentAmount),
+        ethereum.Value.fromAddress(wallet),
+        ethereum.Value.fromAddress(verifier),
         ethereum.Value.fromUnsignedBigInt(tokenId),
+        ethereum.Value.fromBoolean(pushInferenceAvgToNftContract),
       ],
     );
 
     return result[0].toBigInt();
   }
 
-  try_requestUnderwrite(
+  try_requestCompute(
     model: string,
     inputs: Bytes,
-    maxGasPrice: BigInt,
-    maxGasLimit: BigInt,
     redundancy: i32,
+    paymentToken: Address,
+    paymentAmount: BigInt,
+    wallet: Address,
+    verifier: Address,
     tokenId: BigInt,
+    pushInferenceAvgToNftContract: boolean,
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "requestUnderwrite",
-      "requestUnderwrite(string,bytes,uint48,uint32,uint16,uint256):(uint256)",
+      "requestCompute",
+      "requestCompute(string,bytes,uint16,address,uint256,address,address,uint256,bool):(uint256)",
       [
         ethereum.Value.fromString(model),
         ethereum.Value.fromBytes(inputs),
-        ethereum.Value.fromUnsignedBigInt(maxGasPrice),
-        ethereum.Value.fromUnsignedBigInt(maxGasLimit),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(redundancy)),
+        ethereum.Value.fromAddress(paymentToken),
+        ethereum.Value.fromUnsignedBigInt(paymentAmount),
+        ethereum.Value.fromAddress(wallet),
+        ethereum.Value.fromAddress(verifier),
         ethereum.Value.fromUnsignedBigInt(tokenId),
+        ethereum.Value.fromBoolean(pushInferenceAvgToNftContract),
       ],
     );
     if (result.reverted) {
@@ -278,18 +463,15 @@ export class RitualConsumer extends ethereum.SmartContract {
   ): RitualConsumer__subIdToAggregatedResultResult {
     let result = super.call(
       "subIdToAggregatedResult",
-      "subIdToAggregatedResult(uint256):(uint256,uint256,uint256,uint256,uint256,uint256,bool)",
+      "subIdToAggregatedResult(uint256):(bool,uint256,uint256,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
     return new RitualConsumer__subIdToAggregatedResultResult(
-      result[0].toBigInt(),
+      result[0].toBoolean(),
       result[1].toBigInt(),
       result[2].toBigInt(),
-      result[3].toBigInt(),
-      result[4].toBigInt(),
-      result[5].toBigInt(),
-      result[6].toBoolean(),
+      result[3].toBoolean(),
     );
   }
 
@@ -298,7 +480,7 @@ export class RitualConsumer extends ethereum.SmartContract {
   ): ethereum.CallResult<RitualConsumer__subIdToAggregatedResultResult> {
     let result = super.tryCall(
       "subIdToAggregatedResult",
-      "subIdToAggregatedResult(uint256):(uint256,uint256,uint256,uint256,uint256,uint256,bool)",
+      "subIdToAggregatedResult(uint256):(bool,uint256,uint256,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
@@ -307,13 +489,55 @@ export class RitualConsumer extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(
       new RitualConsumer__subIdToAggregatedResultResult(
-        value[0].toBigInt(),
+        value[0].toBoolean(),
         value[1].toBigInt(),
         value[2].toBigInt(),
-        value[3].toBigInt(),
-        value[4].toBigInt(),
-        value[5].toBigInt(),
-        value[6].toBoolean(),
+        value[3].toBoolean(),
+      ),
+    );
+  }
+
+  subIdToAllInferences(
+    param0: BigInt,
+    param1: BigInt,
+  ): RitualConsumer__subIdToAllInferencesResult {
+    let result = super.call(
+      "subIdToAllInferences",
+      "subIdToAllInferences(uint256,uint256):(uint256,address,bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
+
+    return new RitualConsumer__subIdToAllInferencesResult(
+      result[0].toBigInt(),
+      result[1].toAddress(),
+      result[2].toBytes(),
+    );
+  }
+
+  try_subIdToAllInferences(
+    param0: BigInt,
+    param1: BigInt,
+  ): ethereum.CallResult<RitualConsumer__subIdToAllInferencesResult> {
+    let result = super.tryCall(
+      "subIdToAllInferences",
+      "subIdToAllInferences(uint256,uint256):(uint256,address,bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new RitualConsumer__subIdToAllInferencesResult(
+        value[0].toBigInt(),
+        value[1].toAddress(),
+        value[2].toBytes(),
       ),
     );
   }
@@ -341,22 +565,14 @@ export class RitualConsumer extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  underwritingPendingSubId(): BigInt {
-    let result = super.call(
-      "underwritingPendingSubId",
-      "underwritingPendingSubId():(uint256)",
-      [],
-    );
+  totalWeight(): BigInt {
+    let result = super.call("totalWeight", "totalWeight():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_underwritingPendingSubId(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "underwritingPendingSubId",
-      "underwritingPendingSubId():(uint256)",
-      [],
-    );
+  try_totalWeight(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("totalWeight", "totalWeight():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -364,36 +580,27 @@ export class RitualConsumer extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  underwritten(param0: Address, param1: BigInt): boolean {
+  verifierAddress(param0: BigInt): Address {
     let result = super.call(
-      "underwritten",
-      "underwritten(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
+      "verifierAddress",
+      "verifierAddress(uint256):(address)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
-    return result[0].toBoolean();
+    return result[0].toAddress();
   }
 
-  try_underwritten(
-    param0: Address,
-    param1: BigInt,
-  ): ethereum.CallResult<boolean> {
+  try_verifierAddress(param0: BigInt): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "underwritten",
-      "underwritten(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
+      "verifierAddress",
+      "verifierAddress(uint256):(address)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   wards(param0: Address): BigInt {
@@ -433,12 +640,8 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get coordinator(): Address {
+  get registry(): Address {
     return this._call.inputValues[0].value.toAddress();
-  }
-
-  get deployer(): Address {
-    return this._call.inputValues[1].value.toAddress();
   }
 }
 
@@ -501,12 +704,8 @@ export class CloseWindowCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get tokenId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
   get pushDataOrNot(): boolean {
-    return this._call.inputValues[2].value.toBoolean();
+    return this._call.inputValues[1].value.toBoolean();
   }
 }
 
@@ -592,6 +791,14 @@ export class RawReceiveComputeCall__Inputs {
   get proof(): Bytes {
     return this._call.inputValues[6].value.toBytes();
   }
+
+  get containerId(): Bytes {
+    return this._call.inputValues[7].value.toBytes();
+  }
+
+  get index(): BigInt {
+    return this._call.inputValues[8].value.toBigInt();
+  }
 }
 
 export class RawReceiveComputeCall__Outputs {
@@ -632,20 +839,20 @@ export class RelyCall__Outputs {
   }
 }
 
-export class RequestUnderwriteCall extends ethereum.Call {
-  get inputs(): RequestUnderwriteCall__Inputs {
-    return new RequestUnderwriteCall__Inputs(this);
+export class RequestComputeCall extends ethereum.Call {
+  get inputs(): RequestComputeCall__Inputs {
+    return new RequestComputeCall__Inputs(this);
   }
 
-  get outputs(): RequestUnderwriteCall__Outputs {
-    return new RequestUnderwriteCall__Outputs(this);
+  get outputs(): RequestComputeCall__Outputs {
+    return new RequestComputeCall__Outputs(this);
   }
 }
 
-export class RequestUnderwriteCall__Inputs {
-  _call: RequestUnderwriteCall;
+export class RequestComputeCall__Inputs {
+  _call: RequestComputeCall;
 
-  constructor(call: RequestUnderwriteCall) {
+  constructor(call: RequestComputeCall) {
     this._call = call;
   }
 
@@ -657,27 +864,39 @@ export class RequestUnderwriteCall__Inputs {
     return this._call.inputValues[1].value.toBytes();
   }
 
-  get maxGasPrice(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get maxGasLimit(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
   get redundancy(): i32 {
-    return this._call.inputValues[4].value.toI32();
+    return this._call.inputValues[2].value.toI32();
+  }
+
+  get paymentToken(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+
+  get paymentAmount(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
+  }
+
+  get wallet(): Address {
+    return this._call.inputValues[5].value.toAddress();
+  }
+
+  get verifier(): Address {
+    return this._call.inputValues[6].value.toAddress();
   }
 
   get tokenId(): BigInt {
-    return this._call.inputValues[5].value.toBigInt();
+    return this._call.inputValues[7].value.toBigInt();
+  }
+
+  get pushInferenceAvgToNftContract(): boolean {
+    return this._call.inputValues[8].value.toBoolean();
   }
 }
 
-export class RequestUnderwriteCall__Outputs {
-  _call: RequestUnderwriteCall;
+export class RequestComputeCall__Outputs {
+  _call: RequestComputeCall;
 
-  constructor(call: RequestUnderwriteCall) {
+  constructor(call: RequestComputeCall) {
     this._call = call;
   }
 
@@ -712,6 +931,40 @@ export class UpdateNFTFeedCall__Outputs {
   _call: UpdateNFTFeedCall;
 
   constructor(call: UpdateNFTFeedCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateNodeWeightCall extends ethereum.Call {
+  get inputs(): UpdateNodeWeightCall__Inputs {
+    return new UpdateNodeWeightCall__Inputs(this);
+  }
+
+  get outputs(): UpdateNodeWeightCall__Outputs {
+    return new UpdateNodeWeightCall__Outputs(this);
+  }
+}
+
+export class UpdateNodeWeightCall__Inputs {
+  _call: UpdateNodeWeightCall;
+
+  constructor(call: UpdateNodeWeightCall) {
+    this._call = call;
+  }
+
+  get node(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get weight(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class UpdateNodeWeightCall__Outputs {
+  _call: UpdateNodeWeightCall;
+
+  constructor(call: UpdateNodeWeightCall) {
     this._call = call;
   }
 }

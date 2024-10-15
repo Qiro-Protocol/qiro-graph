@@ -39,9 +39,8 @@ export function handleSubscriptionCreated(
   let coordinator = Coordinator.bind(coordinatorAddress);
   let consumer = RitualConsumer.bind(consumerAddress);
   let nameOfContainer = coordinator
-    .subscriptions(event.params.id)
-    .getContainerId();
-  if (nameOfContainer == "qiro-policy") {
+    .getSubscription(event.params.id).containerId;
+  if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
     let entity = new ComputeSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
@@ -65,7 +64,7 @@ export function handleSubscriptionCreated(
     entity.average_exposure_at_default = new BigInt(0);
     //   entity.subscriptionResponses = []
     entity.save();
-  } else if (nameOfContainer == "qiro-monitoring-policy") {
+  } else if (nameOfContainer == Bytes.fromUTF8("qiro-monitoring-policy")) {
     let entity = new MonitoringSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
@@ -88,14 +87,11 @@ export function handleSubscriptionFulfilled(
   let consumer = RitualConsumer.bind(consumerAddress);
 
   let nameOfContainer = coordinator
-    .subscriptions(event.params.id)
-    .getContainerId();
-  log.info("nameOfContainer: {}, {}", [
-    nameOfContainer,
-    event.params.id.toString(),
-  ]);
+    .getSubscription(event.params.id)
+    .containerId;
+   log.info("nameOfContainer", []);
   
-  if (nameOfContainer == "qiro-policy") {
+  if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
         // Load the subscription
     let sub = ComputeSubscription.load(cID);
     // Check if the subscription exists
@@ -119,19 +115,19 @@ export function handleSubscriptionFulfilled(
     entity.save();
     const aggResult = consumer.try_subIdToAggregatedResult(event.params.id);
     if (aggResult.reverted == false) {
-      sub.average_prob_of_default = aggResult.value.getProb_of_default();
-      sub.average_loss_given_default = aggResult.value.getLoss_given_default();
-      sub.average_risk_score = aggResult.value.getRisk_score();
-      sub.average_exposure_at_default =
-        aggResult.value.getExposure_at_default();
-      sub.save();
+      // sub.average_prob_of_default = aggResult.value.value0
+      // sub.average_loss_given_default = aggResult.value.value1
+      // sub.average_risk_score = aggResult.value.value2
+      // sub.average_exposure_at_default =
+      //   aggResult.value.value3
+      // sub.save();
     } else {
       sub.average_prob_of_default = new BigInt(0);
       sub.average_loss_given_default = new BigInt(0);
       sub.average_risk_score = new BigInt(0);
       sub.average_exposure_at_default = new BigInt(0);
     }
-  } else if (nameOfContainer == "qiro-monitoring-policy") {
+  } else if (nameOfContainer == Bytes.fromUTF8("qiro-monitoring-policy")) {
     let entity = new MonitoringResponse(
       event.transaction.hash.concatI32(event.logIndex.toI32())
     );
