@@ -40,6 +40,7 @@ export function handleSubscriptionCreated(
   let consumer = RitualConsumer.bind(consumerAddress);
   let nameOfContainer = coordinator
     .getSubscription(event.params.id).containerId;
+  log.info("nameOfContainer", [nameOfContainer.toString()]);
   if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
     let entity = new ComputeSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
@@ -89,8 +90,7 @@ export function handleSubscriptionFulfilled(
   let nameOfContainer = coordinator
     .getSubscription(event.params.id)
     .containerId;
-   log.info("nameOfContainer", []);
-  
+  log.info("nameOfContainer", [nameOfContainer.toString()]);
   if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
         // Load the subscription
     let sub = ComputeSubscription.load(cID);

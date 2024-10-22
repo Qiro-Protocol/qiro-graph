@@ -1,42 +1,14 @@
 [
   {
-    "type": "function",
-    "name": "DELEGATEE_OVERHEAD_CACHED_WEI",
-    "inputs": [],
-    "outputs": [
+    "type": "constructor",
+    "inputs": [
       {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "registry",
+        "type": "address",
+        "internalType": "contract Registry"
       }
     ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "DELEGATEE_OVERHEAD_CREATE_WEI",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "DELIVERY_OVERHEAD_WEI",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -107,21 +79,6 @@
         "internalType": "string"
       },
       {
-        "name": "inputs",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "maxGasPrice",
-        "type": "uint48",
-        "internalType": "uint48"
-      },
-      {
-        "name": "maxGasLimit",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
         "name": "frequency",
         "type": "uint32",
         "internalType": "uint32"
@@ -135,6 +92,31 @@
         "name": "redundancy",
         "type": "uint16",
         "internalType": "uint16"
+      },
+      {
+        "name": "lazy",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "wallet",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verifier",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [
@@ -163,7 +145,7 @@
       {
         "name": "sub",
         "type": "tuple",
-        "internalType": "struct Coordinator.Subscription",
+        "internalType": "struct Subscription",
         "components": [
           {
             "name": "owner",
@@ -191,24 +173,34 @@
             "internalType": "uint16"
           },
           {
-            "name": "maxGasPrice",
-            "type": "uint48",
-            "internalType": "uint48"
-          },
-          {
-            "name": "maxGasLimit",
-            "type": "uint32",
-            "internalType": "uint32"
-          },
-          {
             "name": "containerId",
-            "type": "string",
-            "internalType": "string"
+            "type": "bytes32",
+            "internalType": "bytes32"
           },
           {
-            "name": "inputs",
-            "type": "bytes",
-            "internalType": "bytes"
+            "name": "lazy",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifier",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "paymentAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "wallet",
+            "type": "address",
+            "internalType": "address payable"
           }
         ]
       },
@@ -233,11 +225,6 @@
         "name": "",
         "type": "uint32",
         "internalType": "uint32"
-      },
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
       }
     ],
     "stateMutability": "nonpayable"
@@ -296,6 +283,11 @@
         "name": "proof",
         "type": "bytes",
         "internalType": "bytes"
+      },
+      {
+        "name": "nodeWallet",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -318,7 +310,7 @@
       {
         "name": "sub",
         "type": "tuple",
-        "internalType": "struct Coordinator.Subscription",
+        "internalType": "struct Subscription",
         "components": [
           {
             "name": "owner",
@@ -346,24 +338,34 @@
             "internalType": "uint16"
           },
           {
-            "name": "maxGasPrice",
-            "type": "uint48",
-            "internalType": "uint48"
-          },
-          {
-            "name": "maxGasLimit",
-            "type": "uint32",
-            "internalType": "uint32"
-          },
-          {
             "name": "containerId",
-            "type": "string",
-            "internalType": "string"
+            "type": "bytes32",
+            "internalType": "bytes32"
           },
           {
-            "name": "inputs",
-            "type": "bytes",
-            "internalType": "bytes"
+            "name": "lazy",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifier",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "paymentAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "wallet",
+            "type": "address",
+            "internalType": "address payable"
           }
         ]
       },
@@ -401,6 +403,11 @@
         "name": "proof",
         "type": "bytes",
         "internalType": "bytes"
+      },
+      {
+        "name": "nodeWallet",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -445,6 +452,110 @@
         "name": "extensions",
         "type": "uint256[]",
         "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "finalizeProofVerification",
+    "inputs": [
+      {
+        "name": "subscriptionId",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "interval",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "node",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "valid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getSubscription",
+    "inputs": [
+      {
+        "name": "subscriptionId",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct Subscription",
+        "components": [
+          {
+            "name": "owner",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "activeAt",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "period",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "frequency",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "redundancy",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "containerId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "lazy",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifier",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "paymentAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "wallet",
+            "type": "address",
+            "internalType": "address payable"
+          }
+        ]
       }
     ],
     "stateMutability": "view"
@@ -550,6 +661,35 @@
   },
   {
     "type": "function",
+    "name": "proofRequests",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "expiry",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "nodeWallet",
+        "type": "address",
+        "internalType": "contract Wallet"
+      },
+      {
+        "name": "consumerEscrowed",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "redundancyCount",
     "inputs": [
       {
@@ -582,59 +722,33 @@
   },
   {
     "type": "function",
-    "name": "subscriptions",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint32",
-        "internalType": "uint32"
-      }
-    ],
+    "name": "registry",
+    "inputs": [],
     "outputs": [
       {
-        "name": "owner",
+        "name": "",
         "type": "address",
-        "internalType": "address"
-      },
+        "internalType": "contract Registry"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "switchUseManager",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "useManager",
+    "inputs": [],
+    "outputs": [
       {
-        "name": "activeAt",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
-        "name": "period",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
-        "name": "frequency",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
-        "name": "redundancy",
-        "type": "uint16",
-        "internalType": "uint16"
-      },
-      {
-        "name": "maxGasPrice",
-        "type": "uint48",
-        "internalType": "uint48"
-      },
-      {
-        "name": "maxGasLimit",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
-        "name": "containerId",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "inputs",
-        "type": "bytes",
-        "internalType": "bytes"
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "stateMutability": "view"
@@ -748,22 +862,17 @@
   },
   {
     "type": "error",
-    "name": "GasLimitExceeded",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "GasPriceExceeded",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "IntervalCompleted",
     "inputs": []
   },
   {
     "type": "error",
     "name": "IntervalMismatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidWallet",
     "inputs": []
   },
   {
@@ -810,6 +919,16 @@
   },
   {
     "type": "error",
+    "name": "ProofRequestNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Reentrancy",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "SignatureExpired",
     "inputs": []
   },
@@ -831,6 +950,16 @@
   {
     "type": "error",
     "name": "SubscriptionNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnauthorizedVerifier",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnsupportedVerifierToken",
     "inputs": []
   }
 ]

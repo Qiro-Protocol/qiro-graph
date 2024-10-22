@@ -3,12 +3,7 @@
     "type": "constructor",
     "inputs": [
       {
-        "name": "coordinator",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "deployer",
+        "name": "registry",
         "type": "address",
         "internalType": "address"
       }
@@ -38,11 +33,6 @@
         "internalType": "uint256"
       },
       {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "pushDataOrNot",
         "type": "bool",
         "internalType": "bool"
@@ -50,6 +40,19 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "computeResponsePendingSubId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -66,8 +69,85 @@
   },
   {
     "type": "function",
-    "name": "isUnderwritingPending",
+    "name": "getContainerInputs",
+    "inputs": [
+      {
+        "name": "subscriptionId",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "interval",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasDeliveredCompute",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isComputeResponsePending",
     "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isProofVerified",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
     "outputs": [
       {
         "name": "",
@@ -124,6 +204,44 @@
   },
   {
     "type": "function",
+    "name": "nodeWeights",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "proofFileArweaveTxn",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "rawReceiveCompute",
     "inputs": [
       {
@@ -160,6 +278,16 @@
         "name": "proof",
         "type": "bytes",
         "internalType": "bytes"
+      },
+      {
+        "name": "containerId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -180,7 +308,7 @@
   },
   {
     "type": "function",
-    "name": "requestUnderwrite",
+    "name": "requestCompute",
     "inputs": [
       {
         "name": "model",
@@ -193,24 +321,39 @@
         "internalType": "bytes"
       },
       {
-        "name": "maxGasPrice",
-        "type": "uint48",
-        "internalType": "uint48"
-      },
-      {
-        "name": "maxGasLimit",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
         "name": "redundancy",
         "type": "uint16",
         "internalType": "uint16"
       },
       {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "wallet",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verifier",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
         "name": "tokenId",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "pushInferenceAvgToNftContract",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [
@@ -253,24 +396,9 @@
     ],
     "outputs": [
       {
-        "name": "prob_of_default",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "loss_given_default",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "risk_score",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "exposure_at_default",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "pushInferenceAvgToNftContract",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "responseCount",
@@ -286,6 +414,40 @@
         "name": "fulfilled",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "subIdToAllInferences",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "interval",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "node",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "containerId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "stateMutability": "view"
@@ -311,37 +473,13 @@
   },
   {
     "type": "function",
-    "name": "underwritingPendingSubId",
+    "name": "totalWeight",
     "inputs": [],
     "outputs": [
       {
         "name": "",
         "type": "uint256",
         "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "underwritten",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
       }
     ],
     "stateMutability": "view"
@@ -358,6 +496,43 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateNodeWeight",
+    "inputs": [
+      {
+        "name": "node",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "weight",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "verifierAddress",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
