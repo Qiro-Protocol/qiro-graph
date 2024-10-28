@@ -40,6 +40,16 @@
         "internalType": "uint16[2]",
         "name": "arrayFees",
         "type": "uint16[2]"
+      },
+      {
+        "internalType": "address",
+        "name": "_qiroFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_assetNFT",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -533,6 +543,11 @@
         "internalType": "uint256",
         "name": "pricipal",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lateFee",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -554,19 +569,6 @@
     "name": "file",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getInterestThisPeriod",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -603,14 +605,14 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "nftAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "nftTokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "takeFeeFromPrincipalOrNot",
+        "type": "bool"
       }
     ],
     "name": "init_borrow",
@@ -665,19 +667,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastUpdated",
-    "outputs": [
-      {
-        "internalType": "uint48",
-        "name": "",
-        "type": "uint48"
       }
     ],
     "stateMutability": "view",
@@ -763,6 +752,19 @@
   },
   {
     "inputs": [],
+    "name": "performanceFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "periodCount",
     "outputs": [
       {
@@ -808,6 +810,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "qiroFactory",
+    "outputs": [
+      {
+        "internalType": "contract QiroFactoryLike",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -887,6 +902,19 @@
     "name": "repay",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "riskScore",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1081,12 +1109,12 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "_registry",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "nft",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -1140,6 +1168,19 @@
   },
   {
     "inputs": [],
+    "name": "totalLateFeePaid",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "totalPrincipalRepayed",
     "outputs": [
       {
@@ -1154,6 +1195,19 @@
   {
     "inputs": [],
     "name": "totalRepayedAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalValue",
     "outputs": [
       {
         "internalType": "uint256",

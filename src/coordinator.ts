@@ -22,11 +22,17 @@ import {
 import { crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Coordinator } from "../generated/Coordinator/Coordinator";
 
+// let coordinatorAddress = Address.fromString(
+//   "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
+// );
+// let consumerAddress = Address.fromString(
+//   "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
+// );
 let coordinatorAddress = Address.fromString(
-  "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
+  "0xe1b9E1B4825991ECeE59F2d09F9233b8e393a4AB"
 );
 let consumerAddress = Address.fromString(
-  "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
+  "0xd7a7060EEdFf39406712943bA7ca7b7fac705187"
 );
 
 export function handleSubscriptionCreated(
@@ -38,10 +44,10 @@ export function handleSubscriptionCreated(
 
   let coordinator = Coordinator.bind(coordinatorAddress);
   let consumer = RitualConsumer.bind(consumerAddress);
-  let nameOfContainer = coordinator
-    .getSubscription(event.params.id).containerId;
-  log.info("nameOfContainer {}", [nameOfContainer.toString()]);
-    if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
+  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id)
+  // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
+  log.info("isComputeSub {}", [isComputeSub.value.getPushInferenceAvgToNftContract.toString()]);
+    if (!isComputeSub.reverted && isComputeSub.value.getPushInferenceAvgToNftContract() == true) {
     let entity = new ComputeSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
@@ -65,7 +71,7 @@ export function handleSubscriptionCreated(
     entity.average_exposure_at_default = new BigInt(0);
     //   entity.subscriptionResponses = []
     entity.save();
-  } else if (nameOfContainer == Bytes.fromUTF8("qiro-monitoring-policy")) {
+  } else {
     let entity = new MonitoringSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
@@ -78,7 +84,6 @@ export function handleSubscriptionCreated(
 export function handleSubscriptionFulfilled(
   event: SubscriptionFulfilledEvent
 ): void {
-  log.info("nameOfContainer: {}", ["staring sub fullfill handler"]);
 
   // Create a unique ID for the subscription
   let cID = Bytes.fromByteArray(
@@ -86,12 +91,10 @@ export function handleSubscriptionFulfilled(
   );
   let coordinator = Coordinator.bind(coordinatorAddress);
   let consumer = RitualConsumer.bind(consumerAddress);
-
-  let nameOfContainer = coordinator
-    .getSubscription(event.params.id)
-    .containerId;
-  log.info("nameOfContainer {}", [nameOfContainer.toString()]);
-  if (nameOfContainer == Bytes.fromUTF8("qiro-policy")) {
+  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id)
+  // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
+  log.info("isComputeSub {}", [isComputeSub.value.getPushInferenceAvgToNftContract.toString()]);
+    if (!isComputeSub.reverted && isComputeSub.value.getPushInferenceAvgToNftContract() == true) {
         // Load the subscription
     let sub = ComputeSubscription.load(cID);
     // Check if the subscription exists
@@ -127,7 +130,7 @@ export function handleSubscriptionFulfilled(
       sub.average_risk_score = new BigInt(0);
       sub.average_exposure_at_default = new BigInt(0);
     }
-  } else if (nameOfContainer == Bytes.fromUTF8("qiro-monitoring-policy")) {
+  } else {
     let entity = new MonitoringResponse(
       event.transaction.hash.concatI32(event.logIndex.toI32())
     );

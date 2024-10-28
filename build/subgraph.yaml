@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xCEC6b4EdFb77e65D6d0f966F3CE088973e3B0183"
+      address: "0x94c8cf3700bedDAbD8a0Bc6e329fdEdd4E335364"
       abi: QiroFactory
-      startBlock: 13163879
+      startBlock: 13731587
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -41,9 +41,9 @@ dataSources:
     name: Coordinator
     network: polygon-amoy
     source:
-      address: "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
+      address: "0xe1b9E1B4825991ECeE59F2d09F9233b8e393a4AB"
       abi: Coordinator
-      startBlock: 11914748
+      startBlock: 13718704
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -66,9 +66,9 @@ dataSources:
     name: RitualConsumer
     network: polygon-amoy
     source:
-      address: "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
+      address: "0xd7a7060EEdFf39406712943bA7ca7b7fac705187"
       abi: RitualConsumer
-      startBlock: 12966945
+      startBlock: 13718704
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
