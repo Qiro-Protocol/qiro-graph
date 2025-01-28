@@ -103,6 +103,30 @@
   },
   {
     "type": "function",
+    "name": "getResponseFromSubIdAndNode",
+    "inputs": [
+      {
+        "name": "subid",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "node",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "hasDeliveredCompute",
     "inputs": [
       {
@@ -448,6 +472,25 @@
         "name": "containerId",
         "type": "bytes32",
         "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "subIdToAvg",
+    "inputs": [
+      {
+        "name": "subid",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
       }
     ],
     "stateMutability": "view"

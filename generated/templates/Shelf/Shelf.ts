@@ -301,16 +301,19 @@ export class Shelf__compoundingResult {
 export class Shelf__expectedRepaymentAmountResult {
   value0: BigInt;
   value1: BigInt;
+  value2: BigInt;
 
-  constructor(value0: BigInt, value1: BigInt) {
+  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
+    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     return map;
   }
 
@@ -320,6 +323,10 @@ export class Shelf__expectedRepaymentAmountResult {
 
   getPricipal(): BigInt {
     return this.value1;
+  }
+
+  getLateFee(): BigInt {
+    return this.value2;
   }
 }
 
@@ -339,11 +346,11 @@ export class Shelf__tokenResult {
     return map;
   }
 
-  get_registry(): Address {
+  getValue0(): Address {
     return this.value0;
   }
 
-  getNft(): BigInt {
+  getValue1(): BigInt {
     return this.value1;
   }
 }
@@ -650,20 +657,21 @@ export class Shelf extends ethereum.SmartContract {
   expectedRepaymentAmount(): Shelf__expectedRepaymentAmountResult {
     let result = super.call(
       "expectedRepaymentAmount",
-      "expectedRepaymentAmount():(uint256,uint256)",
+      "expectedRepaymentAmount():(uint256,uint256,uint256)",
       [],
     );
 
     return new Shelf__expectedRepaymentAmountResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
+      result[2].toBigInt(),
     );
   }
 
   try_expectedRepaymentAmount(): ethereum.CallResult<Shelf__expectedRepaymentAmountResult> {
     let result = super.tryCall(
       "expectedRepaymentAmount",
-      "expectedRepaymentAmount():(uint256,uint256)",
+      "expectedRepaymentAmount():(uint256,uint256,uint256)",
       [],
     );
     if (result.reverted) {
@@ -674,31 +682,9 @@ export class Shelf extends ethereum.SmartContract {
       new Shelf__expectedRepaymentAmountResult(
         value[0].toBigInt(),
         value[1].toBigInt(),
+        value[2].toBigInt(),
       ),
     );
-  }
-
-  getInterestThisPeriod(): BigInt {
-    let result = super.call(
-      "getInterestThisPeriod",
-      "getInterestThisPeriod():(uint256)",
-      [],
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_getInterestThisPeriod(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "getInterestThisPeriod",
-      "getInterestThisPeriod():(uint256)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   gracePeriod(): BigInt {
@@ -819,21 +805,6 @@ export class Shelf extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  lastUpdated(): BigInt {
-    let result = super.call("lastUpdated", "lastUpdated():(uint48)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_lastUpdated(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("lastUpdated", "lastUpdated():(uint48)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   lateFeeInterestRate(): BigInt {
     let result = super.call(
       "lateFeeInterestRate",
@@ -932,6 +903,25 @@ export class Shelf extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  performanceFee(): BigInt {
+    let result = super.call("performanceFee", "performanceFee():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_performanceFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "performanceFee",
+      "performanceFee():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   periodCount(): BigInt {
     let result = super.call("periodCount", "periodCount():(uint256)", []);
 
@@ -1000,6 +990,21 @@ export class Shelf extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  qiroFactory(): Address {
+    let result = super.call("qiroFactory", "qiroFactory():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_qiroFactory(): ethereum.CallResult<Address> {
+    let result = super.tryCall("qiroFactory", "qiroFactory():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   qiroFeeCollector(): Address {
     let result = super.call(
       "qiroFeeCollector",
@@ -1056,6 +1061,21 @@ export class Shelf extends ethereum.SmartContract {
       ethereum.Value.fromUnsignedBigInt(x),
       ethereum.Value.fromUnsignedBigInt(y),
     ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  riskScore(): BigInt {
+    let result = super.call("riskScore", "riskScore():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_riskScore(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("riskScore", "riskScore():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1337,6 +1357,29 @@ export class Shelf extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  totalLateFeePaid(): BigInt {
+    let result = super.call(
+      "totalLateFeePaid",
+      "totalLateFeePaid():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalLateFeePaid(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalLateFeePaid",
+      "totalLateFeePaid():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   totalPrincipalRepayed(): BigInt {
     let result = super.call(
       "totalPrincipalRepayed",
@@ -1376,6 +1419,21 @@ export class Shelf extends ethereum.SmartContract {
       "totalRepayedAmount():(uint256)",
       [],
     );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  totalValue(): BigInt {
+    let result = super.call("totalValue", "totalValue():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_totalValue(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("totalValue", "totalValue():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1450,6 +1508,14 @@ export class ConstructorCall__Inputs {
 
   get arrayFees(): Array<i32> {
     return this._call.inputValues[7].value.toI32Array();
+  }
+
+  get _qiroFactory(): Address {
+    return this._call.inputValues[8].value.toAddress();
+  }
+
+  get _assetNFT(): Address {
+    return this._call.inputValues[9].value.toAddress();
   }
 }
 
@@ -1580,12 +1646,12 @@ export class Init_borrowCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get nftAddress(): Address {
-    return this._call.inputValues[1].value.toAddress();
+  get nftTokenId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 
-  get nftTokenId(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+  get takeFeeFromPrincipalOrNot(): boolean {
+    return this._call.inputValues[2].value.toBoolean();
   }
 }
 

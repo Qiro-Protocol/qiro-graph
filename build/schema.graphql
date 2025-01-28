@@ -169,11 +169,11 @@ type User @entity(immutable: false) {
   poolsBorrowedFrom: [BorrowerPool!]! @derivedFrom(field: "user")
   poolsLendedIn: [UserPool!] @derivedFrom(field: "user")
   totalLended: BigInt!
-  totalInterestEarned: BigInt!
+  totalRedeemed: BigInt!
   totalBorrowed: BigInt!
   totalRepayed: BigInt!
   transactionHistory: [Transaction!]!
-}
+  }
 
 type UserPool @entity {
   id: Bytes!

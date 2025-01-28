@@ -66,9 +66,10 @@ dataSources:
     name: RitualConsumer
     network: polygon-amoy
     source:
-      address: "0xd7a7060EEdFf39406712943bA7ca7b7fac705187"
+      address: "0x1fC88d1A69E3dE94315De4Cb74E16Df6F55624D0"
       abi: RitualConsumer
-      startBlock: 13718704
+      startBlock: 14174398
+
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

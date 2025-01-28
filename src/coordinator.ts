@@ -22,18 +22,19 @@ import {
 import { crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Coordinator } from "../generated/Coordinator/Coordinator";
 
-// let coordinatorAddress = Address.fromString(
-//   "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
-// );
-// let consumerAddress = Address.fromString(
-//   "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
-// );
 let coordinatorAddress = Address.fromString(
-  "0xe1b9E1B4825991ECeE59F2d09F9233b8e393a4AB"
+  "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
 );
 let consumerAddress = Address.fromString(
-  "0xd7a7060EEdFf39406712943bA7ca7b7fac705187"
+  "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
 );
+
+// let coordinatorAddress = Address.fromString(
+//   "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
+// );
+// let consumerAddress = Address.fromString(
+//   "0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1"
+// );
 
 export function handleSubscriptionCreated(
   event: SubscriptionCreatedEvent
@@ -42,12 +43,17 @@ export function handleSubscriptionCreated(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
 
-  let coordinator = Coordinator.bind(coordinatorAddress);
-  let consumer = RitualConsumer.bind(consumerAddress);
-  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id)
+  let coordinator = Coordinator.bind(event.address); // better
+  let consumer = RitualConsumer.bind(consumerAddress); // 
+  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
-  log.info("isComputeSub {}", [isComputeSub.value.getPushInferenceAvgToNftContract.toString()]);
-    if (!isComputeSub.reverted && isComputeSub.value.getPushInferenceAvgToNftContract() == true) {
+  log.info("isComputeSub {}", [
+    isComputeSub.value.getPushInferenceAvgToNftContract.toString(),
+  ]);
+  if (
+    !isComputeSub.reverted &&
+    isComputeSub.value.getPushInferenceAvgToNftContract() == true
+  ) {
     let entity = new ComputeSubscription(cID);
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
@@ -58,11 +64,17 @@ export function handleSubscriptionCreated(
     const tokenId = consumer.try_subIdToTokenId(event.params.id);
     if (!tokenId.reverted && tokenId.value.notEqual(new BigInt(0))) {
       entity.tokenId = tokenId.value;
-      log.info("Valid tokenId found for subId {} {}", [entity.tokenId.toString(), event.params.id.toString()]);
+      log.info("Valid tokenId found for subId {} {}", [
+        entity.tokenId.toString(),
+        event.params.id.toString(),
+      ]);
     } else {
       // Set default tokenId to 1 if tokenId is 0 or the call reverted
       entity.tokenId = BigInt.fromString("1");
-      log.info("Default tokenId set to 1 for subId {} {}", [entity.tokenId.toString(), event.params.id.toString()]);
+      log.info("Default tokenId set to 1 for subId {} {}", [
+        entity.tokenId.toString(),
+        event.params.id.toString(),
+      ]);
     }
     // }
     entity.average_prob_of_default = new BigInt(0);
@@ -84,18 +96,22 @@ export function handleSubscriptionCreated(
 export function handleSubscriptionFulfilled(
   event: SubscriptionFulfilledEvent
 ): void {
-
   // Create a unique ID for the subscription
   let cID = Bytes.fromByteArray(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
   let coordinator = Coordinator.bind(coordinatorAddress);
   let consumer = RitualConsumer.bind(consumerAddress);
-  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id)
+  let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
-  log.info("isComputeSub {}", [isComputeSub.value.getPushInferenceAvgToNftContract.toString()]);
-    if (!isComputeSub.reverted && isComputeSub.value.getPushInferenceAvgToNftContract() == true) {
-        // Load the subscription
+  log.info("isComputeSub {}", [
+    isComputeSub.value.getPushInferenceAvgToNftContract.toString(),
+  ]);
+  if (
+    !isComputeSub.reverted &&
+    isComputeSub.value.getPushInferenceAvgToNftContract() == true
+  ) {
+    // Load the subscription
     let sub = ComputeSubscription.load(cID);
     // Check if the subscription exists
     if (sub == null) {
@@ -111,26 +127,27 @@ export function handleSubscriptionFulfilled(
 
     entity.subscription = sub.id;
     entity.nodeAddress = event.params.node;
-    decodeInputsCompute(event.transaction.input, entity);
-    if(entity.proof != new Bytes(0)) {
+    let decodedresults = consumer.getResponseFromSubIdAndNode(
+      event.params.id,
+      event.params.node
+    );
+    entity.prob_of_default = decodedresults[0];
+    entity.loss_given_default = decodedresults[1];
+    entity.risk_score = decodedresults[2];
+    entity.exposure_at_default = decodedresults[3];
+    if (entity.proof != new Bytes(0)) {
       entity.isProofVerifiedOnchain = true;
     }
     entity.save();
-    const aggResult = consumer.try_subIdToAggregatedResult(event.params.id);
-    if (aggResult.reverted == false) {
-      // sub.average_prob_of_default = aggResult.value.value0
-      // sub.average_loss_given_default = aggResult.value.value1
-      // sub.average_risk_score = aggResult.value.value2
-      // sub.average_exposure_at_default =
-      //   aggResult.value.value3
-      // sub.save();
-    } else {
-      sub.average_prob_of_default = new BigInt(0);
-      sub.average_loss_given_default = new BigInt(0);
-      sub.average_risk_score = new BigInt(0);
-      sub.average_exposure_at_default = new BigInt(0);
-    }
+
+    // now update subscription
+    const avgArr = consumer.subIdToAvg(event.params.id);
+    sub.average_prob_of_default = avgArr[0];
+    sub.average_loss_given_default = avgArr[1];
+    sub.average_risk_score = avgArr[2];
+    sub.average_exposure_at_default = avgArr[3];
   } else {
+    // if monitoring subscription
     let entity = new MonitoringResponse(
       event.transaction.hash.concatI32(event.logIndex.toI32())
     );
@@ -194,124 +211,5 @@ function decodeInputsMonitoring(
     entity.save();
   }
 }
-function decodeInputsCompute(input: Bytes, entity: SubscriptionResponse): void {
-  // entity.tokenChainId = new BigInt(11155111);
-  // Assuming inputData is properly formatted, parse it
-  // First 4 bytes are function selector, so we skip them
-  const functionInput = input.subarray(4);
-  //prepend a "tuple" prefix (function params are arrays, not tuples)
-  const tuplePrefix = ByteArray.fromHexString(
-    "0x0000000000000000000000000000000000000000000000000000000000000020"
-  );
-  const functionInputAsTuple = new Uint8Array(
-    tuplePrefix.length + functionInput.length
-  );
-  //concat prefix & original input
-  functionInputAsTuple.set(tuplePrefix, 0);
-  functionInputAsTuple.set(functionInput, tuplePrefix.length);
 
-  const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
-  const decoded = ethereum.decode(
-    "(uint32,uint32,bytes,bytes,bytes)",
-    tupleInputBytes
-  );
-
-  if (decoded != null) {
-    const t = decoded.toTuple();
-    let input = t[2].toBytes(); // Convert to Bytes
-    let output = t[3].toBytes(); // Convert to Bytes
-    let proof = t[4].toBytes(); // Convert to Bytes
-    //   entity.input = Bytes.fromUint8Array(inputBytes); // Convert to Bytes
-    //   entity.output = Bytes.fromUint8Array(outputBytes); // Convert to Bytes
-    //   entity.proof = Bytes.fromUint8Array(proofBytes); // Convert to Bytes
-    entity.input = input;
-    entity.output = output;
-    entity.proof = proof
-    const decoded2 = ethereum.decode("(bytes,bytes)", output);
-    if (decoded2 != null) {
-      const t = decoded2.toTuple();
-      let rawOutput = t[0].toBytes();
-      let processedOutput = t[1].toBytes();
-
-      // Decode the raw output to get the uint256 array
-      const rawDecoded = ethereum.decode("uint256[]", rawOutput);
-
-      if (rawDecoded != null) {
-        const rawArray = rawDecoded.toArray();
-
-        // Assuming rawArray contains at least 4 elements, otherwise handle the error
-        if (rawArray.length >= 4) {
-          entity.prob_of_default = rawArray[0].toBigInt();
-          entity.loss_given_default = rawArray[1].toBigInt();
-          entity.risk_score = rawArray[2].toBigInt();
-          entity.exposure_at_default = rawArray[3].toBigInt();
-        } else {
-          log.error("Decoded rawArray does not contain enough elements.", []);
-          entity.prob_of_default = new BigInt(0);
-          entity.loss_given_default = new BigInt(0);
-          entity.risk_score = new BigInt(0);
-          entity.exposure_at_default = new BigInt(0);
-        }
-      } else {
-        log.error("Failed to decode rawOutput.", []);
-        entity.prob_of_default = new BigInt(0);
-        entity.loss_given_default = new BigInt(0);
-        entity.risk_score = new BigInt(0);
-        entity.exposure_at_default = new BigInt(0);
-      }
-      entity.save();
-    } else {
-      log.error("Decoded2 null hai", []);
-      entity.prob_of_default = new BigInt(0);
-      entity.loss_given_default = new BigInt(0);
-      entity.risk_score = new BigInt(0);
-      entity.exposure_at_default = new BigInt(0);
-    }
-  } else {
-    entity.input = new Bytes(0);
-    entity.output = new Bytes(0);
-    entity.proof = new Bytes(0);
-  }
-}
 export function handleRely(event: Rely): void {}
-
-// export function decodeSubscriptionFulfilled(input: Bytes): void {
-//   // First 4 bytes are the function selector, so skip them
-//   const functionInput = input.subarray(4);
-//   // Prepend a "tuple" prefix
-//   const tuplePrefix = Bytes.fromHexString(
-//     "0x0000000000000000000000000000000000000000000000000000000000000020"
-//   );
-//   const functionInputAsTuple = new Uint8Array(
-//     tuplePrefix.length + functionInput.length
-//   );
-
-//   // Concatenate prefix & original input
-//   functionInputAsTuple.set(tuplePrefix, 0);
-//   functionInputAsTuple.set(functionInput, tuplePrefix.length);
-
-//   const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
-//   const decoded = ethereum.decode("(bytes,bytes)", tupleInputBytes);
-
-//   if (decoded != null) {
-//     const t = decoded.toTuple();
-//     let rawOutput = t[0].toBytes();
-//     let processedOutput = t[1].toBytes();
-
-//     // Decode the raw output to get the uint256 array
-//     const rawDecoded = ethereum.decode("uint256[]", rawOutput);
-//     if (rawDecoded != null) {
-//       const rawArray = rawDecoded.toArray();
-//       const probOfDefault = rawArray[0].toBigInt();
-//       const lossGivenDefault = rawArray[1].toBigInt();
-//       const riskScore = rawArray[2].toBigInt();
-//       const exposureAtDefault = rawArray[3].toBigInt();
-
-//       // Print or use the extracted values
-//       log.info("Probability of Default: {}", [probOfDefault.toString()]);
-//       log.info("Loss Given Default: {}", [lossGivenDefault.toString()]);
-//       log.info("Risk Score: {}", [riskScore.toString()]);
-//       log.info("Exposure at Default: {}", [exposureAtDefault.toString()]);
-//     }
-//   }
-// }

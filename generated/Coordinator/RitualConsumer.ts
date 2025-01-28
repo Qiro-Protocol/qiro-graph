@@ -193,6 +193,38 @@ export class RitualConsumer extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
+  getResponseFromSubIdAndNode(subid: BigInt, node: Address): Array<BigInt> {
+    let result = super.call(
+      "getResponseFromSubIdAndNode",
+      "getResponseFromSubIdAndNode(uint32,address):(uint256[])",
+      [
+        ethereum.Value.fromUnsignedBigInt(subid),
+        ethereum.Value.fromAddress(node),
+      ],
+    );
+
+    return result[0].toBigIntArray();
+  }
+
+  try_getResponseFromSubIdAndNode(
+    subid: BigInt,
+    node: Address,
+  ): ethereum.CallResult<Array<BigInt>> {
+    let result = super.tryCall(
+      "getResponseFromSubIdAndNode",
+      "getResponseFromSubIdAndNode(uint32,address):(uint256[])",
+      [
+        ethereum.Value.fromUnsignedBigInt(subid),
+        ethereum.Value.fromAddress(node),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
+  }
+
   hasDeliveredCompute(param0: Address, param1: BigInt): boolean {
     let result = super.call(
       "hasDeliveredCompute",
@@ -540,6 +572,25 @@ export class RitualConsumer extends ethereum.SmartContract {
         value[2].toBytes(),
       ),
     );
+  }
+
+  subIdToAvg(subid: BigInt): Array<BigInt> {
+    let result = super.call("subIdToAvg", "subIdToAvg(uint32):(uint256[])", [
+      ethereum.Value.fromUnsignedBigInt(subid),
+    ]);
+
+    return result[0].toBigIntArray();
+  }
+
+  try_subIdToAvg(subid: BigInt): ethereum.CallResult<Array<BigInt>> {
+    let result = super.tryCall("subIdToAvg", "subIdToAvg(uint32):(uint256[])", [
+      ethereum.Value.fromUnsignedBigInt(subid),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
   subIdToTokenId(param0: BigInt): BigInt {
