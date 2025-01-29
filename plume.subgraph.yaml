@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: polygon-amoy
+    network: plume-testnet
     source:
-      address: "0x94c8cf3700bedDAbD8a0Bc6e329fdEdd4E335364"
+      address: "0xF2C735B00cC149936C2904C70ed5420f9f1680E2"
       abi: QiroFactory
-      startBlock: 13731587
+      startBlock: 9781467
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -39,11 +39,11 @@ dataSources:
       file: QiroFactory/QiroFactory.wasm
   - kind: ethereum
     name: Coordinator
-    network: polygon-amoy
+    network: plume-testnet
     source:
-      address: "0xe1b9E1B4825991ECeE59F2d09F9233b8e393a4AB"
+      address: "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
       abi: Coordinator
-      startBlock: 13718704
+      startBlock: 9781467
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -64,11 +64,11 @@ dataSources:
       file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: RitualConsumer
-    network: polygon-amoy
+    network: plume-testnet
     source:
-      address: "0x1fC88d1A69E3dE94315De4Cb74E16Df6F55624D0"
+      address: "0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1"
       abi: RitualConsumer
-      startBlock: 14174398
+      startBlock: 9781467
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -86,7 +86,7 @@ dataSources:
 templates:
   - name: Operator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-testnet
     source:
       abi: WhitelistOperator
     mapping:
@@ -109,7 +109,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-testnet
     source:
       abi: Shelf
     mapping:

@@ -1887,8 +1887,8 @@ export class User extends Entity {
     this.set("totalLended", Value.fromBigInt(value));
   }
 
-  get totalInterestEarned(): BigInt {
-    let value = this.get("totalInterestEarned");
+  get totalRedeemed(): BigInt {
+    let value = this.get("totalRedeemed");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1896,8 +1896,8 @@ export class User extends Entity {
     }
   }
 
-  set totalInterestEarned(value: BigInt) {
-    this.set("totalInterestEarned", Value.fromBigInt(value));
+  set totalRedeemed(value: BigInt) {
+    this.set("totalRedeemed", Value.fromBigInt(value));
   }
 
   get totalBorrowed(): BigInt {
