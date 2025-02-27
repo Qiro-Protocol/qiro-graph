@@ -13,7 +13,7 @@ export function getUser(address: Bytes): User {
     user.totalLended = new BigInt(0);
     user.totalBorrowed = new BigInt(0);
     user.totalRepayed = new BigInt(0);
-    user.totalInterestEarned = new BigInt(0);
+    user.totalRedeemed = new BigInt(0);
     user.save();
   }
   return user;

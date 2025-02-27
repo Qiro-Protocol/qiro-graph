@@ -1,0 +1,138 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: QiroFactory
+    network: plume-testnet
+    source:
+      address: "0xF2C735B00cC149936C2904C70ed5420f9f1680E2"
+      abi: QiroFactory
+      startBlock: 9781467
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Deny
+        - PoolCreated
+        - PoolDeployed
+        - Rely
+        - User
+        - Pool
+      abis:
+        - name: QiroFactory
+          file: QiroFactory/QiroFactory.json
+        - name: WhitelistOperator
+          file: QiroFactory/WhitelistOperator.json
+        - name: Shelf
+          file: QiroFactory/Shelf.json
+        - name: Tranche
+          file: QiroFactory/Tranche.json
+        - name: ERC20
+          file: QiroFactory/ERC20.json
+      eventHandlers:
+        - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
+          handler: handlePoolDeployed
+      file: QiroFactory/QiroFactory.wasm
+  - kind: ethereum
+    name: Coordinator
+    network: plume-testnet
+    source:
+      address: "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
+      abi: Coordinator
+      startBlock: 9781467
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: Coordinator/Coordinator.json
+        - name: RitualConsumer
+          file: Coordinator/RitualConsumer.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: Coordinator/Coordinator.wasm
+  - kind: ethereum
+    name: RitualConsumer
+    network: plume-testnet
+    source:
+      address: "0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1"
+      abi: RitualConsumer
+      startBlock: 9781467
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: RitualConsumer
+          file: RitualConsumer/RitualConsumer.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
+      file: Coordinator/Coordinator.wasm
+templates:
+  - name: Operator
+    kind: ethereum/contract
+    network: plume-testnet
+    source:
+      abi: WhitelistOperator
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: templates/Operator/Operator.wasm
+      entities:
+        - Supply
+        - Redeem
+        - User
+        - Pool
+      abis:
+        - name: WhitelistOperator
+          file: Operator/WhitelistOperator.json
+      eventHandlers:
+        - event: Supply(uint256,string,address,uint256,uint256,uint256,uint256)
+          handler: handleSupply
+        - event: Redeem(uint256,string,address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleRedeem
+  - name: Shelf
+    kind: ethereum/contract
+    network: plume-testnet
+    source:
+      abi: Shelf
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: templates/Shelf/Shelf.wasm
+      entities:
+        - LoanStarted
+        - LoanEnded
+        - LoanRepayed
+        - LoanWithdrawn
+        - User
+        - Pool
+      abis:
+        - name: Shelf
+          file: Shelf/Shelf.json
+      eventHandlers:
+        - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanStarted
+        - event: LoanEnded(uint256,address,uint256,uint256,uint256)
+          handler: handleLoanEnded
+        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanRepayed
+        - event: LoanWithdrawn(uint256,address,uint256,uint256)
+          handler: handleLoanWithdrawn

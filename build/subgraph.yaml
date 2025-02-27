@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xb8D2F76d68790207807CBfBdc1f97666790F3Ebc"
+      address: "0xe78f68Ec1DFc6d7308ECf15b65ff5581EC22A693"
       abi: QiroFactory
-      startBlock: 5860463
+      startBlock: 18502709
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -24,13 +24,65 @@ dataSources:
         - Pool
       abis:
         - name: QiroFactory
-          file: QiroFactory/abis/QiroFactory.json
+          file: QiroFactory/QiroFactory.json
         - name: WhitelistOperator
-          file: QiroFactory/abis/WhitelistOperator.json
+          file: QiroFactory/WhitelistOperator.json
+        - name: Shelf
+          file: QiroFactory/Shelf.json
+        - name: Tranche
+          file: QiroFactory/Tranche.json
+        - name: ERC20
+          file: QiroFactory/ERC20.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
       file: QiroFactory/QiroFactory.wasm
+  - kind: ethereum
+    name: Coordinator
+    network: polygon-amoy
+    source:
+      address: "0xC758A17CD1ff3d1B2F6aa1325c038Ba28B70B9e6"
+      abi: Coordinator
+      startBlock: 18504481
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: Coordinator/Coordinator.json
+        - name: RitualConsumer
+          file: Coordinator/RitualConsumer.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: Coordinator/Coordinator.wasm
+  - kind: ethereum
+    name: RitualConsumer
+    network: polygon-amoy
+    source:
+      address: "0x6C983f59841613AD46F8EF6596A621F43b29D81a"
+      abi: RitualConsumer
+      startBlock: 18502707
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: RitualConsumer
+          file: RitualConsumer/RitualConsumer.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
+      file: Coordinator/Coordinator.wasm
 templates:
   - name: Operator
     kind: ethereum/contract
@@ -49,7 +101,7 @@ templates:
         - Pool
       abis:
         - name: WhitelistOperator
-          file: Operator/abis/WhitelistOperator.json
+          file: Operator/WhitelistOperator.json
       eventHandlers:
         - event: Supply(uint256,string,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
@@ -74,7 +126,7 @@ templates:
         - Pool
       abis:
         - name: Shelf
-          file: Shelf/abis/Shelf.json
+          file: Shelf/Shelf.json
       eventHandlers:
         - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleLoanStarted

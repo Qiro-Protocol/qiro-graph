@@ -68,12 +68,13 @@ type Pool @entity(immutable: false) {
   interestRepaid: BigInt! # uint256
   capitalFormationPeriod: BigInt! # uint256
   capitalFormationPeriodEnd: BigInt! # uint256
+  nextExpectedRepayment: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   lenders: [UserPool!] @derivedFrom(field: "lendedPool")
-  borrower: BorrowerPool 
-  }
+  borrower: BorrowerPool
+}
 
 type Tranche @entity(immutable: false) {
   id: Bytes!
@@ -84,6 +85,8 @@ type Tranche @entity(immutable: false) {
   totalBalance: BigInt!
   totalTokenSupply: BigInt!
   tokenPrice: BigInt!
+  tokenName: String!
+  tokenSymbol: String!
   blockTimestamp: BigInt!
 }
 
@@ -164,23 +167,72 @@ type User @entity(immutable: false) {
   isLender: Boolean!
   isBorrower: Boolean!
   poolsBorrowedFrom: [BorrowerPool!]! @derivedFrom(field: "user")
-  poolsLendedIn: [UserPool!]  @derivedFrom(field: "user")
+  poolsLendedIn: [UserPool!] @derivedFrom(field: "user")
   totalLended: BigInt!
-  totalInterestEarned: BigInt!
+  totalRedeemed: BigInt!
   totalBorrowed: BigInt!
   totalRepayed: BigInt!
   transactionHistory: [Transaction!]!
-}
+  }
 
-type UserPool @entity{
+type UserPool @entity {
   id: Bytes!
   user: User!
   lendedPool: Pool!
-
 }
 
-type BorrowerPool @entity{
+type BorrowerPool @entity {
   id: Bytes!
   user: User!
   borrowedPool: Pool!
+}
+
+type ComputeSubscription @entity {
+  id: Bytes!
+  subscriptionId: BigInt!
+  tokenId: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  subscriptionResponses: [SubscriptionResponse!]!
+    @derivedFrom(field: "subscription")
+  average_prob_of_default: BigInt!
+  average_loss_given_default: BigInt!
+  average_risk_score: BigInt!
+  average_exposure_at_default: BigInt!
+}
+
+type SubscriptionResponse @entity {
+  id: Bytes!
+  subscription: ComputeSubscription!
+  output: Bytes!
+  input: Bytes!
+  proof: Bytes!
+  nodeAddress: Bytes!
+  isProofVerifiedOnchain: Boolean!
+  prob_of_default: BigInt!
+  loss_given_default: BigInt!
+  risk_score: BigInt!
+  exposure_at_default: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MonitoringSubscription @entity {
+  id: Bytes!
+  subscriptionId: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  subscriptionResponses: [MonitoringResponse!]!
+    @derivedFrom(field: "subscription")
+}
+
+type MonitoringResponse @entity {
+  id: Bytes!
+  subscription: MonitoringSubscription!
+  output: Bytes!
+  input: Bytes!
+  proof: Bytes!
+  nodeAddress: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }

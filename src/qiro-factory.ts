@@ -11,14 +11,18 @@ import {
   PoolDeployed as PoolDeployedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import {
+  BorrowerPool,
   Pool,
   PoolDeployed,
-  Tranche,
   Transaction,
+  Tranche,
   User,
 } from "../generated/schema";
-import { Operator } from "../generated/templates";
+import { Operator, Shelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
+import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
+import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
+import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { getUser } from "./util";
 
@@ -49,8 +53,9 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     new BigInt(0)
   );
   handlePool(entity as PoolDeployed);
-  // todo - index the and shelf
+
   Operator.create(event.params.operator);
+  Shelf.create(event.params.shelf);
 }
 
 function handlePool(pool: PoolDeployed): void {
@@ -62,6 +67,8 @@ function handlePool(pool: PoolDeployed): void {
   let seniorTranche = new Tranche(pool.shelf);
   let juniorTranche = new Tranche(pool.operator);
 
+  let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
+  let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
   entity.poolId = pool.poolId;
   entity.operator = pool.operator;
   entity.shelf = pool.shelf;
@@ -78,14 +85,13 @@ function handlePool(pool: PoolDeployed): void {
     pool.periodLength.times(pool.periodCount)
   );
   entity.totalRepaid = new BigInt(0);
+  entity.nextExpectedRepayment = new BigInt(0);
   entity.principalRepaid = new BigInt(0);
   entity.interestRepaid = new BigInt(0);
   entity.loanTerm = pool.periodLength.times(pool.periodCount);
   entity.loanMaturityTimestamp = pool.blockTimestamp.plus(entity.loanTerm);
-  entity.capitalFormationPeriod = new BigInt(60 * 60 * 24 * 10); // 7 days
-  entity.capitalFormationPeriodEnd = pool.blockTimestamp.plus(
-    entity.capitalFormationPeriod
-  );
+  entity.capitalFormationPeriod = operator.capitalFormationPeriod(); // 7 days
+  entity.capitalFormationPeriodEnd = operator.capitalFormationEnd();
   // @Todo
   entity.poolStatus = "CAPITAL_FORMATION";
 
@@ -94,17 +100,22 @@ function handlePool(pool: PoolDeployed): void {
   entity.transactionHash = pool.transactionHash;
   entity.save();
 
-  let operator =  WhitelistOperator.bind(Address.fromBytes(pool.operator))
+
   let juniorTranch = operator.junior();
   let seniorTranch = operator.senior();
+  let junTrancheContract = TrancheContract.bind(Address.fromBytes(juniorTranch));
+  let junTokenContract = ERC20.bind(junTrancheContract.token());
+  let senTokenContract = ERC20.bind(operator.seniorToken());
 
   juniorTranche.poolId = pool.poolId;
   juniorTranche.trancheType = "JUNIOR";
   juniorTranche.totalTokenSupply = new BigInt(0);
   juniorTranche.totalBalance = new BigInt(0);
   juniorTranche.trancheAddress = juniorTranch;
-  juniorTranche.tokenAddress = new Address(0);
+  juniorTranche.tokenAddress = junTrancheContract.token();
   juniorTranche.tokenPrice = new BigInt(1);
+  juniorTranche.tokenName = junTokenContract.name();
+  juniorTranche.tokenSymbol = junTokenContract.symbol();
   juniorTranche.blockTimestamp = pool.blockTimestamp;
   juniorTranche.save();
 
@@ -113,10 +124,22 @@ function handlePool(pool: PoolDeployed): void {
   seniorTranche.totalTokenSupply = new BigInt(0);
   seniorTranche.totalBalance = new BigInt(0);
   seniorTranche.trancheAddress = seniorTranch;
-  seniorTranche.tokenAddress =  operator.seniorToken();
+  seniorTranche.tokenAddress = operator.seniorToken();
   seniorTranche.tokenPrice = new BigInt(1);
+  seniorTranche.tokenName = senTokenContract.name();
+  seniorTranche.tokenSymbol = senTokenContract.symbol();
   seniorTranche.blockTimestamp = pool.blockTimestamp;
   seniorTranche.save();
+
+
+  let user = getUser(shelfContract.borrower());
+  user.isBorrower = true;
+  user.save();
+  // map pool and borrower, for user to
+  let userPool = new BorrowerPool(pID.concat(shelfContract.borrower()));
+  userPool.borrowedPool = pID;
+  userPool.user = shelfContract.borrower();
+  userPool.save();
 }
 
 export function createNewTransaction(
