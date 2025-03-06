@@ -30,10 +30,10 @@ import { Coordinator } from "../generated/Coordinator/Coordinator";
 //);
 
 let coordinatorAddress = Address.fromString(
-  "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
+  "0xC758A17CD1ff3d1B2F6aa1325c038Ba28B70B9e6"
  );
- let consumerAddress = Address.fromString("0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1");
-
+ let consumerAddress = Address.fromString("0x6C983f59841613AD46F8EF6596A621F43b29D81a");
+ 
 export function handleSubscriptionCreated(
   event: SubscriptionCreatedEvent
 ): void {

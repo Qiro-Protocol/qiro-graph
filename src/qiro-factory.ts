@@ -116,6 +116,7 @@ function handlePool(pool: PoolDeployed): void {
   juniorTranche.tokenPrice = new BigInt(1);
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
+  juniorTranche.ceiling = operator.juniorTrancheCeiling()
   juniorTranche.blockTimestamp = pool.blockTimestamp;
   juniorTranche.save();
 
@@ -125,6 +126,7 @@ function handlePool(pool: PoolDeployed): void {
   seniorTranche.totalBalance = new BigInt(0);
   seniorTranche.trancheAddress = seniorTranch;
   seniorTranche.tokenAddress = operator.seniorToken();
+  seniorTranche.ceiling = operator.seniorTrancheCeiling()
   seniorTranche.tokenPrice = new BigInt(1);
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();

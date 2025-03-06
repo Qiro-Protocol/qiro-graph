@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xe78f68Ec1DFc6d7308ECf15b65ff5581EC22A693"
+      address: "0x4709B1CC15c14dcB214395A8D908B88F0FEe133a"
       abi: QiroFactory
-      startBlock:	18502709
+      startBlock:	18629410
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

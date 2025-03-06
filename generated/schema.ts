@@ -1027,6 +1027,19 @@ export class Tranche extends Entity {
     this.set("tokenPrice", Value.fromBigInt(value));
   }
 
+  get ceiling(): BigInt {
+    let value = this.get("ceiling");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set ceiling(value: BigInt) {
+    this.set("ceiling", Value.fromBigInt(value));
+  }
+
   get tokenName(): string {
     let value = this.get("tokenName");
     if (!value || value.kind == ValueKind.NULL) {
