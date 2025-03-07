@@ -1,7 +1,4 @@
-.PHONY: all clean build deploy
-
-# Default target
-all: build deploy
+.PHONY: all clean build-plume deploy-plume
 
 # Directory paths
 BUILD_DIR = build
@@ -17,14 +14,16 @@ clean:
 	mkdir -p $(BUILD_DIR)
 
 # Build the subgraph
-build: 
+build-plume: clean
+	cp $(SUBGRAPH_YAML) $(BUILD_DIR)/subgraph.yaml
+	cp -r src/ $(BUILD_DIR)/src/
+	cp $(SCHEMA_FILE) $(BUILD_DIR)/
 	graph codegen
 	graph build
-	cp $(SUBGRAPH_YAML) $(BUILD_DIR)/subgraph.yaml
 
 # Deploy the subgraph
-deploy:
-	goldsky subgraph deploy $(SUBGRAPH_NAME) --path ./$(BUILD_DIR)
+deploy-plume: build-plume
+	goldsky subgraph deploy $(SUBGRAPH_NAME) --path ./build
 
-# Build and deploy in one command
-deploy-all: build deploy
+deploy-plume-2:
+	goldsky subgraph deploy qiro-plume-subgraph/v0.0.1 --from-ipfs-hash QmVeajBbuSM789JAyBu62MhR2yjqXTQT228cFpLrg4oAzc
