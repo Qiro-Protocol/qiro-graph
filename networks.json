@@ -4,5 +4,10 @@
       "address": "0xEa3867B5564B09744F032Cb5C986C2b5fEa46431",
       "startBlock": 47580969
     }
+  },
+  "polygon-amoy": {
+    "": {
+      "address": "0x54821D790fAAFD341013Ca72D8f4DB0A74EA90bF"
+    }
   }
 }

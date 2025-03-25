@@ -236,3 +236,100 @@ type MonitoringResponse @entity {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ConsumerContractUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldConsumer: Bytes! # address
+  newConsumer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Deny @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type File @entity(immutable: true) {
+  id: Bytes!
+  what: Bytes! # bytes32
+  tokenId: BigInt! # uint256
+  value: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTMinted @entity(immutable: true) {
+  id: Bytes!
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  name: String! # string
+  desc: String! # string
+  imageURI: String! # string
+  portfolioID: String! # string
+  noOfLoans: BigInt! # uint256
+  totalPrincipalAmount: BigInt! # uint256
+  averageInterestRate: BigInt! # uint256
+  portfolioTerm: String! # string
+  portfolioStatus: String! # string
+  writedown: BigInt! # uint256
+  writeoff: BigInt! # uint256
+  maturityDate: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Rely @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UpdateNftData @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  prob_of_default: BigInt! # uint256
+  loss_given_default: BigInt! # uint256
+  risk_score: BigInt! # uint256
+  exposure_at_default: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

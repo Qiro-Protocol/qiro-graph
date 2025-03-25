@@ -16,10 +16,8 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Deny
         - PoolCreated
         - PoolDeployed
-        - Rely
         - User
         - Pool
       abis:
@@ -83,6 +81,47 @@ dataSources:
         - event: Rely(indexed address)
           handler: handleRely
       file: Coordinator/Coordinator.wasm
+  - kind: ethereum
+    name: QiroNft
+    network: polygon-amoy
+    source:
+      address: "0x54821D790fAAFD341013Ca72D8f4DB0A74EA90bF"
+      abi: QiroNft
+      startBlock: 19622664
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - ConsumerContractUpdated
+        - Deny
+        - File
+        - NFTMinted
+        - Rely
+        - Transfer
+        - UpdateNftData
+      abis:
+        - name: QiroNft
+          file: QiroNft/QiroNft.json
+      eventHandlers:
+        - event: ConsumerContractUpdated(address,address)
+          handler: handleConsumerContractUpdated
+        - event: Deny(indexed address)
+          handler: handleDeny
+        - event: File(bytes32,uint256,uint256)
+          handler: handleFile
+        - event: NFTMinted(indexed
+            address,uint256,string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string)
+          handler: handleNFTMinted
+        - event: Rely(indexed address)
+          handler: handleRely
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: UpdateNftData(uint256,uint256,uint256,uint256,uint256)
+          handler: handleUpdateNftData
+      file: QiroNft/QiroNft.wasm
 templates:
   - name: Operator
     kind: ethereum/contract
