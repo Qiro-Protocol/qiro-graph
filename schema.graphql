@@ -43,12 +43,17 @@ enum PoolStatus {
   CAPITAL_FORMATION
   PENDING
   ACTIVE
+  REVOKED
+  PARTIAL_REDEEM
+  REDEEM
   ENDED
 }
+
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
   poolId: BigInt! # uint256
+  poolFactoryAddress: Bytes! # address
   poolStatus: PoolStatus! # enum
   operator: Bytes! # address
   shelf: Bytes! # address
@@ -72,6 +77,12 @@ type Pool @entity(immutable: false) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  seniorRate: BigInt
+  debt: BigInt!
+  metadataIPFSHash: Bytes!
+  totalRepaid: BigInt!
+  originationFee: BigInt!
+  performanceFee: BigInt!
   lenders: [UserPool!] @derivedFrom(field: "lendedPool")
   borrower: BorrowerPool
 }
@@ -87,6 +98,9 @@ type Tranche @entity(immutable: false) {
   tokenPrice: BigInt!
   tokenName: String!
   tokenSymbol: String!
+  currencyBalance: BigInt!
+  currencyName: String!
+  currencySymbol: String!
   blockTimestamp: BigInt!
 }
 
@@ -331,6 +345,14 @@ type UpdateNftData @entity(immutable: true) {
   loss_given_default: BigInt! # uint256
   risk_score: BigInt! # uint256
   exposure_at_default: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WhitelistOperatorToPoolIdMapping @entity(immutable: true) {
+  id: Bytes! # address
+  poolId: Bytes! # uint256 bytes
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

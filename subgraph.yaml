@@ -146,6 +146,8 @@ templates:
           handler: handleSupply
         - event: Redeem(uint256,string,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRedeem
+        - event: UpdatedPoolState(uint8)
+          handler: handleUpdatedPoolState
   - name: Shelf
     kind: ethereum/contract
     network: polygon-amoy

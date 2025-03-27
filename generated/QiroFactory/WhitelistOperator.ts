@@ -41,6 +41,36 @@ export class Redeem__Params {
     this._event = event;
   }
 
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get tranche(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get currencyAmount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get tokenAmount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class Redeem1 extends ethereum.Event {
+  get params(): Redeem1__Params {
+    return new Redeem1__Params(this);
+  }
+}
+
+export class Redeem1__Params {
+  _event: Redeem1;
+
+  constructor(event: Redeem1) {
+    this._event = event;
+  }
+
   get poolId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
@@ -105,6 +135,32 @@ export class Supply__Params {
     this._event = event;
   }
 
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get tranche(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get currencyAmount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class Supply1 extends ethereum.Event {
+  get params(): Supply1__Params {
+    return new Supply1__Params(this);
+  }
+}
+
+export class Supply1__Params {
+  _event: Supply1;
+
+  constructor(event: Supply1) {
+    this._event = event;
+  }
+
   get poolId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
@@ -131,6 +187,24 @@ export class Supply__Params {
 
   get seniorPoolBalance(): BigInt {
     return this._event.parameters[6].value.toBigInt();
+  }
+}
+
+export class UpdatedPoolState extends ethereum.Event {
+  get params(): UpdatedPoolState__Params {
+    return new UpdatedPoolState__Params(this);
+  }
+}
+
+export class UpdatedPoolState__Params {
+  _event: UpdatedPoolState;
+
+  constructor(event: UpdatedPoolState) {
+    this._event = event;
+  }
+
+  get state(): i32 {
+    return this._event.parameters[0].value.toI32();
   }
 }
 
@@ -356,6 +430,21 @@ export class WhitelistOperator extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  getState(): BigInt {
+    let result = super.call("getState", "getState():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getState(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getState", "getState():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   junior(): Address {
@@ -1429,20 +1518,20 @@ export class SetThresholdCall__Outputs {
   }
 }
 
-export class SetTrancheCelingsCall extends ethereum.Call {
-  get inputs(): SetTrancheCelingsCall__Inputs {
-    return new SetTrancheCelingsCall__Inputs(this);
+export class SetTrancheCeilingsCall extends ethereum.Call {
+  get inputs(): SetTrancheCeilingsCall__Inputs {
+    return new SetTrancheCeilingsCall__Inputs(this);
   }
 
-  get outputs(): SetTrancheCelingsCall__Outputs {
-    return new SetTrancheCelingsCall__Outputs(this);
+  get outputs(): SetTrancheCeilingsCall__Outputs {
+    return new SetTrancheCeilingsCall__Outputs(this);
   }
 }
 
-export class SetTrancheCelingsCall__Inputs {
-  _call: SetTrancheCelingsCall;
+export class SetTrancheCeilingsCall__Inputs {
+  _call: SetTrancheCeilingsCall;
 
-  constructor(call: SetTrancheCelingsCall) {
+  constructor(call: SetTrancheCeilingsCall) {
     this._call = call;
   }
 
@@ -1455,10 +1544,10 @@ export class SetTrancheCelingsCall__Inputs {
   }
 }
 
-export class SetTrancheCelingsCall__Outputs {
-  _call: SetTrancheCelingsCall;
+export class SetTrancheCeilingsCall__Outputs {
+  _call: SetTrancheCeilingsCall;
 
-  constructor(call: SetTrancheCelingsCall) {
+  constructor(call: SetTrancheCeilingsCall) {
     this._call = call;
   }
 }

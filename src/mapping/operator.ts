@@ -1,14 +1,16 @@
 import {
-  Supply as SupplyEvent,
-  Redeem as RedeemEvent,
+  Supply1 as Supply1Event,
+  Redeem1 as Redeem1Event,
+  UpdatedPoolState as UpdatedPoolStateEvent,
+  Supply1,
 } from "../../generated/templates/Operator/WhitelistOperator";
 
-import { Supply, Redeem, Pool, Tranche, User, UserPool } from "../../generated/schema";
+import { Supply, Redeem, Pool, Tranche, User, UserPool, WhitelistOperatorToPoolIdMapping } from "../../generated/schema";
 import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
 
-export function handleSupply(event: SupplyEvent): void {
+export function handleSupply(event: Supply1Event): void {
   let entity = new Supply(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -46,8 +48,8 @@ export function handleSupply(event: SupplyEvent): void {
   let user = User.load(event.transaction.from);
   user!.isLender = true;
 
-  let uPool = UserPool.load(pID.concat(event.transaction.from)); 
-  if(uPool == null) {
+  let uPool = UserPool.load(pID.concat(event.transaction.from));
+  if (uPool == null) {
     let userPool = new UserPool(pID.concat(event.transaction.from));
     userPool.lendedPool = pID;
     userPool.user = event.transaction.from;
@@ -59,7 +61,7 @@ export function handleSupply(event: SupplyEvent): void {
   user!.save();
 }
 
-export function handleRedeem(event: RedeemEvent): void {
+export function handleRedeem(event: Redeem1Event): void {
   let entity = new Redeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -106,14 +108,14 @@ function updatePoolBalance(
   let pID = Bytes.fromByteArray(crypto.keccak256(ByteArray.fromBigInt(poolId)));
   let pool = Pool.load(pID);
   if (pool == null) {
-    log.info("Message to be displayed: {}", [poolId.toHexString()]);
+    log.error("unable to get pool to update pool balane: {}", [poolId.toHexString()]);
     return;
   }
   pool.totalBalance = total;
   let seniorTranche = Tranche.load(pool.seniorTranche);
   let juniorTranche = Tranche.load(pool.juniorTranche);
   if (seniorTranche == null || juniorTranche == null) {
-    log.info("Message to be displayed: {}", [poolId.toHexString()]);
+    log.error("unable to get either junior or senior tranche: {}", [poolId.toHexString()]);
     return;
   }
   seniorTranche.totalBalance = senior;
@@ -123,4 +125,21 @@ function updatePoolBalance(
   pool.save();
   seniorTranche.save();
   juniorTranche.save();
+}
+
+export function handleUpdatedPoolState(event: UpdatedPoolStateEvent): void {
+  // get pool id from WhitelistOperatorToPoolIdMapping
+  let mapping = WhitelistOperatorToPoolIdMapping.load(event.address);
+  if (mapping == null) {
+    log.error("missing WhitelistOperatorToPoolIdMapping for operator: {}", [event.address.toHexString()]);
+    return;
+  }
+
+  let pool = Pool.load(mapping.poolId);
+  if (pool == null) {
+    log.error("missing pool for poll status update: {}", [mapping.poolId.toHexString()]);
+    return;
+  }
+  pool.poolStatus = event.params.state;
+  pool.save();
 }

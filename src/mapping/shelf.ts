@@ -36,6 +36,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   entity.save();
 
   updatePoolStatus(event.params.poolId, "ACTIVE");
+  updatePoolDebt(event.params.poolId, event.address);
 
   createTxnAndUpdateUser(
     "POOL_INITIALED",
@@ -76,6 +77,7 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   entity.save();
 
   updatePoolStatus(event.params.poolId, "ENDED");
+  updatePoolDebt(event.params.poolId, event.address);
 }
 
 export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
@@ -150,6 +152,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     event.params.currencyAmount
   );
 
+  updatePoolDebt(event.params.poolId, event.address);
+
   let user = User.load(event.transaction.from);
   user!.totalRepayed = event.params.totalRepayedAmount;
   user!.save();
@@ -177,5 +181,22 @@ export function updatePoolStatus(poolId: BigInt, status: string): void {
     return;
   }
   pool.poolStatus = status;
+  pool.save();
+}
+
+function updatePoolDebt(poolId: BigInt, shelf: Address): void {
+  // todo - update pool
+  let pID = Bytes.fromByteArray(crypto.keccak256(ByteArray.fromBigInt(poolId)));
+  let pool = Pool.load(pID);
+
+  if (pool == null) {
+    log.error("Failed to get pool for updating pool debt: {}", [poolId.toHexString()]);
+    return;
+  }
+
+  let shelfInstance = Shelf.bind(shelf);
+
+  pool.debt = shelfInstance.debt();
+  pool.totalRepaid = shelfInstance.totalRepayedAmount();
   pool.save();
 }

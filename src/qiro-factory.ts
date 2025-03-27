@@ -7,8 +7,8 @@ import {
   log,
 } from "@graphprotocol/graph-ts";
 import {
-  PoolCreated as PoolCreatedEvent,
   PoolDeployed as PoolDeployedEvent,
+  QiroFactory,
 } from "../generated/QiroFactory/QiroFactory";
 import {
   BorrowerPool,
@@ -17,6 +17,7 @@ import {
   Transaction,
   Tranche,
   User,
+  WhitelistOperatorToPoolIdMapping,
 } from "../generated/schema";
 import { Operator, Shelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
@@ -52,30 +53,46 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     event.transaction.value,
     new BigInt(0)
   );
-  handlePool(entity as PoolDeployed);
+
+  createWhitelistOperatorToPoolIdMapping(
+    event.params.operator,
+    event.params.id,
+    event.block,
+    event.transaction
+  );
+
+  handlePool(entity as PoolDeployed, event.address);
 
   Operator.create(event.params.operator);
   Shelf.create(event.params.shelf);
 }
 
-function handlePool(pool: PoolDeployed): void {
+function handlePool(pool: PoolDeployed, factoryAddress: Address): void {
   // Start
   let pID = Bytes.fromByteArray(
     crypto.keccak256(ByteArray.fromBigInt(pool.poolId))
   );
   let entity = new Pool(pID);
-  let seniorTranche = new Tranche(pool.shelf);
-  let juniorTranche = new Tranche(pool.operator);
 
   let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
   let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
+
+  let seniorTranche = new Tranche(operator.junior());
+  let juniorTranche = new Tranche(operator.senior());
+  let shelf = ShelfContract.bind(Address.fromBytes(pool.shelf));
+  let qiroFactory = QiroFactory.bind(factoryAddress);
+
   entity.poolId = pool.poolId;
+  entity.poolFactoryAddress = factoryAddress;
   entity.operator = pool.operator;
   entity.shelf = pool.shelf;
   entity.seniorTranche = seniorTranche.id;
   entity.juniorTranche = juniorTranche.id;
   entity.seniorRate = pool.seniorRate;
+  entity.debt = shelf.debt();
+  entity.totalRepaid = shelf.totalRepayedAmount();
   entity.interestRate = pool.interestRate;
+  entity.seniorRate = pool.seniorRate;
   entity.periodLength = pool.periodLength;
   entity.periodCount = pool.periodCount;
   entity.gracePeriod = pool.gracePeriod;
@@ -92,7 +109,10 @@ function handlePool(pool: PoolDeployed): void {
   entity.loanMaturityTimestamp = pool.blockTimestamp.plus(entity.loanTerm);
   entity.capitalFormationPeriod = operator.capitalFormationPeriod(); // 7 days
   entity.capitalFormationPeriodEnd = operator.capitalFormationEnd();
-  // @Todo
+  let factoryPool = qiroFactory.pools(pool.poolId);
+  entity.metadataIPFSHash = factoryPool.value6;
+  entity.performanceFee = shelf.performanceFee();
+  entity.originationFee = shelf.allFees(BigInt.fromI32(1)).getAmount();
   entity.poolStatus = "CAPITAL_FORMATION";
 
   entity.blockNumber = pool.blockNumber;
@@ -100,22 +120,22 @@ function handlePool(pool: PoolDeployed): void {
   entity.transactionHash = pool.transactionHash;
   entity.save();
 
-
-  let juniorTranch = operator.junior();
-  let seniorTranch = operator.senior();
-  let junTrancheContract = TrancheContract.bind(Address.fromBytes(juniorTranch));
-  let junTokenContract = ERC20.bind(junTrancheContract.token());
+  let currencyContract = ERC20.bind(qiroFactory.currency());
+  let junTokenContract = ERC20.bind(operator.juniorToken());
   let senTokenContract = ERC20.bind(operator.seniorToken());
 
   juniorTranche.poolId = pool.poolId;
   juniorTranche.trancheType = "JUNIOR";
   juniorTranche.totalTokenSupply = new BigInt(0);
   juniorTranche.totalBalance = new BigInt(0);
-  juniorTranche.trancheAddress = juniorTranch;
-  juniorTranche.tokenAddress = junTrancheContract.token();
+  juniorTranche.trancheAddress = juniorTranche.id;
+  juniorTranche.tokenAddress = operator.juniorToken();
   juniorTranche.tokenPrice = new BigInt(1);
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
+  juniorTranche.currencyBalance = currencyContract.balanceOf(juniorTranche.id);
+  juniorTranche.currencyName = currencyContract.name();
+  juniorTranche.currencySymbol = currencyContract.symbol();
   juniorTranche.blockTimestamp = pool.blockTimestamp;
   juniorTranche.save();
 
@@ -123,14 +143,16 @@ function handlePool(pool: PoolDeployed): void {
   seniorTranche.trancheType = "SENIOR";
   seniorTranche.totalTokenSupply = new BigInt(0);
   seniorTranche.totalBalance = new BigInt(0);
-  seniorTranche.trancheAddress = seniorTranch;
+  seniorTranche.trancheAddress = seniorTranche.id;
   seniorTranche.tokenAddress = operator.seniorToken();
   seniorTranche.tokenPrice = new BigInt(1);
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();
+  seniorTranche.currencyBalance = currencyContract.balanceOf(seniorTranche.id);
+  seniorTranche.currencyName = currencyContract.name();
+  seniorTranche.currencySymbol = currencyContract.symbol();
   seniorTranche.blockTimestamp = pool.blockTimestamp;
   seniorTranche.save();
-
 
   let user = getUser(shelfContract.borrower());
   user.isBorrower = true;
@@ -180,4 +202,22 @@ export function createTxnAndUpdateUser(
   const user = getUser(from);
   user.transactionHistory.push(hash);
   user.save();
+}
+
+function createWhitelistOperatorToPoolIdMapping(
+  operatorAddress: Address,
+  poolId: BigInt,
+  block: ethereum.Block,
+  transaction: ethereum.Transaction
+): void {
+  let mapping = new WhitelistOperatorToPoolIdMapping(
+    operatorAddress
+  );
+  mapping.poolId = Bytes.fromByteArray(
+    crypto.keccak256(ByteArray.fromBigInt(poolId))
+  );
+  mapping.blockNumber = block.number;
+  mapping.blockTimestamp = block.timestamp;
+  mapping.transactionHash = transaction.hash;
+  mapping.save();
 }
