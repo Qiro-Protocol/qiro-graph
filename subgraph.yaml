@@ -25,6 +25,12 @@ dataSources:
           file: ./abis/QiroFactory.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
+        - name: SeniorTranche
+          file: ./abis/SeniorTranche.json
+        - name: JuniorTranche
+          file: ./abis/JuniorTranche.json
+        - name: LenderDeployer
+          file: ./abis/LenderDeployer.json
         - name: Shelf
           file: ./abis/Shelf.json
         - name: Tranche
@@ -82,7 +88,7 @@ dataSources:
           handler: handleRely
       file: ./src/coordinator.ts
   - kind: ethereum
-    name: "QiroNft"
+    name: QiroNft
     network: polygon-amoy
     source:
       address: "0x54821D790fAAFD341013Ca72D8f4DB0A74EA90bF"
@@ -96,10 +102,8 @@ dataSources:
         - Approval
         - ApprovalForAll
         - ConsumerContractUpdated
-        - Deny
         - File
         - NFTMinted
-        - Rely
         - Transfer
         - UpdateNftData
       abis:
@@ -134,8 +138,6 @@ templates:
       language: wasm/assemblyscript
       file: ./src/mapping/operator.ts
       entities:
-        - Supply
-        - Redeem
         - User
         - Pool
       abis:
@@ -177,3 +179,60 @@ templates:
           handler: handleLoanRepayed
         - event: LoanWithdrawn(uint256,address,uint256,uint256)
           handler: handleLoanWithdrawn
+  - name: "SeniorTranche"
+    kind: ethereum/contract
+    network: polygon-amoy
+    source:
+      abi: SeniorTranche
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/transactions.ts
+      entities:
+        - Filed
+        - Borrow
+        - Redeem
+        - Repay
+        - Supply
+      abis:
+        - name: SeniorTranche
+          file: ./abis/SeniorTranche.json
+      eventHandlers:
+        - event: Borrow(indexed address,uint256)
+          handler: handleUserBorrow
+        - event: Filed(indexed bytes32,uint256)
+          handler: handleFiled
+        - event: Redeem(indexed address,uint256,uint256)
+          handler: handleUserRedeem
+        - event: Repay(indexed address,uint256)
+          handler: handleUserRepay
+        - event: Supply(indexed address,uint256,uint256)
+          handler: handleUserSupply
+  - name: "JuniorTranche"
+    kind: ethereum/contract
+    network: polygon-amoy
+    source:
+      abi: JuniorTranche
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/transactions.ts
+      entities:
+        - Borrow
+        - Redeem
+        - Repay
+        - Supply
+      abis:
+        - name: JuniorTranche
+          file: ./abis/JuniorTranche.json
+      eventHandlers:
+        - event: Borrow(indexed address,uint256)
+          handler: handleUserBorrow
+        - event: Redeem(indexed address,uint256,uint256)
+          handler: handleUserRedeem
+        - event: Repay(indexed address,uint256)
+          handler: handleUserRepay
+        - event: Supply(indexed address,uint256,uint256)
+          handler: handleUserSupply

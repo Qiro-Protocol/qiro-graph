@@ -77,10 +77,8 @@ type Pool @entity(immutable: false) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-  seniorRate: BigInt
   debt: BigInt!
   metadataIPFSHash: Bytes!
-  totalRepaid: BigInt!
   originationFee: BigInt!
   performanceFee: BigInt!
   lenders: [UserPool!] @derivedFrom(field: "lendedPool")
@@ -358,4 +356,54 @@ type WhitelistOperatorToPoolIdMapping @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-# todo: @rahul7668gupta add entity to index all other data
+type UserBorrow @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  tranche: Tranche! # Tranche
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Filed @entity(immutable: true) {
+  id: Bytes!
+  what: Bytes! # bytes32
+  value: BigInt! # uint256
+  tranche: Tranche! # Tranche
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserRedeem @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  tokenAmount: BigInt! # uint256
+  tranche: Tranche! # Tranche
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserRepay @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  tranche: Tranche! # Tranche
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserSupply @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  tokenAmount: BigInt! # uint256
+  tranche: Tranche! # Tranche
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

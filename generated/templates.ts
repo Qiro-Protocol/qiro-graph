@@ -29,3 +29,31 @@ export class Shelf extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("Shelf", [address.toHex()], context);
   }
 }
+
+export class SeniorTranche extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("SeniorTranche", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "SeniorTranche",
+      [address.toHex()],
+      context,
+    );
+  }
+}
+
+export class JuniorTranche extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("JuniorTranche", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "JuniorTranche",
+      [address.toHex()],
+      context,
+    );
+  }
+}

@@ -11,18 +11,19 @@ import {
   QiroFactory,
 } from "../generated/QiroFactory/QiroFactory";
 import {
+  LenderDeployer,
+} from "../generated/QiroFactory/LenderDeployer";
+import {
   BorrowerPool,
   Pool,
   PoolDeployed,
   Transaction,
   Tranche,
-  User,
   WhitelistOperatorToPoolIdMapping,
 } from "../generated/schema";
-import { Operator, Shelf } from "../generated/templates";
+import { JuniorTranche, SeniorTranche, Operator, Shelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
-import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { getUser } from "./util";
@@ -61,10 +62,21 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     event.transaction
   );
 
+  // factory instance
+  let qiroFactory = QiroFactory.bind(event.address);
+  let qiroPool = qiroFactory.pools(event.params.id);
+  let poolLenderDeployer = LenderDeployer.bind(qiroPool.value3);
+
+  let seniorTrancheAddress = poolLenderDeployer.seniorTranche();
+  let juniorTrancheAddress = poolLenderDeployer.juniorTranche();
+
   handlePool(entity as PoolDeployed, event.address);
 
+  // create template listeners here
   Operator.create(event.params.operator);
   Shelf.create(event.params.shelf);
+  JuniorTranche.create(juniorTrancheAddress);
+  SeniorTranche.create(seniorTrancheAddress);
 }
 
 function handlePool(pool: PoolDeployed, factoryAddress: Address): void {
@@ -112,7 +124,7 @@ function handlePool(pool: PoolDeployed, factoryAddress: Address): void {
   let factoryPool = qiroFactory.pools(pool.poolId);
   entity.metadataIPFSHash = factoryPool.value6;
   entity.performanceFee = shelf.performanceFee();
-  entity.originationFee = shelf.allFees(BigInt.fromI32(1)).getAmount();
+  entity.originationFee = BigInt.fromI32(shelf.allFees(BigInt.fromI32(1)).getAmount());
   entity.poolStatus = "CAPITAL_FORMATION";
 
   entity.blockNumber = pool.blockNumber;
@@ -133,7 +145,7 @@ function handlePool(pool: PoolDeployed, factoryAddress: Address): void {
   juniorTranche.tokenPrice = new BigInt(1);
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
-  juniorTranche.currencyBalance = currencyContract.balanceOf(juniorTranche.id);
+  juniorTranche.currencyBalance = currencyContract.balanceOf(Address.fromBytes(juniorTranche.id));
   juniorTranche.currencyName = currencyContract.name();
   juniorTranche.currencySymbol = currencyContract.symbol();
   juniorTranche.blockTimestamp = pool.blockTimestamp;
@@ -148,7 +160,7 @@ function handlePool(pool: PoolDeployed, factoryAddress: Address): void {
   seniorTranche.tokenPrice = new BigInt(1);
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();
-  seniorTranche.currencyBalance = currencyContract.balanceOf(seniorTranche.id);
+  seniorTranche.currencyBalance = currencyContract.balanceOf(Address.fromBytes(seniorTranche.id));
   seniorTranche.currencyName = currencyContract.name();
   seniorTranche.currencySymbol = currencyContract.symbol();
   seniorTranche.blockTimestamp = pool.blockTimestamp;

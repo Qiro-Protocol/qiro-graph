@@ -3,32 +3,17 @@
     "type": "constructor",
     "inputs": [
       {
-        "name": "junior_",
+        "name": "token_",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "senior_",
+        "name": "currency_",
         "type": "address",
         "internalType": "address"
       },
       {
         "name": "assessor_",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "distributor_",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_capitalFormationPeriod",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "memberList_",
         "type": "address",
         "internalType": "address"
       }
@@ -50,7 +35,20 @@
   },
   {
     "type": "function",
-    "name": "calcMaxRedeemToken",
+    "name": "balance",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "borrow",
     "inputs": [
       {
         "name": "usr",
@@ -58,23 +56,17 @@
         "internalType": "address"
       },
       {
-        "name": "_tranche",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
+        "name": "currencyAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "capitalFormationEnd",
+    "name": "borrowed",
     "inputs": [],
     "outputs": [
       {
@@ -87,8 +79,29 @@
   },
   {
     "type": "function",
-    "name": "capitalFormationPeriod",
-    "inputs": [],
+    "name": "chargeInterest",
+    "inputs": [
+      {
+        "name": "interestBearingAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "ratePerSecond",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lastUpdated",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "current",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
     "outputs": [
       {
         "name": "",
@@ -96,7 +109,7 @@
         "internalType": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -113,45 +126,7 @@
   },
   {
     "type": "function",
-    "name": "currencyRedeemedJunior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "currencyRedeemedSenior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "current",
+    "name": "debt",
     "inputs": [],
     "outputs": [
       {
@@ -177,24 +152,6 @@
   },
   {
     "type": "function",
-    "name": "denyInvestor",
-    "inputs": [
-      {
-        "name": "usr",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "__tranche",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "depend",
     "inputs": [
       {
@@ -213,16 +170,26 @@
   },
   {
     "type": "function",
-    "name": "distributor",
-    "inputs": [],
-    "outputs": [
+    "name": "erc20Transfer",
+    "inputs": [
       {
-        "name": "",
+        "name": "erc20",
         "type": "address",
-        "internalType": "contract DistributorLike"
+        "internalType": "address"
+      },
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -244,20 +211,38 @@
   },
   {
     "type": "function",
-    "name": "getCurrentState",
+    "name": "lastUpdated",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint8",
-        "internalType": "enum WhitelistOperator.State"
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "mint",
+    "inputs": [
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "getState",
+    "name": "performanceFee",
     "inputs": [],
     "outputs": [
       {
@@ -270,52 +255,7 @@
   },
   {
     "type": "function",
-    "name": "junior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "juniorInvestors",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "juniorToken",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract ERC20Like"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "juniorTrancheCeiling",
+    "name": "period",
     "inputs": [],
     "outputs": [
       {
@@ -328,20 +268,7 @@
   },
   {
     "type": "function",
-    "name": "memberList",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract MemberListLike"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "poolId",
+    "name": "principal",
     "inputs": [],
     "outputs": [
       {
@@ -354,33 +281,8 @@
   },
   {
     "type": "function",
-    "name": "principalRedeemedJunior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "principalRedeemedSenior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "name": "ratePerSecond",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -416,8 +318,18 @@
   },
   {
     "type": "function",
-    "name": "redeemJunior",
+    "name": "redeem",
     "inputs": [
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "currencyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
       {
         "name": "tokenAmount",
         "type": "uint256",
@@ -425,25 +337,6 @@
       }
     ],
     "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "redeemSenior",
-    "inputs": [
-      {
-        "name": "tokenAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -461,7 +354,7 @@
   },
   {
     "type": "function",
-    "name": "relyInvestor",
+    "name": "repay",
     "inputs": [
       {
         "name": "usr",
@@ -469,9 +362,9 @@
         "internalType": "address"
       },
       {
-        "name": "__tranche",
-        "type": "string",
-        "internalType": "string"
+        "name": "currencyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -488,6 +381,35 @@
       },
       {
         "name": "y",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "rpow",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "n",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "base",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -599,7 +521,7 @@
   },
   {
     "type": "function",
-    "name": "senior",
+    "name": "self",
     "inputs": [],
     "outputs": [
       {
@@ -612,14 +534,8 @@
   },
   {
     "type": "function",
-    "name": "seniorInvestors",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "name": "suppliedCurrency",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -631,7 +547,30 @@
   },
   {
     "type": "function",
-    "name": "seniorToken",
+    "name": "supply",
+    "inputs": [
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "currencyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "token",
     "inputs": [],
     "outputs": [
       {
@@ -644,7 +583,7 @@
   },
   {
     "type": "function",
-    "name": "seniorTrancheCeiling",
+    "name": "tokenSupply",
     "inputs": [],
     "outputs": [
       {
@@ -657,121 +596,7 @@
   },
   {
     "type": "function",
-    "name": "setThreshold",
-    "inputs": [
-      {
-        "name": "_threshold",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setTrancheCeilings",
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "tranche",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "shelf",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract ShelfLike"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "state",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "enum WhitelistOperator.State"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "supply",
-    "inputs": [
-      {
-        "name": "currencyAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "supplyAllowed",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "supplyJunior",
-    "inputs": [
-      {
-        "name": "currencyAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "supplySenior",
-    "inputs": [
-      {
-        "name": "currencyAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "threshold",
+    "name": "totalRepayedAmount",
     "inputs": [],
     "outputs": [
       {
@@ -784,83 +609,7 @@
   },
   {
     "type": "function",
-    "name": "tokenReceivedJunior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "tokenReceivedSenior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "tokenRedeemedJunior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "tokenRedeemedSenior",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalDepositCurrencyJunior",
+    "name": "updatedDebt",
     "inputs": [],
     "outputs": [
       {
@@ -870,78 +619,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalDepositCurrencySenior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalRedeemedCurrencyJunior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalRedeemedCurrencySenior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalRedeemedTokensJunior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalRedeemedTokensSenior",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "updateState",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -964,6 +641,25 @@
   },
   {
     "type": "event",
+    "name": "Borrow",
+    "inputs": [
+      {
+        "name": "usr",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "currencyAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Deny",
     "inputs": [
       {
@@ -977,28 +673,79 @@
   },
   {
     "type": "event",
-    "name": "Redeem",
+    "name": "Depend",
     "inputs": [
       {
-        "name": "user",
+        "name": "contractName",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "addr",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Erc20Transfer",
+    "inputs": [
+      {
+        "name": "erc20",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "tranche",
+        "name": "usr",
         "type": "address",
-        "indexed": true,
+        "indexed": false,
         "internalType": "address"
       },
       {
-        "name": "currencyAmount",
+        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Filed",
+    "inputs": [
+      {
+        "name": "what",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
       },
       {
-        "name": "tokenAmount",
+        "name": "value",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Mint",
+    "inputs": [
+      {
+        "name": "usr",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -1011,28 +758,10 @@
     "name": "Redeem",
     "inputs": [
       {
-        "name": "poolId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tranche",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "receiver",
+        "name": "usr",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
-      },
-      {
-        "name": "tokenAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       },
       {
         "name": "currencyAmount",
@@ -1041,19 +770,7 @@
         "internalType": "uint256"
       },
       {
-        "name": "totalPoolBalance",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "juniorPoolBalance",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "seniorPoolBalance",
+        "name": "tokenAmount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -1076,16 +793,10 @@
   },
   {
     "type": "event",
-    "name": "Supply",
+    "name": "Repay",
     "inputs": [
       {
-        "name": "user",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "tranche",
+        "name": "usr",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -1104,85 +815,49 @@
     "name": "Supply",
     "inputs": [
       {
-        "name": "poolId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tranche",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "supplier",
+        "name": "usr",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "amount",
+        "name": "currencyAmount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
       },
       {
-        "name": "totalPoolBalance",
+        "name": "tokenAmount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
-      },
-      {
-        "name": "juniorPoolBalance",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "seniorPoolBalance",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "UpdatedPoolState",
-    "inputs": [
-      {
-        "name": "state",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum WhitelistOperator.State"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "WhitelistedInvestor",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tranche",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
       }
     ],
     "anonymous": false
   },
   {
     "type": "error",
-    "name": "CapitalFormationPeriodOver",
+    "name": "CurrencyAmountTransferMismatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Erc20TransferFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ForbiddenTokenTransfer",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientCurrencyBalanceInTranche",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientTrancheTokenBalance",
     "inputs": []
   },
   {
@@ -1192,12 +867,7 @@
   },
   {
     "type": "error",
-    "name": "InvalidTranche",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "LoadNotEnded",
+    "name": "InvalidFileParam",
     "inputs": []
   },
   {
@@ -1207,27 +877,17 @@
   },
   {
     "type": "error",
-    "name": "NotWhitelisted",
+    "name": "PerformanceFeeTooHigh",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "OnlyAdmin",
+    "name": "PeriodTooHigh",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "ReentrancyGuardReentrantCall",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "SupplyNotAllowed",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "TrancheFull",
+    "name": "RateTooHigh",
     "inputs": []
   },
   {

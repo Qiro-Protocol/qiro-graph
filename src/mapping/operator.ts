@@ -1,8 +1,7 @@
 import {
-  Supply1 as Supply1Event,
-  Redeem1 as Redeem1Event,
+  Supply1 as SupplyOperatorEvent,
+  Redeem1 as RedeemOperatorEvent,
   UpdatedPoolState as UpdatedPoolStateEvent,
-  Supply1,
 } from "../../generated/templates/Operator/WhitelistOperator";
 
 import { Supply, Redeem, Pool, Tranche, User, UserPool, WhitelistOperatorToPoolIdMapping } from "../../generated/schema";
@@ -10,7 +9,7 @@ import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
 
-export function handleSupply(event: Supply1Event): void {
+export function handleSupply(event: SupplyOperatorEvent): void {
   let entity = new Supply(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -61,7 +60,7 @@ export function handleSupply(event: Supply1Event): void {
   user!.save();
 }
 
-export function handleRedeem(event: Redeem1Event): void {
+export function handleRedeem(event: RedeemOperatorEvent): void {
   let entity = new Redeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -140,6 +139,27 @@ export function handleUpdatedPoolState(event: UpdatedPoolStateEvent): void {
     log.error("missing pool for poll status update: {}", [mapping.poolId.toHexString()]);
     return;
   }
-  pool.poolStatus = event.params.state;
+  pool.poolStatus = getPoolStatusString(event.params.state);
   pool.save();
+}
+
+function getPoolStatusString(poolStatus: i32): string {
+  switch (poolStatus) {
+    case 0:
+      return "CAPITAL_FORMATION";
+    case 1:
+      return "PENDING";
+    case 2:
+      return "ACTIVE";
+    case 3:
+      return "REVOKED";
+    case 4:
+      return "PARTIAL_REDEEM";
+    case 5:
+      return "REDEEM";
+    case 6:
+      return "ENDED";
+    default:
+      return "UNKNOWN";
+  }
 }

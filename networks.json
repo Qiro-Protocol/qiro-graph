@@ -6,8 +6,11 @@
     }
   },
   "polygon-amoy": {
-    "": {
+    "QiroNft": {
       "address": "0x54821D790fAAFD341013Ca72D8f4DB0A74EA90bF"
+    },
+    "SeniorTranche": {
+      "address": "0x40BF73651Ba1d4eEaE37D8b7b2B824B6E057FCe4"
     }
   }
 }
