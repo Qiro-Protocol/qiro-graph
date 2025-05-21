@@ -22,17 +22,13 @@ import {
 import { crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Coordinator } from "../generated/Coordinator/Coordinator";
 
-//let coordinatorAddress = Address.fromString(
-//  "0x81837a2eB8e0C6e6A009d672E4f19347c9eA2f1E"
-//);
-//let consumerAddress = Address.fromString(
-//  "0x85f50696e7e4ee5589af37cbcf9d235e640fc3e3"
-//);
+// Coordinator addresses
+const COORDINATOR_1 = "0xC758A17CD1ff3d1B2F6aa1325c038Ba28B70B9e6";
+const COORDINATOR_2 = "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67";
 
-let coordinatorAddress = Address.fromString(
-  "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
- );
- let consumerAddress = Address.fromString("0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1");
+// Consumer addresses
+const CONSUMER_1 = "0x6C983f59841613AD46F8EF6596A621F43b29D81a";
+const CONSUMER_2 = "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4";
 
 export function handleSubscriptionCreated(
   event: SubscriptionCreatedEvent
@@ -41,8 +37,17 @@ export function handleSubscriptionCreated(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
 
-  let coordinator = Coordinator.bind(event.address); // better
-  let consumer = RitualConsumer.bind(consumerAddress); // 
+  let coordinator = Coordinator.bind(event.address);
+
+  let consumerAddress: Address;
+
+  if (event.address.toHexString() == COORDINATOR_1) {
+    consumerAddress = Address.fromString(CONSUMER_1);
+  } else {
+    consumerAddress = Address.fromString(CONSUMER_2);
+  }
+
+  let consumer = RitualConsumer.bind(consumerAddress);
   let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
   log.info("isComputeSub {}", [
@@ -56,6 +61,7 @@ export function handleSubscriptionCreated(
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
     entity.subscriptionId = event.params.id;
+    entity.coordinatorAddress = event.address;
     // try {
     // entity.tokenId = consumer.subIdToTokenId(event.params.id);
     // } catch (error) {
@@ -98,7 +104,14 @@ export function handleSubscriptionFulfilled(
   let cID = Bytes.fromByteArray(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
-  let coordinator = Coordinator.bind(coordinatorAddress);
+
+  let consumerAddress: Address;
+  if (event.address.toHexString() == COORDINATOR_1) {
+    consumerAddress = Address.fromString(CONSUMER_1);
+  } else {
+    consumerAddress = Address.fromString(CONSUMER_2);
+  }
+
   let consumer = RitualConsumer.bind(consumerAddress);
   let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;

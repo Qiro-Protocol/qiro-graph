@@ -173,7 +173,7 @@ type User @entity(immutable: false) {
   totalBorrowed: BigInt!
   totalRepayed: BigInt!
   transactionHistory: [Transaction!]!
-  }
+}
 
 type UserPool @entity {
   id: Bytes!
@@ -199,6 +199,7 @@ type ComputeSubscription @entity {
   average_loss_given_default: BigInt!
   average_risk_score: BigInt!
   average_exposure_at_default: BigInt!
+  coordinatorAddress: Bytes!
 }
 
 type SubscriptionResponse @entity {

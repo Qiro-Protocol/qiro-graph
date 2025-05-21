@@ -61,12 +61,58 @@ dataSources:
           handler: handleSubscriptionFulfilled
       file: ./src/coordinator.ts
   - kind: ethereum
+    name: Coordinator2
+    network: polygon-amoy
+    source:
+      address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
+      abi: Coordinator
+      startBlock: 21903175
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: ./abis/Coordinator.json
+        - name: RitualConsumer
+          file: ./abis/RitualConsumer.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: ./src/coordinator.ts
+  - kind: ethereum
     name: RitualConsumer
     network: polygon-amoy
     source:
       address: "0x6C983f59841613AD46F8EF6596A621F43b29D81a"
       abi: RitualConsumer
       startBlock: 18502707
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: RitualConsumer
+          file: ./abis/RitualConsumer.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
+      file: ./src/coordinator.ts
+  - kind: ethereum
+    name: RitualConsumer2
+    network: polygon-amoy
+    source:
+      address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
+      abi: RitualConsumer
+      startBlock: 21903119
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
