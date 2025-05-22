@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: plume-testnet
     source:
-      address: "0xF2C735B00cC149936C2904C70ed5420f9f1680E2"
+      address: "0x9506C704cAAb30D88605Fda9af65fd5fb4917986"
       abi: QiroFactory
-      startBlock: 9781467
+      startBlock: 10711285
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -41,9 +41,9 @@ dataSources:
     name: Coordinator
     network: plume-testnet
     source:
-      address: "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
+      address: "0x5F165ab61bd2c5D351BA7a26340d5Cbf0E486dE4"
       abi: Coordinator
-      startBlock: 9781467
+      startBlock: 10712310
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -66,9 +66,55 @@ dataSources:
     name: RitualConsumer
     network: plume-testnet
     source:
-      address: "0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1"
+      address: "0xC40a199F96306b55816BD77297Ffd275933217eA"
       abi: RitualConsumer
-      startBlock: 9781467
+      startBlock: 10713379
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: RitualConsumer
+          file: RitualConsumer/RitualConsumer.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
+      file: Coordinator/Coordinator.wasm
+  - kind: ethereum
+    name: Coordinator2
+    network: plume-testnet
+    source:
+      address: "0xe94874110a55450EdF0d28618A2eD56B7ef00AA5"
+      abi: Coordinator
+      startBlock: 13493163
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: Coordinator/Coordinator.json
+        - name: RitualConsumer
+          file: Coordinator/RitualConsumer.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: Coordinator/Coordinator.wasm
+  - kind: ethereum
+    name: RitualConsumer2
+    network: plume-testnet
+    source:
+      address: "0xD3a5f5a59Cfc7A3e916CEb515508EECACEeBCBA1"
+      abi: RitualConsumer
+      startBlock: 13493183
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
