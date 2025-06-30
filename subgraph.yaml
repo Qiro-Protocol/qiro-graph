@@ -36,6 +36,8 @@ dataSources:
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
+        - event: FactoryCreated(address)
+          handler: handleFactoryCreated
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
@@ -192,9 +194,9 @@ templates:
         - name: TrustOperator
           file: ./abis/TrustOperator.json
       eventHandlers:
-        - event: Supply(uint256,string,address,uint256,uint256,uint256,uint256)
+        - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
-        - event: Redeem(uint256,string,address,uint256,uint256,uint256,uint256,uint256)
+        - event: Redeem(uint256,address,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract

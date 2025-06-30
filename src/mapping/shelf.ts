@@ -26,16 +26,18 @@ import {
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
+import { getPoolId, PoolStatus } from "../util";
+
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
-  entity.poolId = event.params.poolId;
+  entity.pool = getPoolId(event.params.poolId);
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  updatePoolStatus(event.params.poolId, "ACTIVE");
+  updatePoolStatus(event.params.poolId, PoolStatus.ACTIVE);
 
   createTxnAndUpdateUser(
     "POOL_INITIALED",

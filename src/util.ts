@@ -35,3 +35,8 @@ export enum TrancheType {
   JUNIOR = "JUNIOR",
   SENIOR = "SENIOR"
 }
+
+export enum SupplyRedeemActionType {
+  SUPPLY = "SUPPLY",
+  REDEEM = "REDEEM",
+}

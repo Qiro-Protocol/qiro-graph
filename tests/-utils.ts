@@ -10,7 +10,7 @@ import {
   Rely,
   Transfer,
   UpdateNftData
-} from "../generated//"
+} from "../generated/QiroNFT/QiroNFT"
 
 export function createApprovalEvent(
   owner: Address,

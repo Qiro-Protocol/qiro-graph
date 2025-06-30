@@ -59,8 +59,6 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
 function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): void {
   // Start
   let entity = new Pool(pool.pool); // event.poolId in bytes
-  let seniorTranche = new Tranche(pool.shelf);
-  let juniorTranche = new Tranche(pool.operator);
   let poolAddresses = new PoolAddresses(pool.pool);
 
   let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
@@ -127,6 +125,9 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   let junTokenContract = ERC20.bind(junTrancheContract.token());
   let senTokenContract = ERC20.bind(operator.seniorToken());
 
+  let seniorTranche = new Tranche(seniorTranch);
+  let juniorTranche = new Tranche(juniorTranch);
+
   juniorTranche.pool = pool.pool;
   juniorTranche.trancheType = TrancheType.JUNIOR;
   juniorTranche.totalTokenSupply = new BigInt(0);
@@ -140,7 +141,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   juniorTranche.save();
 
   seniorTranche.pool = pool.pool;
-  seniorTranche.trancheType = "SENIOR";
+  seniorTranche.trancheType = TrancheType.SENIOR;
   seniorTranche.totalTokenSupply = new BigInt(0);
   seniorTranche.totalBalance = new BigInt(0);
   seniorTranche.trancheAddress = seniorTranch;

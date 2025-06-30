@@ -10,6 +10,24 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class FactoryCreated extends ethereum.Event {
+  get params(): FactoryCreated__Params {
+    return new FactoryCreated__Params(this);
+  }
+}
+
+export class FactoryCreated__Params {
+  _event: FactoryCreated;
+
+  constructor(event: FactoryCreated) {
+    this._event = event;
+  }
+
+  get factory(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
 export class OwnershipTransferred extends ethereum.Event {
   get params(): OwnershipTransferred__Params {
     return new OwnershipTransferred__Params(this);
@@ -762,6 +780,29 @@ export class QiroFactory extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
+
+  whitelistManager(): Address {
+    let result = super.call(
+      "whitelistManager",
+      "whitelistManager():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_whitelistManager(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "whitelistManager",
+      "whitelistManager():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
 }
 
 export class ConstructorCall extends ethereum.Call {
@@ -1380,6 +1421,36 @@ export class TransferOwnershipCall__Outputs {
   _call: TransferOwnershipCall;
 
   constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateWhitelistManagerCall extends ethereum.Call {
+  get inputs(): UpdateWhitelistManagerCall__Inputs {
+    return new UpdateWhitelistManagerCall__Inputs(this);
+  }
+
+  get outputs(): UpdateWhitelistManagerCall__Outputs {
+    return new UpdateWhitelistManagerCall__Outputs(this);
+  }
+}
+
+export class UpdateWhitelistManagerCall__Inputs {
+  _call: UpdateWhitelistManagerCall;
+
+  constructor(call: UpdateWhitelistManagerCall) {
+    this._call = call;
+  }
+
+  get _whitelistManager(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class UpdateWhitelistManagerCall__Outputs {
+  _call: UpdateWhitelistManagerCall;
+
+  constructor(call: UpdateWhitelistManagerCall) {
     this._call = call;
   }
 }

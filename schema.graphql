@@ -49,7 +49,6 @@ enum PoolType {
 
 type QiroFactory @entity(immutable: true) {
   id: Bytes!
-  factoryAddress: Bytes! # address
   shelfFab: Bytes! # address
   trustOperatorFab: Bytes! # address
   whitelistOperatorFab: Bytes! # address
@@ -109,6 +108,7 @@ type Pool @entity(immutable: false) {
   repayments: [LoanRepayed!] @derivedFrom(field: "pool")
   withdrawals: [LoanWithdrawn!] @derivedFrom(field: "pool")
   supplyRedeems: [SupplyRedeem!] @derivedFrom(field: "pool")
+  poolDeployed: PoolDeployed! @derivedFrom(field: "pool")
 }
 
 type PoolAddresses @entity(immutable: false) {

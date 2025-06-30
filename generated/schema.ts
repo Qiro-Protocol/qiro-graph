@@ -454,19 +454,6 @@ export class QiroFactory extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get factoryAddress(): Bytes {
-    let value = this.get("factoryAddress");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set factoryAddress(value: Bytes) {
-    this.set("factoryAddress", Value.fromBytes(value));
-  }
-
   get shelfFab(): Bytes {
     let value = this.get("shelfFab");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1163,6 +1150,14 @@ export class Pool extends Entity {
       "Pool",
       this.get("id")!.toBytes().toHexString(),
       "supplyRedeems",
+    );
+  }
+
+  get poolDeployed(): PoolDeployedLoader {
+    return new PoolDeployedLoader(
+      "Pool",
+      this.get("id")!.toBytes().toHexString(),
+      "poolDeployed",
     );
   }
 }
@@ -4749,6 +4744,24 @@ export class SupplyRedeemLoader extends Entity {
   load(): SupplyRedeem[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<SupplyRedeem[]>(value);
+  }
+}
+
+export class PoolDeployedLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): PoolDeployed[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<PoolDeployed[]>(value);
   }
 }
 
