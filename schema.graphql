@@ -41,6 +41,11 @@ enum SupplyRedeemType {
   REDEEM
 }
 
+enum PoolType {
+  LOAN
+  SECURITIZATION
+}
+
 type QiroFactory @entity(immutable: true) {
   id: Bytes!
   factoryAddress: Bytes! # address
@@ -51,6 +56,7 @@ type QiroFactory @entity(immutable: true) {
   distributorFab: Bytes! # address
   seniorTrancheFab: Bytes! # address
   juniorTrancheFab: Bytes! # address
+  qiroFeeCollector: Bytes! # address
   owner: Bytes! # address
   poolCount: BigInt! # uint256
   blockTimestamp: BigInt!
@@ -92,6 +98,7 @@ type Pool @entity(immutable: false) {
   outstandingPrincipal: BigInt! # uint256
   outstandingInterest: BigInt! # uint256
   isBullet: Boolean! # bool
+  poolType: PoolType! # enum
   isPaused: Boolean! # bool
   juniorTranche: Tranche! @derivedFrom(field: "pool")
   seniorTranche: Tranche! @derivedFrom(field: "pool")
@@ -112,6 +119,9 @@ type PoolAddresses @entity(immutable: false) {
   trustOperator: Bytes! # address
   juniorTranche: Bytes! # address
   seniorTranche: Bytes! # address
+  lenderDeployer: Bytes! # address
+  borrowerDeployer: Bytes! # address
+  admin: Bytes! # address
   currency: PoolCurrency!
   seniorToken: Bytes! # address
   juniorToken: Bytes! # address
