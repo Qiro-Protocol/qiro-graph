@@ -10,42 +10,16 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
-export class AuthTransfer extends ethereum.Event {
-  get params(): AuthTransfer__Params {
-    return new AuthTransfer__Params(this);
+export class Borrow extends ethereum.Event {
+  get params(): Borrow__Params {
+    return new Borrow__Params(this);
   }
 }
 
-export class AuthTransfer__Params {
-  _event: AuthTransfer;
+export class Borrow__Params {
+  _event: Borrow;
 
-  constructor(event: AuthTransfer) {
-    this._event = event;
-  }
-
-  get erc20(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get usr(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
-export class Burn extends ethereum.Event {
-  get params(): Burn__Params {
-    return new Burn__Params(this);
-  }
-}
-
-export class Burn__Params {
-  _event: Burn;
-
-  constructor(event: Burn) {
+  constructor(event: Borrow) {
     this._event = event;
   }
 
@@ -53,7 +27,7 @@ export class Burn__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get amount(): BigInt {
+  get currencyAmount(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 }
@@ -98,6 +72,54 @@ export class Depend__Params {
   }
 }
 
+export class Erc20Transfer extends ethereum.Event {
+  get params(): Erc20Transfer__Params {
+    return new Erc20Transfer__Params(this);
+  }
+}
+
+export class Erc20Transfer__Params {
+  _event: Erc20Transfer;
+
+  constructor(event: Erc20Transfer) {
+    this._event = event;
+  }
+
+  get erc20(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get usr(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class Filed extends ethereum.Event {
+  get params(): Filed__Params {
+    return new Filed__Params(this);
+  }
+}
+
+export class Filed__Params {
+  _event: Filed;
+
+  constructor(event: Filed) {
+    this._event = event;
+  }
+
+  get what(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get value(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
 export class Mint extends ethereum.Event {
   get params(): Mint__Params {
     return new Mint__Params(this);
@@ -120,6 +142,32 @@ export class Mint__Params {
   }
 }
 
+export class Redeem extends ethereum.Event {
+  get params(): Redeem__Params {
+    return new Redeem__Params(this);
+  }
+}
+
+export class Redeem__Params {
+  _event: Redeem;
+
+  constructor(event: Redeem) {
+    this._event = event;
+  }
+
+  get usr(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get currencyAmount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get tokenAmount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class Rely extends ethereum.Event {
   get params(): Rely__Params {
     return new Rely__Params(this);
@@ -138,9 +186,97 @@ export class Rely__Params {
   }
 }
 
+export class Repay extends ethereum.Event {
+  get params(): Repay__Params {
+    return new Repay__Params(this);
+  }
+}
+
+export class Repay__Params {
+  _event: Repay;
+
+  constructor(event: Repay) {
+    this._event = event;
+  }
+
+  get usr(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get currencyAmount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class Supply extends ethereum.Event {
+  get params(): Supply__Params {
+    return new Supply__Params(this);
+  }
+}
+
+export class Supply__Params {
+  _event: Supply;
+
+  constructor(event: Supply) {
+    this._event = event;
+  }
+
+  get usr(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get currencyAmount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get tokenAmount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class Tranche__calculatePeriodPaymentResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getPrincipalPayment(): BigInt {
+    return this.value0;
+  }
+
+  getInterestPayment(): BigInt {
+    return this.value1;
+  }
+}
+
 export class Tranche extends ethereum.SmartContract {
   static bind(address: Address): Tranche {
     return new Tranche("Tranche", address);
+  }
+
+  assessor(): Address {
+    let result = super.call("assessor", "assessor():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_assessor(): ethereum.CallResult<Address> {
+    let result = super.tryCall("assessor", "assessor():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   balance(): BigInt {
@@ -151,6 +287,181 @@ export class Tranche extends ethereum.SmartContract {
 
   try_balance(): ethereum.CallResult<BigInt> {
     let result = super.tryCall("balance", "balance():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  borrowed(): BigInt {
+    let result = super.call("borrowed", "borrowed():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_borrowed(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("borrowed", "borrowed():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  calcLoanTermInterest(): BigInt {
+    let result = super.call(
+      "calcLoanTermInterest",
+      "calcLoanTermInterest():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_calcLoanTermInterest(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "calcLoanTermInterest",
+      "calcLoanTermInterest():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  calcSeniorPerformanceFee(): BigInt {
+    let result = super.call(
+      "calcSeniorPerformanceFee",
+      "calcSeniorPerformanceFee():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_calcSeniorPerformanceFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "calcSeniorPerformanceFee",
+      "calcSeniorPerformanceFee():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  calculatePeriodPayment(
+    periodNumber: BigInt,
+    initialPrincipal: BigInt,
+    annualRateInBasisPoints: BigInt,
+    _periodLength: BigInt,
+    totalPeriods: BigInt,
+    _pStartFrom: BigInt,
+    _pRepayFrequency: BigInt,
+  ): Tranche__calculatePeriodPaymentResult {
+    let result = super.call(
+      "calculatePeriodPayment",
+      "calculatePeriodPayment(uint256,uint256,uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(periodNumber),
+        ethereum.Value.fromUnsignedBigInt(initialPrincipal),
+        ethereum.Value.fromUnsignedBigInt(annualRateInBasisPoints),
+        ethereum.Value.fromUnsignedBigInt(_periodLength),
+        ethereum.Value.fromUnsignedBigInt(totalPeriods),
+        ethereum.Value.fromUnsignedBigInt(_pStartFrom),
+        ethereum.Value.fromUnsignedBigInt(_pRepayFrequency),
+      ],
+    );
+
+    return new Tranche__calculatePeriodPaymentResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+    );
+  }
+
+  try_calculatePeriodPayment(
+    periodNumber: BigInt,
+    initialPrincipal: BigInt,
+    annualRateInBasisPoints: BigInt,
+    _periodLength: BigInt,
+    totalPeriods: BigInt,
+    _pStartFrom: BigInt,
+    _pRepayFrequency: BigInt,
+  ): ethereum.CallResult<Tranche__calculatePeriodPaymentResult> {
+    let result = super.tryCall(
+      "calculatePeriodPayment",
+      "calculatePeriodPayment(uint256,uint256,uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(periodNumber),
+        ethereum.Value.fromUnsignedBigInt(initialPrincipal),
+        ethereum.Value.fromUnsignedBigInt(annualRateInBasisPoints),
+        ethereum.Value.fromUnsignedBigInt(_periodLength),
+        ethereum.Value.fromUnsignedBigInt(totalPeriods),
+        ethereum.Value.fromUnsignedBigInt(_pStartFrom),
+        ethereum.Value.fromUnsignedBigInt(_pRepayFrequency),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Tranche__calculatePeriodPaymentResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+      ),
+    );
+  }
+
+  calculateTotalInterestForAmortisation(
+    _principalAmount: BigInt,
+    _periodCount: BigInt,
+    _periodLength: BigInt,
+    _aprInBasisPoints: BigInt,
+    _pStartFrom: BigInt,
+    _pRepayFrequency: BigInt,
+  ): BigInt {
+    let result = super.call(
+      "calculateTotalInterestForAmortisation",
+      "calculateTotalInterestForAmortisation(uint256,uint256,uint256,uint256,uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_principalAmount),
+        ethereum.Value.fromUnsignedBigInt(_periodCount),
+        ethereum.Value.fromUnsignedBigInt(_periodLength),
+        ethereum.Value.fromUnsignedBigInt(_aprInBasisPoints),
+        ethereum.Value.fromUnsignedBigInt(_pStartFrom),
+        ethereum.Value.fromUnsignedBigInt(_pRepayFrequency),
+      ],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_calculateTotalInterestForAmortisation(
+    _principalAmount: BigInt,
+    _periodCount: BigInt,
+    _periodLength: BigInt,
+    _aprInBasisPoints: BigInt,
+    _pStartFrom: BigInt,
+    _pRepayFrequency: BigInt,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "calculateTotalInterestForAmortisation",
+      "calculateTotalInterestForAmortisation(uint256,uint256,uint256,uint256,uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_principalAmount),
+        ethereum.Value.fromUnsignedBigInt(_periodCount),
+        ethereum.Value.fromUnsignedBigInt(_periodLength),
+        ethereum.Value.fromUnsignedBigInt(_aprInBasisPoints),
+        ethereum.Value.fromUnsignedBigInt(_pStartFrom),
+        ethereum.Value.fromUnsignedBigInt(_pRepayFrequency),
+      ],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -173,20 +484,14 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  rdiv(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("rdiv", "rdiv(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  debt(): BigInt {
+    let result = super.call("debt", "debt():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_rdiv(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("rdiv", "rdiv(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  try_debt(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("debt", "debt():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -194,20 +499,29 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  rmul(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("rmul", "rmul(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  isBulletLoan(): boolean {
+    let result = super.call("isBulletLoan", "isBulletLoan():(bool)", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_isBulletLoan(): ethereum.CallResult<boolean> {
+    let result = super.tryCall("isBulletLoan", "isBulletLoan():(bool)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  lastUpdated(): BigInt {
+    let result = super.call("lastUpdated", "lastUpdated():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_rmul(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("rmul", "rmul(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  try_lastUpdated(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("lastUpdated", "lastUpdated():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -215,23 +529,21 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  safeAdd(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("safeAdd", "safeAdd(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  pRepayFrequency(): BigInt {
+    let result = super.call(
+      "pRepayFrequency",
+      "pRepayFrequency():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
-  try_safeAdd(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
+  try_pRepayFrequency(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "safeAdd",
-      "safeAdd(uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromUnsignedBigInt(x),
-        ethereum.Value.fromUnsignedBigInt(y),
-      ],
+      "pRepayFrequency",
+      "pRepayFrequency():(uint256)",
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -240,23 +552,32 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  safeDiv(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("safeDiv", "safeDiv(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  pStartFrom(): BigInt {
+    let result = super.call("pStartFrom", "pStartFrom():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_safeDiv(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
+  try_pStartFrom(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("pStartFrom", "pStartFrom():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  performanceFee(): BigInt {
+    let result = super.call("performanceFee", "performanceFee():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_performanceFee(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "safeDiv",
-      "safeDiv(uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromUnsignedBigInt(x),
-        ethereum.Value.fromUnsignedBigInt(y),
-      ],
+      "performanceFee",
+      "performanceFee():(uint256)",
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -265,24 +586,14 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  safeMul(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("safeMul", "safeMul(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  period(): BigInt {
+    let result = super.call("period", "period():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_safeMul(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "safeMul",
-      "safeMul(uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromUnsignedBigInt(x),
-        ethereum.Value.fromUnsignedBigInt(y),
-      ],
-    );
+  try_period(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("period", "period():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -290,24 +601,44 @@ export class Tranche extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  safeSub(x: BigInt, y: BigInt): BigInt {
-    let result = super.call("safeSub", "safeSub(uint256,uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(x),
-      ethereum.Value.fromUnsignedBigInt(y),
-    ]);
+  periodCount(): BigInt {
+    let result = super.call("periodCount", "periodCount():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_safeSub(x: BigInt, y: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "safeSub",
-      "safeSub(uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromUnsignedBigInt(x),
-        ethereum.Value.fromUnsignedBigInt(y),
-      ],
-    );
+  try_periodCount(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("periodCount", "periodCount():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  periodLength(): BigInt {
+    let result = super.call("periodLength", "periodLength():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_periodLength(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("periodLength", "periodLength():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  principal(): BigInt {
+    let result = super.call("principal", "principal():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_principal(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("principal", "principal():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -328,6 +659,48 @@ export class Tranche extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  seniorAprInBps(): BigInt {
+    let result = super.call("seniorAprInBps", "seniorAprInBps():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_seniorAprInBps(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "seniorAprInBps",
+      "seniorAprInBps():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  suppliedCurrency(): BigInt {
+    let result = super.call(
+      "suppliedCurrency",
+      "suppliedCurrency():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_suppliedCurrency(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "suppliedCurrency",
+      "suppliedCurrency():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   token(): Address {
@@ -353,6 +726,83 @@ export class Tranche extends ethereum.SmartContract {
 
   try_tokenSupply(): ethereum.CallResult<BigInt> {
     let result = super.tryCall("tokenSupply", "tokenSupply():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  totalInterestForBullet(
+    _period: BigInt,
+    principal_: BigInt,
+    annualInterestRateInBps: BigInt,
+  ): BigInt {
+    let result = super.call(
+      "totalInterestForBullet",
+      "totalInterestForBullet(uint256,uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_period),
+        ethereum.Value.fromUnsignedBigInt(principal_),
+        ethereum.Value.fromUnsignedBigInt(annualInterestRateInBps),
+      ],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalInterestForBullet(
+    _period: BigInt,
+    principal_: BigInt,
+    annualInterestRateInBps: BigInt,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalInterestForBullet",
+      "totalInterestForBullet(uint256,uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_period),
+        ethereum.Value.fromUnsignedBigInt(principal_),
+        ethereum.Value.fromUnsignedBigInt(annualInterestRateInBps),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  totalRepayedAmount(): BigInt {
+    let result = super.call(
+      "totalRepayedAmount",
+      "totalRepayedAmount():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalRepayedAmount(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalRepayedAmount",
+      "totalRepayedAmount():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  updatedDebt(): BigInt {
+    let result = super.call("updatedDebt", "updatedDebt():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_updatedDebt(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("updatedDebt", "updatedDebt():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -404,50 +854,16 @@ export class ConstructorCall__Inputs {
   get currency_(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
+
+  get assessor_(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
 }
 
 export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
-export class AuthTransferCall extends ethereum.Call {
-  get inputs(): AuthTransferCall__Inputs {
-    return new AuthTransferCall__Inputs(this);
-  }
-
-  get outputs(): AuthTransferCall__Outputs {
-    return new AuthTransferCall__Outputs(this);
-  }
-}
-
-export class AuthTransferCall__Inputs {
-  _call: AuthTransferCall;
-
-  constructor(call: AuthTransferCall) {
-    this._call = call;
-  }
-
-  get erc20(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get usr(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-}
-
-export class AuthTransferCall__Outputs {
-  _call: AuthTransferCall;
-
-  constructor(call: AuthTransferCall) {
     this._call = call;
   }
 }
@@ -546,6 +962,78 @@ export class DependCall__Outputs {
   _call: DependCall;
 
   constructor(call: DependCall) {
+    this._call = call;
+  }
+}
+
+export class Erc20TransferCall extends ethereum.Call {
+  get inputs(): Erc20TransferCall__Inputs {
+    return new Erc20TransferCall__Inputs(this);
+  }
+
+  get outputs(): Erc20TransferCall__Outputs {
+    return new Erc20TransferCall__Outputs(this);
+  }
+}
+
+export class Erc20TransferCall__Inputs {
+  _call: Erc20TransferCall;
+
+  constructor(call: Erc20TransferCall) {
+    this._call = call;
+  }
+
+  get erc20(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get usr(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+}
+
+export class Erc20TransferCall__Outputs {
+  _call: Erc20TransferCall;
+
+  constructor(call: Erc20TransferCall) {
+    this._call = call;
+  }
+}
+
+export class FileCall extends ethereum.Call {
+  get inputs(): FileCall__Inputs {
+    return new FileCall__Inputs(this);
+  }
+
+  get outputs(): FileCall__Outputs {
+    return new FileCall__Outputs(this);
+  }
+}
+
+export class FileCall__Inputs {
+  _call: FileCall;
+
+  constructor(call: FileCall) {
+    this._call = call;
+  }
+
+  get what(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get value(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class FileCall__Outputs {
+  _call: FileCall;
+
+  constructor(call: FileCall) {
     this._call = call;
   }
 }
@@ -682,6 +1170,36 @@ export class RepayCall__Outputs {
   _call: RepayCall;
 
   constructor(call: RepayCall) {
+    this._call = call;
+  }
+}
+
+export class SetIsBulletLoanCall extends ethereum.Call {
+  get inputs(): SetIsBulletLoanCall__Inputs {
+    return new SetIsBulletLoanCall__Inputs(this);
+  }
+
+  get outputs(): SetIsBulletLoanCall__Outputs {
+    return new SetIsBulletLoanCall__Outputs(this);
+  }
+}
+
+export class SetIsBulletLoanCall__Inputs {
+  _call: SetIsBulletLoanCall;
+
+  constructor(call: SetIsBulletLoanCall) {
+    this._call = call;
+  }
+
+  get isBulletLoan_(): boolean {
+    return this._call.inputValues[0].value.toBoolean();
+  }
+}
+
+export class SetIsBulletLoanCall__Outputs {
+  _call: SetIsBulletLoanCall;
+
+  constructor(call: SetIsBulletLoanCall) {
     this._call = call;
   }
 }

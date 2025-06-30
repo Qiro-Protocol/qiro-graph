@@ -10,21 +10,25 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
-export class Deny extends ethereum.Event {
-  get params(): Deny__Params {
-    return new Deny__Params(this);
+export class OwnershipTransferred extends ethereum.Event {
+  get params(): OwnershipTransferred__Params {
+    return new OwnershipTransferred__Params(this);
   }
 }
 
-export class Deny__Params {
-  _event: Deny;
+export class OwnershipTransferred__Params {
+  _event: OwnershipTransferred;
 
-  constructor(event: Deny) {
+  constructor(event: OwnershipTransferred) {
     this._event = event;
   }
 
-  get usr(): Address {
+  get previousOwner(): Address {
     return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -41,7 +45,7 @@ export class PoolCreated__Params {
     this._event = event;
   }
 
-  get id(): BigInt {
+  get poolId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 
@@ -60,6 +64,10 @@ export class PoolCreated__Params {
   get borrowerDeployer(): Address {
     return this._event.parameters[4].value.toAddress();
   }
+
+  get metadataIPFSHash(): Bytes {
+    return this._event.parameters[5].value.toBytes();
+  }
 }
 
 export class PoolDeployed extends ethereum.Event {
@@ -75,7 +83,7 @@ export class PoolDeployed__Params {
     this._event = event;
   }
 
-  get id(): BigInt {
+  get poolId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 
@@ -108,73 +116,47 @@ export class PoolDeployed__Params {
   }
 }
 
-export class Rely extends ethereum.Event {
-  get params(): Rely__Params {
-    return new Rely__Params(this);
+export class QiroFactory__createPoolInputTokenConfigStruct extends ethereum.Tuple {
+  get juniorTokenName(): string {
+    return this[0].toString();
+  }
+
+  get juniorTokenSymbol(): string {
+    return this[1].toString();
+  }
+
+  get seniorTokenName(): string {
+    return this[2].toString();
+  }
+
+  get seniorTokenSymbol(): string {
+    return this[3].toString();
   }
 }
 
-export class Rely__Params {
-  _event: Rely;
-
-  constructor(event: Rely) {
-    this._event = event;
+export class QiroFactory__createPoolInputParamsStruct extends ethereum.Tuple {
+  get lenderParams(): Array<BigInt> {
+    return this[0].toBigIntArray();
   }
 
-  get usr(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-}
-
-export class QiroFactory__poolListResult {
-  value0: BigInt;
-  value1: Address;
-  value2: Address;
-  value3: Address;
-  value4: Address;
-
-  constructor(
-    value0: BigInt,
-    value1: Address,
-    value2: Address,
-    value3: Address,
-    value4: Address,
-  ) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-    this.value3 = value3;
-    this.value4 = value4;
+  get shelfParams(): Array<BigInt> {
+    return this[1].toBigIntArray();
   }
 
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    map.set("value2", ethereum.Value.fromAddress(this.value2));
-    map.set("value3", ethereum.Value.fromAddress(this.value3));
-    map.set("value4", ethereum.Value.fromAddress(this.value4));
-    return map;
+  get distributorParams(): Array<BigInt> {
+    return this[2].toBigIntArray();
   }
 
-  getId(): BigInt {
-    return this.value0;
+  get isBulletRepay(): boolean {
+    return this[3].toBoolean();
   }
 
-  getDeployer(): Address {
-    return this.value1;
+  get fee(): Array<i32> {
+    return this[4].toI32Array();
   }
 
-  getRoot(): Address {
-    return this.value2;
-  }
-
-  getLenderDeployer(): Address {
-    return this.value3;
-  }
-
-  getBorrowerDeployer(): Address {
-    return this.value4;
+  get poolType(): i32 {
+    return this[5].toI32();
   }
 }
 
@@ -184,6 +166,10 @@ export class QiroFactory__poolsResult {
   value2: Address;
   value3: Address;
   value4: Address;
+  value5: Bytes;
+  value6: Address;
+  value7: i32;
+  value8: Address;
 
   constructor(
     value0: BigInt,
@@ -191,12 +177,20 @@ export class QiroFactory__poolsResult {
     value2: Address,
     value3: Address,
     value4: Address,
+    value5: Bytes,
+    value6: Address,
+    value7: i32,
+    value8: Address,
   ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
     this.value4 = value4;
+    this.value5 = value5;
+    this.value6 = value6;
+    this.value7 = value7;
+    this.value8 = value8;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -206,6 +200,13 @@ export class QiroFactory__poolsResult {
     map.set("value2", ethereum.Value.fromAddress(this.value2));
     map.set("value3", ethereum.Value.fromAddress(this.value3));
     map.set("value4", ethereum.Value.fromAddress(this.value4));
+    map.set("value5", ethereum.Value.fromFixedBytes(this.value5));
+    map.set("value6", ethereum.Value.fromAddress(this.value6));
+    map.set(
+      "value7",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value7)),
+    );
+    map.set("value8", ethereum.Value.fromAddress(this.value8));
     return map;
   }
 
@@ -227,6 +228,22 @@ export class QiroFactory__poolsResult {
 
   getBorrowerDeployer(): Address {
     return this.value4;
+  }
+
+  getMetadataIPFSHash(): Bytes {
+    return this.value5;
+  }
+
+  getPoolAdmin(): Address {
+    return this.value6;
+  }
+
+  getPoolType(): i32 {
+    return this.value7;
+  }
+
+  getServicerFeeCollector(): Address {
+    return this.value8;
   }
 }
 
@@ -250,30 +267,47 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  convertToRatePerSecond(aprInBps: BigInt): BigInt {
+    let result = super.call(
+      "convertToRatePerSecond",
+      "convertToRatePerSecond(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(aprInBps)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_convertToRatePerSecond(aprInBps: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "convertToRatePerSecond",
+      "convertToRatePerSecond(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(aprInBps)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   createPool(
     borrowerAddress: Address,
-    juniorTokenName: string,
-    juniorTokenSymbol: string,
-    seniorTokenName: string,
-    seniorTokenSymbol: string,
-    lenderParams: Array<BigInt>,
-    shelfParams: Array<BigInt>,
-    isBulletRepay: boolean,
-    fee: Array<i32>,
+    tokenId: BigInt,
+    metadataIPFSHash: Bytes,
+    servicerFeeCollector: Address,
+    tokenConfig: QiroFactory__createPoolInputTokenConfigStruct,
+    params: QiroFactory__createPoolInputParamsStruct,
   ): BigInt {
     let result = super.call(
       "createPool",
-      "createPool(address,string,string,string,string,uint256[4],uint256[5],bool,uint16[2]):(uint256)",
+      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[3],bool,uint16[2],uint8)):(uint256)",
       [
         ethereum.Value.fromAddress(borrowerAddress),
-        ethereum.Value.fromString(juniorTokenName),
-        ethereum.Value.fromString(juniorTokenSymbol),
-        ethereum.Value.fromString(seniorTokenName),
-        ethereum.Value.fromString(seniorTokenSymbol),
-        ethereum.Value.fromUnsignedBigIntArray(lenderParams),
-        ethereum.Value.fromUnsignedBigIntArray(shelfParams),
-        ethereum.Value.fromBoolean(isBulletRepay),
-        ethereum.Value.fromI32Array(fee),
+        ethereum.Value.fromUnsignedBigInt(tokenId),
+        ethereum.Value.fromFixedBytes(metadataIPFSHash),
+        ethereum.Value.fromAddress(servicerFeeCollector),
+        ethereum.Value.fromTuple(tokenConfig),
+        ethereum.Value.fromTuple(params),
       ],
     );
 
@@ -282,28 +316,22 @@ export class QiroFactory extends ethereum.SmartContract {
 
   try_createPool(
     borrowerAddress: Address,
-    juniorTokenName: string,
-    juniorTokenSymbol: string,
-    seniorTokenName: string,
-    seniorTokenSymbol: string,
-    lenderParams: Array<BigInt>,
-    shelfParams: Array<BigInt>,
-    isBulletRepay: boolean,
-    fee: Array<i32>,
+    tokenId: BigInt,
+    metadataIPFSHash: Bytes,
+    servicerFeeCollector: Address,
+    tokenConfig: QiroFactory__createPoolInputTokenConfigStruct,
+    params: QiroFactory__createPoolInputParamsStruct,
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "createPool",
-      "createPool(address,string,string,string,string,uint256[4],uint256[5],bool,uint16[2]):(uint256)",
+      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[3],bool,uint16[2],uint8)):(uint256)",
       [
         ethereum.Value.fromAddress(borrowerAddress),
-        ethereum.Value.fromString(juniorTokenName),
-        ethereum.Value.fromString(juniorTokenSymbol),
-        ethereum.Value.fromString(seniorTokenName),
-        ethereum.Value.fromString(seniorTokenSymbol),
-        ethereum.Value.fromUnsignedBigIntArray(lenderParams),
-        ethereum.Value.fromUnsignedBigIntArray(shelfParams),
-        ethereum.Value.fromBoolean(isBulletRepay),
-        ethereum.Value.fromI32Array(fee),
+        ethereum.Value.fromUnsignedBigInt(tokenId),
+        ethereum.Value.fromFixedBytes(metadataIPFSHash),
+        ethereum.Value.fromAddress(servicerFeeCollector),
+        ethereum.Value.fromTuple(tokenConfig),
+        ethereum.Value.fromTuple(params),
       ],
     );
     if (result.reverted) {
@@ -311,6 +339,29 @@ export class QiroFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  createPoolAccess(param0: Address): boolean {
+    let result = super.call(
+      "createPoolAccess",
+      "createPoolAccess(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_createPoolAccess(param0: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "createPoolAccess",
+      "createPoolAccess(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   currency(): Address {
@@ -328,73 +379,27 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  defaultInterestRate(): BigInt {
+  deployerFactory(): Address {
     let result = super.call(
-      "defaultInterestRate",
-      "defaultInterestRate():(uint256)",
+      "deployerFactory",
+      "deployerFactory():(address)",
       [],
     );
 
-    return result[0].toBigInt();
+    return result[0].toAddress();
   }
 
-  try_defaultInterestRate(): ethereum.CallResult<BigInt> {
+  try_deployerFactory(): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "defaultInterestRate",
-      "defaultInterestRate():(uint256)",
+      "deployerFactory",
+      "deployerFactory():(address)",
       [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  defaultLateFeeInterest(): BigInt {
-    let result = super.call(
-      "defaultLateFeeInterest",
-      "defaultLateFeeInterest():(uint256)",
-      [],
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_defaultLateFeeInterest(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "defaultLateFeeInterest",
-      "defaultLateFeeInterest():(uint256)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  defaultSeniorRate(): BigInt {
-    let result = super.call(
-      "defaultSeniorRate",
-      "defaultSeniorRate():(uint256)",
-      [],
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_defaultSeniorRate(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "defaultSeniorRate",
-      "defaultSeniorRate():(uint256)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   distributorFab(): Address {
@@ -416,14 +421,114 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  nftFeedFab(): Address {
-    let result = super.call("nftFeedFab", "nftFeedFab():(address)", []);
+  getRatePerSecondForAPRInBps(aprInBps: BigInt): BigInt {
+    let result = super.call(
+      "getRatePerSecondForAPRInBps",
+      "getRatePerSecondForAPRInBps(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(aprInBps)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getRatePerSecondForAPRInBps(
+    aprInBps: BigInt,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getRatePerSecondForAPRInBps",
+      "getRatePerSecondForAPRInBps(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(aprInBps)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  hasCreatePoolAccess(user: Address): boolean {
+    let result = super.call(
+      "hasCreatePoolAccess",
+      "hasCreatePoolAccess(address):(bool)",
+      [ethereum.Value.fromAddress(user)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_hasCreatePoolAccess(user: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "hasCreatePoolAccess",
+      "hasCreatePoolAccess(address):(bool)",
+      [ethereum.Value.fromAddress(user)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isAdmin(poolId: BigInt, admin: Address): boolean {
+    let result = super.call("isAdmin", "isAdmin(uint256,address):(bool)", [
+      ethereum.Value.fromUnsignedBigInt(poolId),
+      ethereum.Value.fromAddress(admin),
+    ]);
+
+    return result[0].toBoolean();
+  }
+
+  try_isAdmin(poolId: BigInt, admin: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall("isAdmin", "isAdmin(uint256,address):(bool)", [
+      ethereum.Value.fromUnsignedBigInt(poolId),
+      ethereum.Value.fromAddress(admin),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isInMemberList(param0: Address): boolean {
+    let result = super.call(
+      "isInMemberList",
+      "isInMemberList(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isInMemberList(param0: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isInMemberList",
+      "isInMemberList(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  juniorTrancheFab(): Address {
+    let result = super.call(
+      "juniorTrancheFab",
+      "juniorTrancheFab():(address)",
+      [],
+    );
 
     return result[0].toAddress();
   }
 
-  try_nftFeedFab(): ethereum.CallResult<Address> {
-    let result = super.tryCall("nftFeedFab", "nftFeedFab():(address)", []);
+  try_juniorTrancheFab(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "juniorTrancheFab",
+      "juniorTrancheFab():(address)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -446,6 +551,21 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   poolCount(): BigInt {
     let result = super.call("poolCount", "poolCount():(uint256)", []);
 
@@ -461,49 +581,10 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  poolList(param0: BigInt): QiroFactory__poolListResult {
-    let result = super.call(
-      "poolList",
-      "poolList(uint256):(uint256,address,address,address,address)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
-
-    return new QiroFactory__poolListResult(
-      result[0].toBigInt(),
-      result[1].toAddress(),
-      result[2].toAddress(),
-      result[3].toAddress(),
-      result[4].toAddress(),
-    );
-  }
-
-  try_poolList(
-    param0: BigInt,
-  ): ethereum.CallResult<QiroFactory__poolListResult> {
-    let result = super.tryCall(
-      "poolList",
-      "poolList(uint256):(uint256,address,address,address,address)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new QiroFactory__poolListResult(
-        value[0].toBigInt(),
-        value[1].toAddress(),
-        value[2].toAddress(),
-        value[3].toAddress(),
-        value[4].toAddress(),
-      ),
-    );
-  }
-
   pools(param0: BigInt): QiroFactory__poolsResult {
     let result = super.call(
       "pools",
-      "pools(uint256):(uint256,address,address,address,address)",
+      "pools(uint256):(uint256,address,address,address,address,bytes32,address,uint8,address)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
@@ -513,13 +594,17 @@ export class QiroFactory extends ethereum.SmartContract {
       result[2].toAddress(),
       result[3].toAddress(),
       result[4].toAddress(),
+      result[5].toBytes(),
+      result[6].toAddress(),
+      result[7].toI32(),
+      result[8].toAddress(),
     );
   }
 
   try_pools(param0: BigInt): ethereum.CallResult<QiroFactory__poolsResult> {
     let result = super.tryCall(
       "pools",
-      "pools(uint256):(uint256,address,address,address,address)",
+      "pools(uint256):(uint256,address,address,address,address,bytes32,address,uint8,address)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
@@ -533,18 +618,37 @@ export class QiroFactory extends ethereum.SmartContract {
         value[2].toAddress(),
         value[3].toAddress(),
         value[4].toAddress(),
+        value[5].toBytes(),
+        value[6].toAddress(),
+        value[7].toI32(),
+        value[8].toAddress(),
       ),
     );
   }
 
-  pricePoolFab(): Address {
-    let result = super.call("pricePoolFab", "pricePoolFab():(address)", []);
+  qiroAssetNFT(): Address {
+    let result = super.call("qiroAssetNFT", "qiroAssetNFT():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_pricePoolFab(): ethereum.CallResult<Address> {
-    let result = super.tryCall("pricePoolFab", "pricePoolFab():(address)", []);
+  try_qiroAssetNFT(): ethereum.CallResult<Address> {
+    let result = super.tryCall("qiroAssetNFT", "qiroAssetNFT():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  qiroConsumer(): Address {
+    let result = super.call("qiroConsumer", "qiroConsumer():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_qiroConsumer(): ethereum.CallResult<Address> {
+    let result = super.tryCall("qiroConsumer", "qiroConsumer():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -613,53 +717,50 @@ export class QiroFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  titleFab(): Address {
-    let result = super.call("titleFab", "titleFab():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_titleFab(): ethereum.CallResult<Address> {
-    let result = super.tryCall("titleFab", "titleFab():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  trancheFab(): Address {
-    let result = super.call("trancheFab", "trancheFab():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_trancheFab(): ethereum.CallResult<Address> {
-    let result = super.tryCall("trancheFab", "trancheFab():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  wards(param0: Address): BigInt {
-    let result = super.call("wards", "wards(address):(uint256)", [
-      ethereum.Value.fromAddress(param0),
-    ]);
+  tokenIdToPoolId(param0: BigInt): BigInt {
+    let result = super.call(
+      "tokenIdToPoolId",
+      "tokenIdToPoolId(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
-  try_wards(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("wards", "wards(address):(uint256)", [
-      ethereum.Value.fromAddress(param0),
-    ]);
+  try_tokenIdToPoolId(param0: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "tokenIdToPoolId",
+      "tokenIdToPoolId(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  trustOperatorFab(): Address {
+    let result = super.call(
+      "trustOperatorFab",
+      "trustOperatorFab():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_trustOperatorFab(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "trustOperatorFab",
+      "trustOperatorFab():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 }
 
@@ -687,12 +788,114 @@ export class ConstructorCall__Inputs {
   get _qiroFeeCollector(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
+
+  get _qiroConsumer(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+
+  get _qiroAssetNFT(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
 }
 
 export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+}
+
+export class AddMemberCall extends ethereum.Call {
+  get inputs(): AddMemberCall__Inputs {
+    return new AddMemberCall__Inputs(this);
+  }
+
+  get outputs(): AddMemberCall__Outputs {
+    return new AddMemberCall__Outputs(this);
+  }
+}
+
+export class AddMemberCall__Inputs {
+  _call: AddMemberCall;
+
+  constructor(call: AddMemberCall) {
+    this._call = call;
+  }
+
+  get address_(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class AddMemberCall__Outputs {
+  _call: AddMemberCall;
+
+  constructor(call: AddMemberCall) {
+    this._call = call;
+  }
+}
+
+export class AddMemberBulkCall extends ethereum.Call {
+  get inputs(): AddMemberBulkCall__Inputs {
+    return new AddMemberBulkCall__Inputs(this);
+  }
+
+  get outputs(): AddMemberBulkCall__Outputs {
+    return new AddMemberBulkCall__Outputs(this);
+  }
+}
+
+export class AddMemberBulkCall__Inputs {
+  _call: AddMemberBulkCall;
+
+  constructor(call: AddMemberBulkCall) {
+    this._call = call;
+  }
+
+  get address_(): Array<Address> {
+    return this._call.inputValues[0].value.toAddressArray();
+  }
+}
+
+export class AddMemberBulkCall__Outputs {
+  _call: AddMemberBulkCall;
+
+  constructor(call: AddMemberBulkCall) {
+    this._call = call;
+  }
+}
+
+export class ChangePoolAdminCall extends ethereum.Call {
+  get inputs(): ChangePoolAdminCall__Inputs {
+    return new ChangePoolAdminCall__Inputs(this);
+  }
+
+  get outputs(): ChangePoolAdminCall__Outputs {
+    return new ChangePoolAdminCall__Outputs(this);
+  }
+}
+
+export class ChangePoolAdminCall__Inputs {
+  _call: ChangePoolAdminCall;
+
+  constructor(call: ChangePoolAdminCall) {
+    this._call = call;
+  }
+
+  get poolId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get newAdmin(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class ChangePoolAdminCall__Outputs {
+  _call: ChangePoolAdminCall;
+
+  constructor(call: ChangePoolAdminCall) {
     this._call = call;
   }
 }
@@ -718,36 +921,28 @@ export class CreatePoolCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get juniorTokenName(): string {
-    return this._call.inputValues[1].value.toString();
+  get tokenId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 
-  get juniorTokenSymbol(): string {
-    return this._call.inputValues[2].value.toString();
+  get metadataIPFSHash(): Bytes {
+    return this._call.inputValues[2].value.toBytes();
   }
 
-  get seniorTokenName(): string {
-    return this._call.inputValues[3].value.toString();
+  get servicerFeeCollector(): Address {
+    return this._call.inputValues[3].value.toAddress();
   }
 
-  get seniorTokenSymbol(): string {
-    return this._call.inputValues[4].value.toString();
+  get tokenConfig(): CreatePoolCallTokenConfigStruct {
+    return changetype<CreatePoolCallTokenConfigStruct>(
+      this._call.inputValues[4].value.toTuple(),
+    );
   }
 
-  get lenderParams(): Array<BigInt> {
-    return this._call.inputValues[5].value.toBigIntArray();
-  }
-
-  get shelfParams(): Array<BigInt> {
-    return this._call.inputValues[6].value.toBigIntArray();
-  }
-
-  get isBulletRepay(): boolean {
-    return this._call.inputValues[7].value.toBoolean();
-  }
-
-  get fee(): Array<i32> {
-    return this._call.inputValues[8].value.toI32Array();
+  get params(): CreatePoolCallParamsStruct {
+    return changetype<CreatePoolCallParamsStruct>(
+      this._call.inputValues[5].value.toTuple(),
+    );
   }
 }
 
@@ -763,33 +958,47 @@ export class CreatePoolCall__Outputs {
   }
 }
 
-export class DenyCall extends ethereum.Call {
-  get inputs(): DenyCall__Inputs {
-    return new DenyCall__Inputs(this);
+export class CreatePoolCallTokenConfigStruct extends ethereum.Tuple {
+  get juniorTokenName(): string {
+    return this[0].toString();
   }
 
-  get outputs(): DenyCall__Outputs {
-    return new DenyCall__Outputs(this);
-  }
-}
-
-export class DenyCall__Inputs {
-  _call: DenyCall;
-
-  constructor(call: DenyCall) {
-    this._call = call;
+  get juniorTokenSymbol(): string {
+    return this[1].toString();
   }
 
-  get usr(): Address {
-    return this._call.inputValues[0].value.toAddress();
+  get seniorTokenName(): string {
+    return this[2].toString();
+  }
+
+  get seniorTokenSymbol(): string {
+    return this[3].toString();
   }
 }
 
-export class DenyCall__Outputs {
-  _call: DenyCall;
+export class CreatePoolCallParamsStruct extends ethereum.Tuple {
+  get lenderParams(): Array<BigInt> {
+    return this[0].toBigIntArray();
+  }
 
-  constructor(call: DenyCall) {
-    this._call = call;
+  get shelfParams(): Array<BigInt> {
+    return this[1].toBigIntArray();
+  }
+
+  get distributorParams(): Array<BigInt> {
+    return this[2].toBigIntArray();
+  }
+
+  get isBulletRepay(): boolean {
+    return this[3].toBoolean();
+  }
+
+  get fee(): Array<i32> {
+    return this[4].toI32Array();
+  }
+
+  get poolType(): i32 {
+    return this[5].toI32();
   }
 }
 
@@ -865,190 +1074,36 @@ export class DenyContractFromRootCall__Outputs {
   }
 }
 
-export class DeployPoolCall extends ethereum.Call {
-  get inputs(): DeployPoolCall__Inputs {
-    return new DeployPoolCall__Inputs(this);
+export class FileCall extends ethereum.Call {
+  get inputs(): FileCall__Inputs {
+    return new FileCall__Inputs(this);
   }
 
-  get outputs(): DeployPoolCall__Outputs {
-    return new DeployPoolCall__Outputs(this);
+  get outputs(): FileCall__Outputs {
+    return new FileCall__Outputs(this);
   }
 }
 
-export class DeployPoolCall__Inputs {
-  _call: DeployPoolCall;
+export class FileCall__Inputs {
+  _call: FileCall;
 
-  constructor(call: DeployPoolCall) {
+  constructor(call: FileCall) {
     this._call = call;
   }
 
-  get _id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
+  get what(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
   }
 
-  get borrower(): Address {
+  get _value(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
-
-  get seniorTokenName_(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-
-  get seniorTokenSymbol_(): string {
-    return this._call.inputValues[3].value.toString();
-  }
-
-  get lenderParams(): Array<BigInt> {
-    return this._call.inputValues[4].value.toBigIntArray();
-  }
-
-  get shelfParams(): Array<BigInt> {
-    return this._call.inputValues[5].value.toBigIntArray();
-  }
-
-  get isBulletRepay(): boolean {
-    return this._call.inputValues[6].value.toBoolean();
-  }
-
-  get fee(): Array<i32> {
-    return this._call.inputValues[7].value.toI32Array();
-  }
 }
 
-export class DeployPoolCall__Outputs {
-  _call: DeployPoolCall;
+export class FileCall__Outputs {
+  _call: FileCall;
 
-  constructor(call: DeployPoolCall) {
-    this._call = call;
-  }
-}
-
-export class Init_borrowerContractsCall extends ethereum.Call {
-  get inputs(): Init_borrowerContractsCall__Inputs {
-    return new Init_borrowerContractsCall__Inputs(this);
-  }
-
-  get outputs(): Init_borrowerContractsCall__Outputs {
-    return new Init_borrowerContractsCall__Outputs(this);
-  }
-}
-
-export class Init_borrowerContractsCall__Inputs {
-  _call: Init_borrowerContractsCall;
-
-  constructor(call: Init_borrowerContractsCall) {
-    this._call = call;
-  }
-
-  get _id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get borrower(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get shelfParams(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
-  }
-
-  get isBulletRepay(): boolean {
-    return this._call.inputValues[3].value.toBoolean();
-  }
-
-  get fee(): Array<i32> {
-    return this._call.inputValues[4].value.toI32Array();
-  }
-}
-
-export class Init_borrowerContractsCall__Outputs {
-  _call: Init_borrowerContractsCall;
-
-  constructor(call: Init_borrowerContractsCall) {
-    this._call = call;
-  }
-}
-
-export class Init_lenderContractsCall extends ethereum.Call {
-  get inputs(): Init_lenderContractsCall__Inputs {
-    return new Init_lenderContractsCall__Inputs(this);
-  }
-
-  get outputs(): Init_lenderContractsCall__Outputs {
-    return new Init_lenderContractsCall__Outputs(this);
-  }
-}
-
-export class Init_lenderContractsCall__Inputs {
-  _call: Init_lenderContractsCall;
-
-  constructor(call: Init_lenderContractsCall) {
-    this._call = call;
-  }
-
-  get _id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get seniorRate_(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get seniorTokenName_(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-
-  get seniorTokenSymbol_(): string {
-    return this._call.inputValues[3].value.toString();
-  }
-
-  get juniorCeiling(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get seniorCeiling(): BigInt {
-    return this._call.inputValues[5].value.toBigInt();
-  }
-
-  get capitalFormationPeriod(): BigInt {
-    return this._call.inputValues[6].value.toBigInt();
-  }
-}
-
-export class Init_lenderContractsCall__Outputs {
-  _call: Init_lenderContractsCall;
-
-  constructor(call: Init_lenderContractsCall) {
-    this._call = call;
-  }
-}
-
-export class RelyCall extends ethereum.Call {
-  get inputs(): RelyCall__Inputs {
-    return new RelyCall__Inputs(this);
-  }
-
-  get outputs(): RelyCall__Outputs {
-    return new RelyCall__Outputs(this);
-  }
-}
-
-export class RelyCall__Inputs {
-  _call: RelyCall;
-
-  constructor(call: RelyCall) {
-    this._call = call;
-  }
-
-  get usr(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class RelyCall__Outputs {
-  _call: RelyCall;
-
-  constructor(call: RelyCall) {
+  constructor(call: FileCall) {
     this._call = call;
   }
 }
@@ -1125,6 +1180,92 @@ export class RelyContractFromRootCall__Outputs {
   }
 }
 
+export class RemoveMemberCall extends ethereum.Call {
+  get inputs(): RemoveMemberCall__Inputs {
+    return new RemoveMemberCall__Inputs(this);
+  }
+
+  get outputs(): RemoveMemberCall__Outputs {
+    return new RemoveMemberCall__Outputs(this);
+  }
+}
+
+export class RemoveMemberCall__Inputs {
+  _call: RemoveMemberCall;
+
+  constructor(call: RemoveMemberCall) {
+    this._call = call;
+  }
+
+  get address_(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class RemoveMemberCall__Outputs {
+  _call: RemoveMemberCall;
+
+  constructor(call: RemoveMemberCall) {
+    this._call = call;
+  }
+}
+
+export class RemoveMemberBulkCall extends ethereum.Call {
+  get inputs(): RemoveMemberBulkCall__Inputs {
+    return new RemoveMemberBulkCall__Inputs(this);
+  }
+
+  get outputs(): RemoveMemberBulkCall__Outputs {
+    return new RemoveMemberBulkCall__Outputs(this);
+  }
+}
+
+export class RemoveMemberBulkCall__Inputs {
+  _call: RemoveMemberBulkCall;
+
+  constructor(call: RemoveMemberBulkCall) {
+    this._call = call;
+  }
+
+  get address_(): Array<Address> {
+    return this._call.inputValues[0].value.toAddressArray();
+  }
+}
+
+export class RemoveMemberBulkCall__Outputs {
+  _call: RemoveMemberBulkCall;
+
+  constructor(call: RemoveMemberBulkCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall extends ethereum.Call {
+  get inputs(): RenounceOwnershipCall__Inputs {
+    return new RenounceOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): RenounceOwnershipCall__Outputs {
+    return new RenounceOwnershipCall__Outputs(this);
+  }
+}
+
+export class RenounceOwnershipCall__Inputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall__Outputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
 export class SetContractsCall extends ethereum.Call {
   get inputs(): SetContractsCall__Inputs {
     return new SetContractsCall__Inputs(this);
@@ -1166,16 +1307,8 @@ export class SetContractsCall__Inputs {
     return this._call.inputValues[5].value.toAddress();
   }
 
-  get _pricePoolFab(): Address {
+  get _trustOperatorFab(): Address {
     return this._call.inputValues[6].value.toAddress();
-  }
-
-  get _titleFab(): Address {
-    return this._call.inputValues[7].value.toAddress();
-  }
-
-  get _nftFeedFab(): Address {
-    return this._call.inputValues[8].value.toAddress();
   }
 }
 
@@ -1183,6 +1316,70 @@ export class SetContractsCall__Outputs {
   _call: SetContractsCall;
 
   constructor(call: SetContractsCall) {
+    this._call = call;
+  }
+}
+
+export class SetCreatePoolAccessCall extends ethereum.Call {
+  get inputs(): SetCreatePoolAccessCall__Inputs {
+    return new SetCreatePoolAccessCall__Inputs(this);
+  }
+
+  get outputs(): SetCreatePoolAccessCall__Outputs {
+    return new SetCreatePoolAccessCall__Outputs(this);
+  }
+}
+
+export class SetCreatePoolAccessCall__Inputs {
+  _call: SetCreatePoolAccessCall;
+
+  constructor(call: SetCreatePoolAccessCall) {
+    this._call = call;
+  }
+
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get access(): boolean {
+    return this._call.inputValues[1].value.toBoolean();
+  }
+}
+
+export class SetCreatePoolAccessCall__Outputs {
+  _call: SetCreatePoolAccessCall;
+
+  constructor(call: SetCreatePoolAccessCall) {
+    this._call = call;
+  }
+}
+
+export class TransferOwnershipCall extends ethereum.Call {
+  get inputs(): TransferOwnershipCall__Inputs {
+    return new TransferOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): TransferOwnershipCall__Outputs {
+    return new TransferOwnershipCall__Outputs(this);
+  }
+}
+
+export class TransferOwnershipCall__Inputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+
+  get newOwner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class TransferOwnershipCall__Outputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
     this._call = call;
   }
 }

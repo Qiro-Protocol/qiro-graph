@@ -54,6 +54,19 @@ export class PoolDeployed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
+  get poolId(): BigInt {
+    let value = this.get("poolId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolId(value: BigInt) {
+    this.set("poolId", Value.fromBigInt(value));
+  }
+
   get pool(): Bytes {
     let value = this.get("pool");
     if (!value || value.kind == ValueKind.NULL) {
@@ -650,19 +663,6 @@ export class Pool extends Entity {
 
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
-  }
-
-  get pool(): Bytes {
-    let value = this.get("pool");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set pool(value: Bytes) {
-    this.set("pool", Value.fromBytes(value));
   }
 
   get poolStatus(): string {
@@ -1462,17 +1462,17 @@ export class PoolCurrency extends Entity {
     this.set("currencySymbol", Value.fromString(value));
   }
 
-  get currencyDecimals(): BigInt {
+  get currencyDecimals(): i32 {
     let value = this.get("currencyDecimals");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return 0;
     } else {
-      return value.toBigInt();
+      return value.toI32();
     }
   }
 
-  set currencyDecimals(value: BigInt) {
-    this.set("currencyDecimals", Value.fromBigInt(value));
+  set currencyDecimals(value: i32) {
+    this.set("currencyDecimals", Value.fromI32(value));
   }
 }
 

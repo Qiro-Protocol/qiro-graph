@@ -289,6 +289,7 @@ export class QiroNft___tokenMetadataResult {
   value9: BigInt;
   value10: BigInt;
   value11: string;
+  value12: BigInt;
 
   constructor(
     value0: string,
@@ -303,6 +304,7 @@ export class QiroNft___tokenMetadataResult {
     value9: BigInt,
     value10: BigInt,
     value11: string,
+    value12: BigInt,
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -316,6 +318,7 @@ export class QiroNft___tokenMetadataResult {
     this.value9 = value9;
     this.value10 = value10;
     this.value11 = value11;
+    this.value12 = value12;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -332,6 +335,7 @@ export class QiroNft___tokenMetadataResult {
     map.set("value9", ethereum.Value.fromUnsignedBigInt(this.value9));
     map.set("value10", ethereum.Value.fromUnsignedBigInt(this.value10));
     map.set("value11", ethereum.Value.fromString(this.value11));
+    map.set("value12", ethereum.Value.fromUnsignedBigInt(this.value12));
     return map;
   }
 
@@ -382,6 +386,10 @@ export class QiroNft___tokenMetadataResult {
   getMaturityDate(): string {
     return this.value11;
   }
+
+  getCollateralValue(): BigInt {
+    return this.value12;
+  }
 }
 
 export class QiroNft__tokenIdToDataResult {
@@ -389,20 +397,26 @@ export class QiroNft__tokenIdToDataResult {
   value1: BigInt;
   value2: BigInt;
   value3: BigInt;
-  value4: boolean;
+  value4: BigInt;
+  value5: BigInt;
+  value6: boolean;
 
   constructor(
     value0: BigInt,
     value1: BigInt,
     value2: BigInt,
     value3: BigInt,
-    value4: boolean,
+    value4: BigInt,
+    value5: BigInt,
+    value6: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
     this.value4 = value4;
+    this.value5 = value5;
+    this.value6 = value6;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -411,7 +425,9 @@ export class QiroNft__tokenIdToDataResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
-    map.set("value4", ethereum.Value.fromBoolean(this.value4));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
+    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
+    map.set("value6", ethereum.Value.fromBoolean(this.value6));
     return map;
   }
 
@@ -431,8 +447,16 @@ export class QiroNft__tokenIdToDataResult {
     return this.value3;
   }
 
-  getUnderwritten(): boolean {
+  getInterest_rate(): BigInt {
     return this.value4;
+  }
+
+  getNav(): BigInt {
+    return this.value5;
+  }
+
+  getUnderwritten(): boolean {
+    return this.value6;
   }
 }
 
@@ -444,7 +468,7 @@ export class QiroNft extends ethereum.SmartContract {
   _tokenMetadata(param0: BigInt): QiroNft___tokenMetadataResult {
     let result = super.call(
       "_tokenMetadata",
-      "_tokenMetadata(uint256):(string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string)",
+      "_tokenMetadata(uint256):(string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string,uint256)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
@@ -461,6 +485,7 @@ export class QiroNft extends ethereum.SmartContract {
       result[9].toBigInt(),
       result[10].toBigInt(),
       result[11].toString(),
+      result[12].toBigInt(),
     );
   }
 
@@ -469,7 +494,7 @@ export class QiroNft extends ethereum.SmartContract {
   ): ethereum.CallResult<QiroNft___tokenMetadataResult> {
     let result = super.tryCall(
       "_tokenMetadata",
-      "_tokenMetadata(uint256):(string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string)",
+      "_tokenMetadata(uint256):(string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string,uint256)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
@@ -490,6 +515,7 @@ export class QiroNft extends ethereum.SmartContract {
         value[9].toBigInt(),
         value[10].toBigInt(),
         value[11].toString(),
+        value[12].toBigInt(),
       ),
     );
   }
@@ -680,7 +706,7 @@ export class QiroNft extends ethereum.SmartContract {
   ): BigInt {
     let result = super.call(
       "mint",
-      "mint(address,string,string,string,string,string,string,string,uint256[5]):(uint256)",
+      "mint(address,string,string,string,string,string,string,string,uint256[6]):(uint256)",
       [
         ethereum.Value.fromAddress(to),
         ethereum.Value.fromString(_name),
@@ -710,7 +736,7 @@ export class QiroNft extends ethereum.SmartContract {
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "mint",
-      "mint(address,string,string,string,string,string,string,string,uint256[5]):(uint256)",
+      "mint(address,string,string,string,string,string,string,string,uint256[6]):(uint256)",
       [
         ethereum.Value.fromAddress(to),
         ethereum.Value.fromString(_name),
@@ -864,7 +890,7 @@ export class QiroNft extends ethereum.SmartContract {
   tokenIdToData(param0: BigInt): QiroNft__tokenIdToDataResult {
     let result = super.call(
       "tokenIdToData",
-      "tokenIdToData(uint256):(uint256,uint256,uint256,uint256,bool)",
+      "tokenIdToData(uint256):(uint256,uint256,uint256,uint256,uint256,uint256,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
@@ -873,7 +899,9 @@ export class QiroNft extends ethereum.SmartContract {
       result[1].toBigInt(),
       result[2].toBigInt(),
       result[3].toBigInt(),
-      result[4].toBoolean(),
+      result[4].toBigInt(),
+      result[5].toBigInt(),
+      result[6].toBoolean(),
     );
   }
 
@@ -882,7 +910,7 @@ export class QiroNft extends ethereum.SmartContract {
   ): ethereum.CallResult<QiroNft__tokenIdToDataResult> {
     let result = super.tryCall(
       "tokenIdToData",
-      "tokenIdToData(uint256):(uint256,uint256,uint256,uint256,bool)",
+      "tokenIdToData(uint256):(uint256,uint256,uint256,uint256,uint256,uint256,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
@@ -895,7 +923,9 @@ export class QiroNft extends ethereum.SmartContract {
         value[1].toBigInt(),
         value[2].toBigInt(),
         value[3].toBigInt(),
-        value[4].toBoolean(),
+        value[4].toBigInt(),
+        value[5].toBigInt(),
+        value[6].toBoolean(),
       ),
     );
   }

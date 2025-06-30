@@ -1,5 +1,6 @@
 type PoolDeployed @entity(immutable: true) {
   id: Bytes!
+  poolId: BigInt! # uint256
   pool: Pool! # uint256
   seniorRate: BigInt! # uint256
   interestRate: BigInt! # uint256
@@ -66,7 +67,6 @@ type QiroFactory @entity(immutable: true) {
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
-  pool: Pool! # uint256
   poolStatus: PoolStatus! # enum
   operator: Bytes! # address
   shelfBalance: BigInt! # uint256
@@ -134,7 +134,7 @@ type PoolCurrency @entity(immutable: false) {
   pool: Pool! # uint256
   currencyAddress: Bytes! # address
   currencySymbol: String!
-  currencyDecimals: BigInt!
+  currencyDecimals: Int!
 }
 
 enum TrancheType {

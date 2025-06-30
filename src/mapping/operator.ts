@@ -3,13 +3,13 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/Operator/WhitelistOperator";
 
-import { Supply, Redeem, Pool, Tranche, User, UserPool } from "../../generated/schema";
+import { SupplyRedeem, Pool, Tranche, User, UserPool } from "../../generated/schema";
 import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
 import { crypto, store } from "@graphprotocol/graph-ts";
 import { createTxnAndUpdateUser } from "../qiro-factory";
 
 export function handleSupply(event: SupplyEvent): void {
-  let entity = new Supply(
+  let entity = new SupplyRedeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.supplier = event.params.supplier;
@@ -60,7 +60,7 @@ export function handleSupply(event: SupplyEvent): void {
 }
 
 export function handleRedeem(event: RedeemEvent): void {
-  let entity = new Redeem(
+  let entity = new SupplyRedeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.tranche = event.params.tranche;

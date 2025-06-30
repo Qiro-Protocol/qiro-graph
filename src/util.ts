@@ -1,5 +1,6 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, ByteArray, Bytes } from "@graphprotocol/graph-ts";
 import { User } from "../generated/schema";
+import { crypto } from "@graphprotocol/graph-ts";
 
 // create if not present
 export function getUser(address: Bytes): User {
@@ -17,4 +18,20 @@ export function getUser(address: Bytes): User {
     user.save();
   }
   return user;
+}
+
+export function getPoolId(poolId: BigInt): Bytes {
+  return Bytes.fromByteArray(crypto.keccak256(ByteArray.fromBigInt(poolId)));
+}
+
+export enum PoolStatus {
+  CAPITAL_FORMATION = "CAPITAL_FORMATION",
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  ENDED = "ENDED",
+}
+
+export enum TrancheType {
+  JUNIOR = "JUNIOR",
+  SENIOR = "SENIOR"
 }
