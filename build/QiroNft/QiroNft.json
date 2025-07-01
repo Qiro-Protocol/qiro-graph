@@ -74,6 +74,11 @@
         "name": "maturityDate",
         "type": "string",
         "internalType": "string"
+      },
+      {
+        "name": "collateralValue",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -374,8 +379,8 @@
       },
       {
         "name": "_portfolioData",
-        "type": "uint256[5]",
-        "internalType": "uint256[5]"
+        "type": "uint256[6]",
+        "internalType": "uint256[6]"
       }
     ],
     "outputs": [
@@ -643,6 +648,16 @@
       },
       {
         "name": "exposure_at_default",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "interest_rate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "nav",
         "type": "uint256",
         "internalType": "uint256"
       },

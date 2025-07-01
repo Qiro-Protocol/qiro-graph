@@ -4,10 +4,11 @@ import {
 } from "../../generated/templates/Operator/TrustOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
 import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses } from "../../generated/schema";
-import { BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
 import { getPoolId, SupplyRedeemActionType, TrancheType } from "../util";
 import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
+import { ONE } from "../util";
 
 export function handleSupply(event: SupplyEvent): void {
   let entity = new SupplyRedeem(
@@ -18,7 +19,7 @@ export function handleSupply(event: SupplyEvent): void {
   entity.supplierOrReciever = event.params.supplier;
   entity.currencyAmount = event.params.amount;
   entity.tokenAmount = event.params.amount;
-  entity.price = BigInt.fromI32(1e27);
+  entity.price = ONE;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
   entity.seniorPoolBalance = event.params.seniorPoolBalance;
@@ -57,13 +58,13 @@ function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId:
     lender.transactionHash = eventBlock.hash;
     lender.save();
   }
-  updateLenderStats(lenderAddress, trancheAddress, poolId);
+  updateLenderStats(Address.fromBytes(lenderAddress), Address.fromBytes(trancheAddress), poolId);
 }
 
-function updateLenderStats(lenderAddress: Bytes, trancheAddress: Bytes, poolId: BigInt): void {
+function updateLenderStats(lenderAddress: Address, trancheAddress: Address, poolId: BigInt): void {
   let lender = Lender.load(getLenderId(lenderAddress, trancheAddress, poolId));
   let poolAddresses = PoolAddresses.load(getPoolId(poolId));
-  let operator = WhitelistOperator.bind(poolAddresses!.operator);
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
   // get tranche and figure out it's type
   let tranche = Tranche.load(trancheAddress);
   if (tranche!.trancheType == TrancheType.JUNIOR) {

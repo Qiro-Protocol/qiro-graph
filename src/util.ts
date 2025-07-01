@@ -5,29 +5,29 @@ export function getPoolId(poolId: BigInt): Bytes {
   return Bytes.fromByteArray(crypto.keccak256(ByteArray.fromBigInt(poolId)));
 }
 
-export enum PoolStatus {
-  CAPITAL_FORMATION = "CAPITAL_FORMATION",
-  PENDING = "PENDING",
-  ACTIVE = "ACTIVE",
-  REVOKED = "REVOKED",
-  PARTIAL_REDEEM = "PARTIAL_REDEEM",
-  REDEEM = "REDEEM",
-  ENDED = "ENDED",
+export namespace PoolStatus {
+  export const CAPITAL_FORMATION = "CAPITAL_FORMATION";
+  export const PENDING = "PENDING";
+  export const ACTIVE = "ACTIVE";
+  export const REVOKED = "REVOKED";
+  export const PARTIAL_REDEEM = "PARTIAL_REDEEM";
+  export const REDEEM = "REDEEM";
+  export const ENDED = "ENDED";
 }
 
-export enum TrancheType {
-  JUNIOR = "JUNIOR",
-  SENIOR = "SENIOR"
+export namespace TrancheType {
+  export const JUNIOR = "JUNIOR";
+  export const SENIOR = "SENIOR";
 }
 
-export enum SupplyRedeemActionType {
-  SUPPLY = "SUPPLY",
-  REDEEM = "REDEEM",
+export namespace SupplyRedeemActionType {
+  export const SUPPLY = "SUPPLY";
+  export const REDEEM = "REDEEM";
 }
 
-export enum PoolType {
-  LOAN = "LOAN",
-  SECURITISATION = "SECURITISATION"
+export namespace PoolType {
+  export const LOAN = "LOAN";
+  export const SECURITISATION = "SECURITISATION";
 }
 
 export function getPoolStatusString(state: BigInt): string {
@@ -57,3 +57,5 @@ export function getPoolTypeString(poolType: number): string {
   }
   return "UNKNOWN";
 }
+
+export const ONE = BigInt.fromI32(10).pow(27) as BigInt; // 1e27

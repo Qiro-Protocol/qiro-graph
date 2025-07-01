@@ -16,6 +16,7 @@ import {
 import {
   BigInt,
   log,
+  Address,
 } from "@graphprotocol/graph-ts";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import { getPoolId, getPoolStatusString, PoolStatus } from "../util";
@@ -33,17 +34,17 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
-  let shelfContract = Shelf.bind(poolAddresses!.shelf);
-  let currencyContract = ERC20.bind(poolAddresses!.currency);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let poolObject = getPool(event.params.poolId);
   poolObject!.poolStatus = PoolStatus.ACTIVE;
   poolObject!.originatorFeePaid = shelfContract.originatorFeePaidAmount();
   poolObject!.loanMaturityTimestamp = shelfContract.LOAN_START_TIMESTAMP().plus(poolObject!.loanTerm);
-  poolObject!.shelfBalance = currencyContract.balanceOf(poolAddresses!.shelf);
+  poolObject!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
   poolObject!.shelfDebt = shelfContract.debt();
-  poolObject!.totalTrancheBalance = currencyContract.balanceOf(poolAddresses!.seniorTranche).plus(
-    currencyContract.balanceOf(poolAddresses!.juniorTranche)
+  poolObject!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
+    currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
   );
   poolObject!.save();
 }
@@ -75,7 +76,7 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
-  let shelfContract = Shelf.bind(poolAddresses!.shelf);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
 
   updatePoolBalance(
     event.params.poolId,
@@ -99,22 +100,22 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
-  let shelfContract = Shelf.bind(poolAddresses!.shelf);
-  let operator = WhitelistOperator.bind(poolAddresses!.operator);
-  let currencyContract = ERC20.bind(poolAddresses!.currency);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
   pool!.outstandingInterest = shelfContract.getOutstandingInterest();
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = shelfContract.debt();
-  pool!.shelfBalance = currencyContract.balanceOf(poolAddresses!.shelf);
+  pool!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
   pool!.totalRepaid = shelfContract.totalRepayedAmount();
   pool!.principalRepaid = shelfContract.totalPrincipalRepayed();
   pool!.interestRepaid = shelfContract.totalInterestRepayed();
   pool!.lateFeeRepaid = shelfContract.totalLateFeePaid();
-  pool!.totalTrancheBalance = currencyContract.balanceOf(poolAddresses!.seniorTranche).plus(
-    currencyContract.balanceOf(poolAddresses!.juniorTranche)
+  pool!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
+    currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
   );
   pool!.trancheSupplyMaxBalance = operator.totalDepositCurrencyJunior().plus(
     operator.totalDepositCurrencySenior()

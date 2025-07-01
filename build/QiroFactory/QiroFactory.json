@@ -1,772 +1,956 @@
 [
   {
+    "type": "constructor",
     "inputs": [
       {
-        "internalType": "address",
         "name": "_currency",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
       },
       {
-        "internalType": "address",
         "name": "_qiroFeeCollector",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_qiroConsumer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_qiroAssetNFT",
+        "type": "address",
+        "internalType": "address"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    "stateMutability": "nonpayable"
   },
   {
-    "anonymous": false,
+    "type": "function",
+    "name": "addMember",
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
+        "name": "address_",
+        "type": "address",
+        "internalType": "address"
       }
     ],
-    "name": "Deny",
-    "type": "event"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    "anonymous": false,
+    "type": "function",
+    "name": "addMemberBulk",
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "deployer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "root",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "LenderDeployer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "borrowerDeployer",
-        "type": "address"
+        "name": "address_",
+        "type": "address[]",
+        "internalType": "address[]"
       }
     ],
-    "name": "PoolCreated",
-    "type": "event"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "seniorRate",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "interestRate",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "periodLength",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "periodCount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "gracePeriod",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shelf",
-        "type": "address"
-      }
-    ],
-    "name": "PoolDeployed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
-      }
-    ],
-    "name": "Rely",
-    "type": "event"
-  },
-  {
-    "inputs": [],
+    "type": "function",
     "name": "assessorFab",
+    "inputs": [],
     "outputs": [
       {
-        "internalType": "contract DefaultAssessorFab",
         "name": "",
-        "type": "address"
+        "type": "address",
+        "internalType": "contract DefaultAssessorFab"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "stateMutability": "view"
   },
   {
+    "type": "function",
+    "name": "changePoolAdmin",
     "inputs": [
       {
-        "internalType": "address",
-        "name": "borrowerAddress",
-        "type": "address"
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
       },
       {
-        "internalType": "string",
-        "name": "juniorTokenName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "juniorTokenSymbol",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenSymbol",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256[4]",
-        "name": "lenderParams",
-        "type": "uint256[4]"
-      },
-      {
-        "internalType": "uint256[5]",
-        "name": "shelfParams",
-        "type": "uint256[5]"
-      },
-      {
-        "internalType": "bool",
-        "name": "isBulletRepay",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint16[2]",
-        "name": "fee",
-        "type": "uint16[2]"
+        "name": "newAdmin",
+        "type": "address",
+        "internalType": "address"
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "convertToRatePerSecond",
+    "inputs": [
+      {
+        "name": "aprInBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
     "name": "createPool",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "name": "borrowerAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataIPFSHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "servicerFeeCollector",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenConfig",
+        "type": "tuple",
+        "internalType": "struct QiroFactory.TokenConfig",
+        "components": [
+          {
+            "name": "juniorTokenName",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "juniorTokenSymbol",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "seniorTokenName",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "seniorTokenSymbol",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      },
+      {
+        "name": "params",
+        "type": "tuple",
+        "internalType": "struct QiroFactory.PoolParams",
+        "components": [
+          {
+            "name": "lenderParams",
+            "type": "uint256[5]",
+            "internalType": "uint256[5]"
+          },
+          {
+            "name": "shelfParams",
+            "type": "uint256[7]",
+            "internalType": "uint256[7]"
+          },
+          {
+            "name": "distributorParams",
+            "type": "uint256[3]",
+            "internalType": "uint256[3]"
+          },
+          {
+            "name": "isBulletRepay",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "fee",
+            "type": "uint16[2]",
+            "internalType": "uint16[2]"
+          },
+          {
+            "name": "poolType",
+            "type": "uint8",
+            "internalType": "enum PoolType"
+          }
+        ]
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
   },
   {
-    "inputs": [],
+    "type": "function",
+    "name": "createPoolAccess",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "currency",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "defaultInterestRate",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "address",
+        "internalType": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "stateMutability": "view"
   },
   {
-    "inputs": [],
-    "name": "defaultLateFeeInterest",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "defaultSeniorRate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
-      }
-    ],
-    "name": "deny",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "contract_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
-      }
-    ],
+    "type": "function",
     "name": "denyContract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "poolId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
         "name": "contract_",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
       },
       {
-        "internalType": "address",
         "name": "usr",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "denyContractFromRoot",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "borrower",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenName_",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenSymbol_",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256[4]",
-        "name": "lenderParams",
-        "type": "uint256[4]"
-      },
-      {
-        "internalType": "uint256[5]",
-        "name": "shelfParams",
-        "type": "uint256[5]"
-      },
-      {
-        "internalType": "bool",
-        "name": "isBulletRepay",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint16[2]",
-        "name": "fee",
-        "type": "uint16[2]"
-      }
-    ],
-    "name": "deployPool",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "distributorFab",
-    "outputs": [
-      {
-        "internalType": "contract DefaultDistributorFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "borrower",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256[5]",
-        "name": "shelfParams",
-        "type": "uint256[5]"
-      },
-      {
-        "internalType": "bool",
-        "name": "isBulletRepay",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint16[2]",
-        "name": "fee",
-        "type": "uint16[2]"
-      }
-    ],
-    "name": "init_borrowerContracts",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "seniorRate_",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenName_",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "seniorTokenSymbol_",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "juniorCeiling",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "seniorCeiling",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "capitalFormationPeriod",
-        "type": "uint256"
-      }
-    ],
-    "name": "init_lenderContracts",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nftFeedFab",
-    "outputs": [
-      {
-        "internalType": "contract NFTFeedFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "operatorFab",
-    "outputs": [
-      {
-        "internalType": "contract WhitelistOperatorFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "poolCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "poolList",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "deployer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "root",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "lenderDeployer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "borrowerDeployer",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "pools",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "deployer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "root",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "lenderDeployer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "borrowerDeployer",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pricePoolFab",
-    "outputs": [
-      {
-        "internalType": "contract PricePoolFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "qiroFeeCollector",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
-      }
-    ],
-    "name": "rely",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "contract_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "usr",
-        "type": "address"
-      }
-    ],
-    "name": "relyContract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "poolId",
-        "type": "uint256"
+        "type": "uint256",
+        "internalType": "uint256"
       },
       {
-        "internalType": "address",
         "name": "contract_",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
       },
       {
-        "internalType": "address",
         "name": "usr",
-        "type": "address"
+        "type": "address",
+        "internalType": "address"
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "deployerFactory",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract DeployerFactory"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "distributorFab",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract DefaultDistributorFab"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "file",
+    "inputs": [
+      {
+        "name": "what",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "_value",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getRatePerSecondForAPRInBps",
+    "inputs": [
+      {
+        "name": "aprInBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "hasCreatePoolAccess",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isAdmin",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isInMemberList",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "juniorTrancheFab",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract JuniorTrancheFab"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "operatorFab",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract WhitelistOperatorFab"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pools",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deployer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "root",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lenderDeployer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "borrowerDeployer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "metadataIPFSHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "poolAdmin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "poolType",
+        "type": "uint8",
+        "internalType": "enum PoolType"
+      },
+      {
+        "name": "servicerFeeCollector",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "qiroAssetNFT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "qiroConsumer",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "qiroFeeCollector",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "relyContract",
+    "inputs": [
+      {
+        "name": "contract_",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "relyContractFromRoot",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "contract_",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "usr",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "stateMutability": "nonpayable"
   },
   {
+    "type": "function",
+    "name": "removeMember",
+    "inputs": [
+      {
+        "name": "address_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "removeMemberBulk",
+    "inputs": [
+      {
+        "name": "address_",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "renounceOwnership",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "seniorTrancheFab",
+    "inputs": [],
     "outputs": [
       {
-        "internalType": "contract SeniorTrancheFab",
         "name": "",
-        "type": "address"
+        "type": "address",
+        "internalType": "contract SeniorTrancheFab"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "stateMutability": "view"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_operatorFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_assessorFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_seniorTrancheFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_trancheFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_distributorFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_shelfFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_pricePoolFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_titleFab",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_nftFeedFab",
-        "type": "address"
-      }
-    ],
+    "type": "function",
     "name": "setContracts",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "shelfFab",
-    "outputs": [
-      {
-        "internalType": "contract ShelfFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "titleFab",
-    "outputs": [
-      {
-        "internalType": "contract TitleFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "trancheFab",
-    "outputs": [
-      {
-        "internalType": "contract TrancheFab",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "name": "_operatorFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_assessorFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_seniorTrancheFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_trancheFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_distributorFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_shelfFab",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_trustOperatorFab",
+        "type": "address",
+        "internalType": "address"
       }
     ],
-    "name": "wards",
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setCreatePoolAccess",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "access",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "shelfFab",
+    "inputs": [],
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "address",
+        "internalType": "contract ShelfFab"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenIdToPoolId",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [
+      {
+        "name": "newOwner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "trustOperatorFab",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract TrustOperatorFab"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "updateWhitelistManager",
+    "inputs": [
+      {
+        "name": "_whitelistManager",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "whitelistManager",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "FactoryCreated",
+    "inputs": [
+      {
+        "name": "factory",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PoolCreated",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "deployer",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "root",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "LenderDeployer",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "borrowerDeployer",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "metadataIPFSHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PoolDeployed",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "seniorRate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "interestRate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "periodLength",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "periodCount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "gracePeriod",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "operator",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "shelf",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "NotCreatePoolAdmin",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotWhitelistManager",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OwnableInvalidOwner",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OwnableUnauthorizedAccount",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
   }
 ]

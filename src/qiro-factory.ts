@@ -19,7 +19,7 @@ import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOper
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
-import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString } from "./util";
+import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE } from "./util";
 import { FactoryCreated, QiroFactory as QiroFactoryContract } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -74,8 +74,8 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   let entity = new Pool(pool.pool); // event.poolId in bytes
   let poolAddresses = new PoolAddresses(pool.pool);
 
-  let operator = WhitelistOperator.bind(pool.operator);
-  let shelfContract = ShelfContract.bind(pool.shelf);
+  let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
+  let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
   let factory = QiroFactoryContract.bind(qiroFactory);
   let factoryPool = factory.pools(poolId);
 
@@ -158,7 +158,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   juniorTranche.tokenAddress = junTrancheContract.token();
   juniorTranche.totalBalance = junTrancheContract.balance();
   juniorTranche.totalTokenSupply = junTrancheContract.tokenSupply();
-  juniorTranche.tokenPrice = new BigInt(1e27); // scaled by 1e27
+  juniorTranche.tokenPrice = ONE; // scaled by 1e27
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
   juniorTranche.totalInvested = operator.totalDepositCurrencyJunior();
@@ -174,7 +174,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   seniorTranche.tokenAddress = operator.seniorToken();
   seniorTranche.totalBalance = senTrancheContract.balance();
   seniorTranche.totalTokenSupply = senTrancheContract.tokenSupply();
-  seniorTranche.tokenPrice = new BigInt(1e27); // scaled by 1e27
+  seniorTranche.tokenPrice = ONE;
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();
   seniorTranche.totalInvested = operator.totalDepositCurrencySenior();
@@ -186,7 +186,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   seniorTranche.save();
 
   // creates the borrower entity if it does not exist
-  getOrCreateBorrower(entity.borrower, pool.blockTimestamp);
+  getOrCreateBorrower(Address.fromBytes(entity.borrower), pool.blockTimestamp);
 }
 
 export function getOrCreateBorrower(
