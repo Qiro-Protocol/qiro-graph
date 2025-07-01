@@ -21,6 +21,7 @@ type SupplyRedeem @entity(immutable: true) {
   supplierOrReciever: Bytes! # address
   currencyAmount: BigInt!
   tokenAmount: BigInt!
+  price: BigInt! # uint256
   totalPoolBalance: BigInt!
   juniorPoolBalance: BigInt!
   seniorPoolBalance: BigInt!
@@ -106,7 +107,7 @@ type Pool @entity(immutable: false) {
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   currency: PoolCurrency! @derivedFrom(field: "pool")
   # done
-  lenders: [UserPool!] @derivedFrom(field: "lendedPool")
+  lenders: [Lender!] @derivedFrom(field: "pool")
   repayments: [LoanRepayed!] @derivedFrom(field: "pool")
   withdrawals: [LoanWithdrawn!] @derivedFrom(field: "pool")
   supplyRedeems: [SupplyRedeem!] @derivedFrom(field: "pool")
@@ -200,15 +201,14 @@ type LoanWithdrawn @entity(immutable: true) {
 } #done
 
 type Lender @entity(immutable: false) {
-  id: Bytes!
-  address: Bytes!
-  pools: [BigInt!]!
-  totalInvested: BigInt!
-  juniorInvestedBalance: BigInt!
-  seniorInvestedBalance: BigInt!
+  id: Bytes! # lenderAddress+poolId+trancheAddress
+  address: Bytes! # address
+  tranche: Tranche! # uint256
+  pool: Pool! # uint256
   blockTimestamp: BigInt!
+  blockNumber: BigInt!
   transactionHash: Bytes!
-}
+} #done
 
 type Borrower @entity(immutable: false) {
   id: Bytes!
@@ -218,62 +218,10 @@ type Borrower @entity(immutable: false) {
   blockTimestamp: BigInt!
 } #done
 
-enum TxnTypes {
-  MINT
-  SENIOR_DEPOSIT
-  JUNIOR_DEPOSIT
-  SENIOR_REDEEM
-  JUNIOR_REDEEM
-  POOL_CREATED
-  POOL_INITIALED
-  BORROWER_WITHDRAW
-  BORROWER_REPAY
-}
-
-type Transaction @entity(immutable: true) {
+# these are not included in implementation yet
+type Rely @entity(immutable: true) {
   id: Bytes!
-  hash: Bytes!
-  name: TxnTypes
-  timestamp: BigInt!
-  amountUSDC: BigInt!
-  amount: BigInt!
-  from: Bytes!
-}
-
-type User @entity(immutable: false) {
-  id: Bytes!
-  address: Bytes!
-  isLender: Boolean!
-  isBorrower: Boolean!
-  poolsLendedIn: [UserPool!] @derivedFrom(field: "user")
-  totalLended: BigInt!
-  totalRedeemed: BigInt!
-  totalBorrowed: BigInt!
-  totalRepayed: BigInt!
-  transactionHistory: [Transaction!]!
-}
-
-type UserPool @entity {
-  id: Bytes!
-  user: User!
-  lendedPool: Pool!
-}
-
-type Approval @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
-  approved: Bytes! # address
-  tokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type ApprovalForAll @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
-  operator: Bytes! # address
-  approved: Boolean! # bool
+  usr: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -318,14 +266,6 @@ type NFTMinted @entity(immutable: true) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
-}
-
-type Rely @entity(immutable: true) {
-  id: Bytes!
-  usr: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
 }
 
 # ___________________________________________________________

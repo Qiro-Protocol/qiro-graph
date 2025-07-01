@@ -177,8 +177,8 @@ export class WhitelistedInvestor__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get tranche(): string {
-    return this._event.parameters[1].value.toString();
+  get tranche(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 

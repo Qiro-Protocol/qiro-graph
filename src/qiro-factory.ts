@@ -9,7 +9,6 @@ import {
 import {
   Pool,
   PoolDeployed,
-  Transaction,
   Tranche,
   PoolAddresses,
   PoolCurrency,
@@ -64,14 +63,6 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  createTxnAndUpdateUser(
-    "POOL_CREATED",
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    new BigInt(0)
-  );
   handlePool(entity as PoolDeployed, event.params.poolId, event.address);
 
   Operator.create(event.params.operator);
@@ -209,44 +200,4 @@ export function getOrCreateBorrower(
     borrower.save();
   }
   return borrower;
-}
-
-export function createNewTransaction(
-  name: string,
-  from: Address,
-  hash: Bytes,
-  timestamp: BigInt,
-  amount: BigInt,
-  amountUSDC: BigInt
-): Transaction {
-  const Txn = new Transaction(hash);
-  Txn.amountUSDC = amountUSDC;
-  Txn.amount = amount;
-  Txn.timestamp = timestamp;
-  Txn.from = from;
-  Txn.name = name;
-  Txn.hash = hash;
-  Txn.save();
-  return Txn;
-}
-
-export function createTxnAndUpdateUser(
-  name: string,
-  from: Address,
-  hash: Bytes,
-  timestamp: BigInt,
-  amount: BigInt,
-  amountUSDC: BigInt
-): void {
-  const txn = createNewTransaction(
-    name,
-    from,
-    hash,
-    timestamp,
-    amount,
-    amountUSDC
-  );
-  const user = getUser(from);
-  user.transactionHistory.push(hash);
-  user.save();
 }

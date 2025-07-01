@@ -3,10 +3,9 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/Operator/TrustOperator";
 
-import { SupplyRedeem, Pool, Tranche, User, UserPool } from "../../generated/schema";
-import { BigInt, bigInt, ByteArray, Bytes, log } from "@graphprotocol/graph-ts";
-import { crypto, store } from "@graphprotocol/graph-ts";
-import { createTxnAndUpdateUser } from "../qiro-factory";
+import { SupplyRedeem, Pool, Tranche, Lender } from "../../generated/schema";
+import { BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { crypto } from "@graphprotocol/graph-ts";
 import { getPoolId, SupplyRedeemActionType } from "../util";
 
 export function handleSupply(event: SupplyEvent): void {
@@ -18,6 +17,7 @@ export function handleSupply(event: SupplyEvent): void {
   entity.supplierOrReciever = event.params.supplier;
   entity.currencyAmount = event.params.amount;
   entity.tokenAmount = event.params.amount;
+  entity.price = BigInt.fromI32(1e27);
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
   entity.seniorPoolBalance = event.params.seniorPoolBalance;
@@ -34,29 +34,28 @@ export function handleSupply(event: SupplyEvent): void {
     event.params.seniorPoolBalance
   );
 
-  createTxnAndUpdateUser(
-    entity.actionType,
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    event.params.amount
+  // create lender entity if not exists
+  createLenderEntity(
+    event.params.supplier,
+    event.params.tranche,
+    event.params.poolId,
+    event.block
   );
+}
 
-  let pID = getPoolId(event.params.poolId);
-  let user = User.load(event.transaction.from);
-  user!.isLender = true;
-
-  let uPool = UserPool.load(pID.concat(event.transaction.from));
-  if (uPool == null) {
-    let userPool = new UserPool(pID.concat(event.transaction.from));
-    userPool.lendedPool = pID;
-    userPool.user = event.transaction.from;
-    userPool.save();
+function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId: BigInt, eventBlock: ethereum.Block): void {
+  let lenderId = Bytes.fromHexString(lenderAddress.toHexString().concat(poolId.toHexString()).concat(trancheAddress.toHexString()));
+  let lender = Lender.load(lenderId);
+  if (lender == null) {
+    lender = new Lender(lenderId);
+    lender.address = lenderAddress;
+    lender.tranche = trancheAddress;
+    lender.pool = getPoolId(poolId);
+    lender.blockTimestamp = eventBlock.timestamp;
+    lender.blockNumber = eventBlock.number;
+    lender.transactionHash = eventBlock.hash;
+    lender.save();
   }
-
-  user!.totalLended = user!.totalLended.plus(event.params.amount);
-  user!.save();
 }
 
 export function handleRedeem(event: RedeemEvent): void {
@@ -68,6 +67,7 @@ export function handleRedeem(event: RedeemEvent): void {
   entity.supplierOrReciever = event.params.receiver;
   entity.currencyAmount = event.params.currencyAmount;
   entity.tokenAmount = event.params.tokenAmount;
+  entity.price = event.params.price;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
   entity.seniorPoolBalance = event.params.seniorPoolBalance;
@@ -83,19 +83,6 @@ export function handleRedeem(event: RedeemEvent): void {
     event.params.juniorPoolBalance,
     event.params.seniorPoolBalance
   );
-
-  createTxnAndUpdateUser(
-    entity.actionType,
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    event.params.currencyAmount
-  );
-
-  let user = User.load(event.transaction.from);
-  user!.totalLended = user!.totalLended.minus(event.params.currencyAmount);
-  user!.save();
 }
 
 function updatePoolBalance(

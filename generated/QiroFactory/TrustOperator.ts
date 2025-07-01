@@ -61,16 +61,20 @@ export class Redeem__Params {
     return this._event.parameters[4].value.toBigInt();
   }
 
-  get totalPoolBalance(): BigInt {
+  get price(): BigInt {
     return this._event.parameters[5].value.toBigInt();
   }
 
-  get juniorPoolBalance(): BigInt {
+  get totalPoolBalance(): BigInt {
     return this._event.parameters[6].value.toBigInt();
   }
 
-  get seniorPoolBalance(): BigInt {
+  get juniorPoolBalance(): BigInt {
     return this._event.parameters[7].value.toBigInt();
+  }
+
+  get seniorPoolBalance(): BigInt {
+    return this._event.parameters[8].value.toBigInt();
   }
 }
 

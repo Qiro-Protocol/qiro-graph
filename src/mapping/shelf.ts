@@ -11,7 +11,6 @@ import {
   LoanWithdrawn,
   LoanRepayed,
   Pool,
-  User,
   PoolAddresses,
 } from "../../generated/schema";
 import {
@@ -21,8 +20,6 @@ import {
   Bytes,
   log,
 } from "@graphprotocol/graph-ts";
-import { crypto, store } from "@graphprotocol/graph-ts";
-import { createTxnAndUpdateUser, getOrCreateBorrower } from "../qiro-factory";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import { getPoolId, getPoolStatusString, PoolStatus } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
@@ -51,20 +48,6 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
     currencyContract.balanceOf(poolAddresses!.juniorTranche)
   );
   poolObject!.save();
-
-  createTxnAndUpdateUser(
-    "POOL_INITIALED",
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    new BigInt(0)
-  );
-
-  let user = User.load(event.transaction.from);
-  user!.isBorrower = true;
-  user!.totalBorrowed = user!.totalBorrowed.plus(event.params.principalAmount);
-  user!.save();
 }
 
 export function handleLoanEnded(event: LoanEndedEvent): void {
@@ -98,15 +81,6 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   updatePoolBalance(
     event.params.poolId,
     shelfContract.balance()
-  );
-
-  createTxnAndUpdateUser(
-    "BORROWER_WITHDRAW",
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    event.params.currencyAmount
   );
 }
 
@@ -146,15 +120,6 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     operator.totalDepositCurrencySenior()
   );
   pool!.save();
-
-  createTxnAndUpdateUser(
-    "BORROWER_REPAY",
-    event.transaction.from,
-    event.transaction.hash,
-    event.block.timestamp,
-    event.transaction.value,
-    event.params.currencyAmount
-  );
 }
 
 function updatePoolBalance(poolId: BigInt, total: BigInt): void {

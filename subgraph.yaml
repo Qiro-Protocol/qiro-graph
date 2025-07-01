@@ -196,7 +196,7 @@ templates:
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
-        - event: Redeem(uint256,address,address,uint256,uint256,uint256,uint256,uint256)
+        - event: Redeem(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
