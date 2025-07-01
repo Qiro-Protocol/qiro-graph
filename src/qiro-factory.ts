@@ -114,6 +114,8 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.transactionHash = pool.transactionHash;
   entity.borrower = shelfContract.borrower();
   entity.originatorFeePaid = shelfContract.originatorFeePaidAmount();
+  entity.pStartFrom = shelfContract.pStartFrom();
+  entity.pRepayFrequency = shelfContract.pRepayFrequency();
   entity.save();
 
   let qiroFactoryCurrency = factory.currency();

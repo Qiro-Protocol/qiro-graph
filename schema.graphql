@@ -84,6 +84,7 @@ type Pool @entity(immutable: false) {
   totalRepaid: BigInt! # uint256
   principalRepaid: BigInt! # uint256
   interestRepaid: BigInt! # uint256
+  prepaymentAbsorbedAmount: BigInt! # uint256
   lateFeeRepaid: BigInt! # uint256
   capitalFormationPeriod: BigInt! # uint256
   capitalFormationPeriodEnd: BigInt! # uint256
@@ -102,6 +103,8 @@ type Pool @entity(immutable: false) {
   isPaused: Boolean! # bool
   borrower: Borrower! # address
   originatorFeePaid: BigInt! # uint256
+  pStartFrom: BigInt! # uint256
+  pRepayFrequency: BigInt! # uint256
   juniorTranche: Tranche! @derivedFrom(field: "pool")
   seniorTranche: Tranche! @derivedFrom(field: "pool")
   addresses: PoolAddresses! @derivedFrom(field: "pool")
@@ -168,6 +171,7 @@ type LoanStarted @entity(immutable: true) {
   pool: Pool! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  blockNumber: BigInt!
 } #done
 
 type LoanEnded @entity(immutable: true) {
@@ -175,6 +179,7 @@ type LoanEnded @entity(immutable: true) {
   pool: Pool! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  blockNumber: BigInt!
 } #done
 
 type LoanRepayed @entity(immutable: true) {
@@ -187,6 +192,7 @@ type LoanRepayed @entity(immutable: true) {
   lateFeeRepayed: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  blockNumber: BigInt!
 } #done
 
 type LoanWithdrawn @entity(immutable: true) {
@@ -195,8 +201,8 @@ type LoanWithdrawn @entity(immutable: true) {
   borrower: Borrower! # address
   withdrawTo: Bytes! # address
   amount: BigInt! # uint256
-  amountWithdrawn: BigInt!
   blockTimestamp: BigInt!
+  blockNumber: BigInt!
   transactionHash: Bytes!
 } #done
 
@@ -208,6 +214,9 @@ type Lender @entity(immutable: false) {
   blockTimestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: Bytes!
+  currencySupplied: BigInt! # uint256 #pool level
+  currencyRedeemed: BigInt! # uint256 # pool level
+  tokensRedeem: BigInt! # uint256 # tranche level
 } #done
 
 type Borrower @entity(immutable: false) {

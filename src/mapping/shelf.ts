@@ -14,10 +14,7 @@ import {
   PoolAddresses,
 } from "../../generated/schema";
 import {
-  Address,
   BigInt,
-  ByteArray,
-  Bytes,
   log,
 } from "@graphprotocol/graph-ts";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
@@ -32,6 +29,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
@@ -57,6 +55,7 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
   entity.save();
 
   updatePoolStatus(event.params.poolId, PoolStatus.ENDED);
@@ -71,8 +70,8 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   entity.withdrawTo = event.params.withdrawTo;
   entity.amount = event.params.currencyAmount;
   entity.blockTimestamp = event.block.timestamp;
+  entity.blockNumber = event.block.number;
   entity.transactionHash = event.transaction.hash;
-  entity.amountWithdrawn = event.params.currencyAmount;
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
@@ -96,6 +95,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.lateFeeRepayed = event.params.lateFeeRepaidThisTx;
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
@@ -119,6 +119,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   pool!.trancheSupplyMaxBalance = operator.totalDepositCurrencyJunior().plus(
     operator.totalDepositCurrencySenior()
   );
+  pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
   pool!.save();
 }
 
