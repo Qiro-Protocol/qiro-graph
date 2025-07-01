@@ -16,8 +16,8 @@ export function handleSupply(event: SupplyEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.tranche = event.params.tranche;
   entity.supplierOrReciever = event.params.supplier;
-  entity.tokenAmount = event.params.amount;
   entity.currencyAmount = event.params.amount;
+  entity.tokenAmount = event.params.amount;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
   entity.seniorPoolBalance = event.params.seniorPoolBalance;
@@ -66,8 +66,8 @@ export function handleRedeem(event: RedeemEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.tranche = event.params.tranche;
   entity.supplierOrReciever = event.params.receiver;
-  entity.tokenAmount = event.params.tokenAmount;
   entity.currencyAmount = event.params.currencyAmount;
+  entity.tokenAmount = event.params.tokenAmount;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
   entity.seniorPoolBalance = event.params.seniorPoolBalance;

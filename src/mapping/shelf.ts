@@ -11,14 +11,12 @@ import {
   LoanWithdrawn,
   LoanRepayed,
   Pool,
-  Tranche,
   User,
   BorrowerPool,
 } from "../../generated/schema";
 import {
   Address,
   BigInt,
-  bigInt,
   ByteArray,
   Bytes,
   log,

@@ -12,7 +12,7 @@ type PoolDeployed @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} # done
 
 type SupplyRedeem @entity(immutable: true) {
   id: Bytes!
@@ -28,7 +28,7 @@ type SupplyRedeem @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} # done
 
 enum PoolStatus {
   CAPITAL_FORMATION
@@ -58,10 +58,11 @@ type QiroFactory @entity(immutable: true) {
   juniorTrancheFab: Bytes! # address
   qiroFeeCollector: Bytes! # address
   owner: Bytes! # address
+  whitelistManager: Bytes! # address
   poolCount: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} # done
 
 # main Schema
 type Pool @entity(immutable: false) {

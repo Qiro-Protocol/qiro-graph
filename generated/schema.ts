@@ -571,6 +571,19 @@ export class QiroFactory extends Entity {
     this.set("owner", Value.fromBytes(value));
   }
 
+  get whitelistManager(): Bytes {
+    let value = this.get("whitelistManager");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set whitelistManager(value: Bytes) {
+    this.set("whitelistManager", Value.fromBytes(value));
+  }
+
   get poolCount(): BigInt {
     let value = this.get("poolCount");
     if (!value || value.kind == ValueKind.NULL) {

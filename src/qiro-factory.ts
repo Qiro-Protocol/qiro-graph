@@ -17,11 +17,33 @@ import {
 } from "../generated/schema";
 import { Operator, Shelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
-import { QiroFactory } from "../generated/QiroFactory/QiroFactory";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { getUser, getPoolId, PoolStatus, TrancheType } from "./util";
+import { FactoryCreated, QiroFactory as QiroFactoryContract } from "../generated/QiroFactory/QiroFactory";
+import { QiroFactory } from "../generated/schema";
+
+export function handleFactoryCreated(event: FactoryCreated): void {
+  let entity = new QiroFactory(event.params.factory);
+
+  let qiroFactory = QiroFactoryContract.bind(event.params.factory);
+
+  entity.shelfFab = qiroFactory.shelfFab();
+  entity.trustOperatorFab = qiroFactory.trustOperatorFab();
+  entity.whitelistOperatorFab = qiroFactory.operatorFab();
+  entity.defaultAssessorFab = qiroFactory.assessorFab();
+  entity.distributorFab = qiroFactory.distributorFab();
+  entity.seniorTrancheFab = qiroFactory.seniorTrancheFab();
+  entity.juniorTrancheFab = qiroFactory.juniorTrancheFab();
+  entity.qiroFeeCollector = qiroFactory.qiroFeeCollector();
+  entity.owner = qiroFactory.owner();
+  entity.whitelistManager = qiroFactory.whitelistManager();
+  entity.poolCount = qiroFactory.poolCount();
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}
 
 export function handlePoolDeployed(event: PoolDeployedEvent): void {
   let entity = new PoolDeployed(
@@ -63,7 +85,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
 
   let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
   let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
-  let factory = QiroFactory.bind(qiroFactory);
+  let factory = QiroFactoryContract.bind(qiroFactory);
 
   entity.operator = pool.operator;
   entity.seniorInterestRate = pool.seniorRate;
