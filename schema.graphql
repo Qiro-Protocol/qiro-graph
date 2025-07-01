@@ -44,7 +44,7 @@ enum SupplyRedeemType {
 
 enum PoolType {
   LOAN
-  SECURITIZATION
+  SECURITISATION
 }
 
 type QiroFactory @entity(immutable: true) {
@@ -83,16 +83,15 @@ type Pool @entity(immutable: false) {
   totalRepaid: BigInt! # uint256
   principalRepaid: BigInt! # uint256
   interestRepaid: BigInt! # uint256
+  lateFeeRepaid: BigInt! # uint256
   capitalFormationPeriod: BigInt! # uint256
   capitalFormationPeriodEnd: BigInt! # uint256
-  nextExpectedRepayment: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-  interestAmount: BigInt! # uint256
   principalAmount: BigInt! # uint256
+  interestAmount: BigInt! # uint256
   writeoffAmount: BigInt! # uint256
-  outstandingPrincipal: BigInt! # uint256
   totalTrancheBalance: BigInt! # uint256
   trancheSupplyMaxBalance: BigInt! # uint256
   outstandingPrincipal: BigInt! # uint256
@@ -100,12 +99,14 @@ type Pool @entity(immutable: false) {
   isBullet: Boolean! # bool
   poolType: PoolType! # enum
   isPaused: Boolean! # bool
+  borrower: Borrower! # address
+  originatorFeePaid: BigInt! # uint256
   juniorTranche: Tranche! @derivedFrom(field: "pool")
   seniorTranche: Tranche! @derivedFrom(field: "pool")
-  lenders: [UserPool!] @derivedFrom(field: "lendedPool")
-  borrower: BorrowerPool! @derivedFrom(field: "borrowedPool")
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   currency: PoolCurrency! @derivedFrom(field: "pool")
+  # done
+  lenders: [UserPool!] @derivedFrom(field: "lendedPool")
   repayments: [LoanRepayed!] @derivedFrom(field: "pool")
   withdrawals: [LoanWithdrawn!] @derivedFrom(field: "pool")
   supplyRedeems: [SupplyRedeem!] @derivedFrom(field: "pool")
@@ -128,7 +129,7 @@ type PoolAddresses @entity(immutable: false) {
   juniorToken: Bytes! # address
   root: Bytes! # address
   # add more addresses as needed
-}
+} # done
 
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!
@@ -136,7 +137,7 @@ type PoolCurrency @entity(immutable: false) {
   currencyAddress: Bytes! # address
   currencySymbol: String!
   currencyDecimals: Int!
-}
+} # done
 
 enum TrancheType {
   JUNIOR
@@ -147,7 +148,6 @@ type Tranche @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
   trancheType: TrancheType!
-  trancheAddress: Bytes!
   tokenAddress: Bytes! # address
   totalBalance: BigInt!
   totalTokenSupply: BigInt!
@@ -160,41 +160,44 @@ type Tranche @entity(immutable: false) {
   ceiling: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} # done
 
 type LoanStarted @entity(immutable: true) {
   id: Bytes!
   pool: Pool! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} #done
 
 type LoanEnded @entity(immutable: true) {
   id: Bytes!
   pool: Pool! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} #done
 
 type LoanRepayed @entity(immutable: true) {
   id: Bytes!
   pool: Pool! # uint256
-  borrower: Bytes! # address
+  borrower: Borrower! # address
   amountRepayed: BigInt!
   principalRepayed: BigInt!
   interestRepayed: BigInt!
+  lateFeeRepayed: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} #done
 
 type LoanWithdrawn @entity(immutable: true) {
   id: Bytes!
   pool: Pool! # uint256
-  borrower: Bytes! # address
+  borrower: Borrower! # address
+  withdrawTo: Bytes! # address
+  amount: BigInt! # uint256
   amountWithdrawn: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
+} #done
 
 type Lender @entity(immutable: false) {
   id: Bytes!
@@ -209,12 +212,11 @@ type Lender @entity(immutable: false) {
 
 type Borrower @entity(immutable: false) {
   id: Bytes!
-  address: Bytes!
-  poolsBorrowedFrom: [BigInt!]!
+  poolsBorrowedFrom: [Pool!] @derivedFrom(field: "borrower")
   totalBorrowed: BigInt!
   totalRepaid: BigInt!
   blockTimestamp: BigInt!
-}
+} #done
 
 enum TxnTypes {
   MINT
@@ -243,7 +245,6 @@ type User @entity(immutable: false) {
   address: Bytes!
   isLender: Boolean!
   isBorrower: Boolean!
-  poolsBorrowedFrom: [BorrowerPool!]! @derivedFrom(field: "user")
   poolsLendedIn: [UserPool!] @derivedFrom(field: "user")
   totalLended: BigInt!
   totalRedeemed: BigInt!
@@ -256,12 +257,6 @@ type UserPool @entity {
   id: Bytes!
   user: User!
   lendedPool: Pool!
-}
-
-type BorrowerPool @entity {
-  id: Bytes!
-  user: User!
-  borrowedPool: Pool!
 }
 
 type Approval @entity(immutable: true) {

@@ -105,16 +105,20 @@ export class LoanRepayed__Params {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get totalRepayedAmount(): BigInt {
+  get interestRepaidThisTx(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
 
-  get totalPrincipalRepayed(): BigInt {
+  get principalRepaidThisTx(): BigInt {
     return this._event.parameters[4].value.toBigInt();
   }
 
-  get lastProcessedPeriod(): BigInt {
+  get lateFeeRepaidThisTx(): BigInt {
     return this._event.parameters[5].value.toBigInt();
+  }
+
+  get lastProcessedPeriod(): BigInt {
+    return this._event.parameters[6].value.toBigInt();
   }
 }
 
@@ -825,6 +829,29 @@ export class Shelf extends ethereum.SmartContract {
     let result = super.tryCall(
       "getLatestPeriodByTime",
       "getLatestPeriodByTime():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getOutstandingInterest(): BigInt {
+    let result = super.call(
+      "getOutstandingInterest",
+      "getOutstandingInterest():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getOutstandingInterest(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getOutstandingInterest",
+      "getOutstandingInterest():(uint256)",
       [],
     );
     if (result.reverted) {
