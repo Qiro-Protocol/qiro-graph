@@ -19,7 +19,7 @@ import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOper
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
-import { getUser, getPoolId, PoolStatus, TrancheType, getPoolStatusString, getPoolTypeString } from "./util";
+import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString } from "./util";
 import { FactoryCreated, QiroFactory as QiroFactoryContract } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -194,8 +194,6 @@ export function getOrCreateBorrower(
   let borrower = Borrower.load(borrowerAddress);
   if (borrower == null) {
     borrower = new Borrower(borrowerAddress);
-    borrower.totalBorrowed = new BigInt(0);
-    borrower.totalRepaid = new BigInt(0);
     borrower.blockTimestamp = blockTimestamp;
     borrower.save();
   }

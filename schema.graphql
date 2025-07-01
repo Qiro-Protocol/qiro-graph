@@ -213,8 +213,6 @@ type Lender @entity(immutable: false) {
 type Borrower @entity(immutable: false) {
   id: Bytes!
   poolsBorrowedFrom: [Pool!] @derivedFrom(field: "borrower")
-  totalBorrowed: BigInt!
-  totalRepaid: BigInt!
   blockTimestamp: BigInt!
 } #done
 

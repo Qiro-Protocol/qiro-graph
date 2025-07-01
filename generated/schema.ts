@@ -2344,32 +2344,6 @@ export class Borrower extends Entity {
     );
   }
 
-  get totalBorrowed(): BigInt {
-    let value = this.get("totalBorrowed");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalBorrowed(value: BigInt) {
-    this.set("totalBorrowed", Value.fromBigInt(value));
-  }
-
-  get totalRepaid(): BigInt {
-    let value = this.get("totalRepaid");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalRepaid(value: BigInt) {
-    this.set("totalRepaid", Value.fromBigInt(value));
-  }
-
   get blockTimestamp(): BigInt {
     let value = this.get("blockTimestamp");
     if (!value || value.kind == ValueKind.NULL) {
