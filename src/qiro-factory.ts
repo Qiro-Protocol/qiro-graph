@@ -66,6 +66,8 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
 
   handlePool(entity as PoolDeployed, event.params.poolId, event.address);
 
+  updatePoolCountInFactory(event.address);
+
   Operator.create(event.params.operator);
   Shelf.create(event.params.shelf);
 }
@@ -201,4 +203,13 @@ export function getOrCreateBorrower(
     borrower.save();
   }
   return borrower;
+}
+
+function updatePoolCountInFactory(qiroFactory: Address): void {
+  let factory = QiroFactoryContract.bind(qiroFactory);
+  let qiroFactoryEntity = QiroFactory.load(qiroFactory);
+  if (qiroFactoryEntity) {
+    qiroFactoryEntity.poolCount = factory.poolCount();
+    qiroFactoryEntity.save();
+  }
 }
