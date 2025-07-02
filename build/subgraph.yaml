@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xdB30d90a357C4830331958F44043bdcCE089F210"
+      address: "0x4B33eC0fD9b5955c26Fb6AEa2F937792a50c83A4"
       abi: QiroFactory
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -45,7 +45,7 @@ dataSources:
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -70,7 +70,7 @@ dataSources:
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -95,7 +95,7 @@ dataSources:
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -116,7 +116,7 @@ dataSources:
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -135,9 +135,9 @@ dataSources:
     name: QiroNft
     network: polygon-amoy
     source:
-      address: "0xbe69b4FEcF06B160D1aAbcBAEDFB47Ac9841d093"
+      address: "0xa5FeC3082276c7517d2ADB93e8f87777aECe8E85"
       abi: QiroNft
-      startBlock: 23381814
+      startBlock: 23413520
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

@@ -9,7 +9,7 @@ SCHEMA_FILE = schema.graphql
 SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
-SUBGRAPH_NAME = qiro-protocol-v1-testnet/0.0.2
+SUBGRAPH_NAME = qiro-protocol-v1-testnet/0.0.3
 
 # Clean build directory
 clean:
