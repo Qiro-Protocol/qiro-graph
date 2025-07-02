@@ -6,10 +6,10 @@ all: build deploy
 # Directory paths
 BUILD_DIR = build
 SCHEMA_FILE = schema.graphql
-SUBGRAPH_YAML = plume.subgraph.yaml
+SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
-SUBGRAPH_NAME = qiro-plume-testnet-subgraph/v0.0.1
+SUBGRAPH_NAME = qiro-protocol-v1-testnet/0.0.2
 
 # Clean build directory
 clean:
@@ -24,7 +24,7 @@ build:
 
 # Deploy the subgraph
 deploy:
-	goldsky subgraph deploy $(SUBGRAPH_NAME) --path ./$(BUILD_DIR)
+	goldsky subgraph deploy $(SUBGRAPH_NAME) --path .
 
 # Build and deploy in one command
 deploy-all: build deploy

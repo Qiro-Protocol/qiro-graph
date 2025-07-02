@@ -39,6 +39,7 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.owner = qiroFactory.owner();
   entity.whitelistManager = qiroFactory.whitelistManager();
   entity.poolCount = qiroFactory.poolCount();
+  entity.nftContractAddress = qiroFactory.qiroAssetNFT();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();

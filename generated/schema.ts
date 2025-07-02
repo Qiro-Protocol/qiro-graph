@@ -635,6 +635,19 @@ export class QiroFactory extends Entity {
   set transactionHash(value: Bytes) {
     this.set("transactionHash", Value.fromBytes(value));
   }
+
+  get nftContractAddress(): Bytes {
+    let value = this.get("nftContractAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set nftContractAddress(value: Bytes) {
+    this.set("nftContractAddress", Value.fromBytes(value));
+  }
 }
 
 export class Pool extends Entity {
