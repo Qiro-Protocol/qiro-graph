@@ -126,8 +126,8 @@ function updatePoolBalance(
     return;
   }
   pool.totalBalance = total;
-  let seniorTranche = Tranche.load(Bytes.fromHexString(pool.seniorTranche._id));
-  let juniorTranche = Tranche.load(Bytes.fromHexString(pool.juniorTranche._id));
+  let seniorTranche = Tranche.load(pool.seniorTranche);
+  let juniorTranche = Tranche.load(pool.juniorTranche);
   if (seniorTranche == null || juniorTranche == null) {
     log.info("Message to be displayed: {}", [poolId.toHexString()]);
     return;

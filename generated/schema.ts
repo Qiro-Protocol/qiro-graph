@@ -1172,20 +1172,30 @@ export class Pool extends Entity {
     this.set("pRepayFrequency", Value.fromBigInt(value));
   }
 
-  get juniorTranche(): TrancheLoader {
-    return new TrancheLoader(
-      "Pool",
-      this.get("id")!.toBytes().toHexString(),
-      "juniorTranche",
-    );
+  get juniorTranche(): Bytes {
+    let value = this.get("juniorTranche");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
   }
 
-  get seniorTranche(): TrancheLoader {
-    return new TrancheLoader(
-      "Pool",
-      this.get("id")!.toBytes().toHexString(),
-      "seniorTranche",
-    );
+  set juniorTranche(value: Bytes) {
+    this.set("juniorTranche", Value.fromBytes(value));
+  }
+
+  get seniorTranche(): Bytes {
+    let value = this.get("seniorTranche");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set seniorTranche(value: Bytes) {
+    this.set("seniorTranche", Value.fromBytes(value));
   }
 
   get addresses(): PoolAddressesLoader {
@@ -4062,24 +4072,6 @@ export class UpdateNftData extends Entity {
 
   set transactionHash(value: Bytes) {
     this.set("transactionHash", Value.fromBytes(value));
-  }
-}
-
-export class TrancheLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): Tranche[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Tranche[]>(value);
   }
 }
 

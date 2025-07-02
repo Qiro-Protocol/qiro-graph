@@ -81,6 +81,11 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
   let factory = QiroFactoryContract.bind(qiroFactory);
   let factoryPool = factory.pools(poolId);
+  let qiroFactoryCurrency = factory.currency();
+  let currencyContract = ERC20.bind(Address.fromBytes(qiroFactoryCurrency));
+  let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
+  let juniorTranch = operator.junior();
+  let seniorTranch = operator.senior();
 
   entity.poolStatus = getPoolStatusString(operator.getState());
   entity.operator = pool.operator;
@@ -119,12 +124,13 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.originatorFeePaid = shelfContract.originatorFeePaidAmount();
   entity.pStartFrom = shelfContract.pStartFrom();
   entity.pRepayFrequency = shelfContract.pRepayFrequency();
+  entity.shelfBalance = currencyContract.balanceOf(Address.fromBytes(pool.shelf));
+  entity.shelfDebt = BigInt.fromI32(0);
+  entity.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+  entity.lateFeeRepaid = shelfContract.totalLateFeePaid();
+  entity.seniorTranche = seniorTranch;
+  entity.juniorTranche = juniorTranch;
   entity.save();
-
-  let qiroFactoryCurrency = factory.currency();
-  let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
-  let juniorTranch = operator.junior();
-  let seniorTranch = operator.senior();
 
   let poolCurrency = new PoolCurrency(qiroFactoryCurrency);
   poolCurrency.pool = pool.pool;
