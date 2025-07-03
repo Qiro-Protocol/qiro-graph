@@ -87,6 +87,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   let juniorTranch = operator.junior();
   let seniorTranch = operator.senior();
 
+  entity.poolId = poolId; // uint256
   entity.poolStatus = getPoolStatusString(operator.getState());
   entity.operator = pool.operator;
   entity.seniorInterestRate = pool.seniorRate;
@@ -132,12 +133,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.juniorTranche = juniorTranch;
   entity.save();
 
-  let poolCurrency = new PoolCurrency(qiroFactoryCurrency);
-  poolCurrency.pool = pool.pool;
-  poolCurrency.currencyAddress = qiroFactoryCurrency;
-  poolCurrency.currencySymbol = qiroFactoryCurrencyBind.symbol();
-  poolCurrency.currencyDecimals = qiroFactoryCurrencyBind.decimals();
-  poolCurrency.save();
+  let currency = getOrCreateCurrency(qiroFactoryCurrency);
 
   poolAddresses.pool = pool.pool;
   poolAddresses.shelf = pool.shelf;
@@ -148,7 +144,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   poolAddresses.lenderDeployer = factoryPool.getLenderDeployer();
   poolAddresses.borrowerDeployer = factoryPool.getBorrowerDeployer();
   poolAddresses.admin = factoryPool.getPoolAdmin();
-  poolAddresses.currency = qiroFactoryCurrency;
+  poolAddresses.currency = currency.id;
   poolAddresses.seniorToken = operator.seniorToken();
   poolAddresses.juniorToken = operator.juniorToken();
   poolAddresses.root = factoryPool.getRoot();
@@ -209,6 +205,19 @@ export function getOrCreateBorrower(
     borrower.save();
   }
   return borrower;
+}
+
+export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency {
+  let poolCurrency = PoolCurrency.load(qiroFactoryCurrency);
+  if (poolCurrency == null) {
+    let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
+    poolCurrency = new PoolCurrency(qiroFactoryCurrency);
+    poolCurrency.currencyAddress = qiroFactoryCurrency;
+    poolCurrency.currencySymbol = qiroFactoryCurrencyBind.symbol();
+    poolCurrency.currencyDecimals = qiroFactoryCurrencyBind.decimals();
+    poolCurrency.save();
+  }
+  return poolCurrency;
 }
 
 function updatePoolCountInFactory(qiroFactory: Address): void {

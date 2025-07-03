@@ -69,6 +69,7 @@ type QiroFactory @entity(immutable: false) {
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
+  poolId: BigInt! # uint256
   poolStatus: PoolStatus! # enum
   operator: Bytes! # address
   shelfBalance: BigInt! # uint256
@@ -109,7 +110,6 @@ type Pool @entity(immutable: false) {
   juniorTranche: Tranche!
   seniorTranche: Tranche!
   addresses: PoolAddresses! @derivedFrom(field: "pool")
-  currency: PoolCurrency! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")
   repayments: [LoanRepayed!] @derivedFrom(field: "pool")
@@ -138,7 +138,6 @@ type PoolAddresses @entity(immutable: false) {
 
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!
-  pool: Pool! # uint256
   currencyAddress: Bytes! # address
   currencySymbol: String!
   currencyDecimals: Int!

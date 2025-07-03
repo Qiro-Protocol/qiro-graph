@@ -218,6 +218,10 @@ templates:
       abis:
         - name: Shelf
           file: ./abis/Shelf.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: WhitelistOperator
+          file: ./abis/WhitelistOperator.json
       eventHandlers:
         - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleLoanStarted
