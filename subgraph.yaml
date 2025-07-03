@@ -38,6 +38,9 @@ dataSources:
           handler: handlePoolDeployed
         - event: FactoryCreated(address)
           handler: handleFactoryCreated
+      callHandlers:
+        - function: file(bytes32,address)
+          handler: handleFactoryFile
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator

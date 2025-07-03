@@ -64,6 +64,7 @@ type QiroFactory @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
+  currency: Bytes! # address
 } # done
 
 # main Schema

@@ -3,6 +3,7 @@ import {
   LoanEnded as LoanEndedEvent,
   LoanWithdrawn as LoanWithdrawnEvent,
   LoanRepayed as LoanRepayedEvent,
+  OriginatorFeePaid,
 } from "../../generated/templates/Shelf/Shelf";
 
 import {
@@ -121,6 +122,12 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     operator.totalDepositCurrencySenior()
   );
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+  pool!.save();
+}
+
+export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
+  let pool = getPool(event.params.poolId);
+  pool!.originatorFeePaid = event.params.amount;
   pool!.save();
 }
 

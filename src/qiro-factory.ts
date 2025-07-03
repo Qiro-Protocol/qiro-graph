@@ -2,6 +2,7 @@ import {
   Address,
   BigInt,
   Bytes,
+  log,
 } from "@graphprotocol/graph-ts";
 import {
   PoolDeployed as PoolDeployedEvent,
@@ -20,7 +21,7 @@ import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE } from "./util";
-import { FactoryCreated, QiroFactory as QiroFactoryContract } from "../generated/QiroFactory/QiroFactory";
+import { FactoryCreated, QiroFactory as QiroFactoryContract, FileCall } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -40,6 +41,7 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.whitelistManager = qiroFactory.whitelistManager();
   entity.poolCount = qiroFactory.poolCount();
   entity.nftContractAddress = qiroFactory.qiroAssetNFT();
+  entity.currency = qiroFactory.currency();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
@@ -83,7 +85,6 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   let factoryPool = factory.pools(poolId);
   let qiroFactoryCurrency = factory.currency();
   let currencyContract = ERC20.bind(Address.fromBytes(qiroFactoryCurrency));
-  let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
   let juniorTranch = operator.junior();
   let seniorTranch = operator.senior();
 
@@ -194,7 +195,29 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   getOrCreateBorrower(Address.fromBytes(entity.borrower), pool.blockTimestamp);
 }
 
-export function getOrCreateBorrower(
+export function handleFactoryFile(call: FileCall): void {
+  let factory = QiroFactory.load(call.to);
+  if (factory == null) {
+    log.error("Factory not found for address: {}", [call.to.toHexString()]);
+    return;
+  }
+
+  let what = call.inputs.what.toString();
+  let value = call.inputs._value;
+
+  if (what == "qiroFeeCollector") {
+    factory.qiroFeeCollector = value;
+  } else if (what == "qiroAssetNFT") {
+    factory.nftContractAddress = value;
+  } else if (what == "currency") {
+    factory.currency = value;
+  } else {
+    log.warning("Unknown parameter in factory file call: {}", [what]);
+  }
+  factory.save();
+}
+
+function getOrCreateBorrower(
   borrowerAddress: Address,
   blockTimestamp: BigInt = BigInt.fromI32(0)
 ): Borrower {
