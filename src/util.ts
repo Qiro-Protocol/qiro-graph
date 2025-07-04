@@ -10,7 +10,7 @@ export namespace PoolStatus {
   export const PENDING = "PENDING";
   export const ACTIVE = "ACTIVE";
   export const REVOKED = "REVOKED";
-  export const PARTIAL_REDEEM = "PARTIAL_REDEEM";
+  export const REPAYMENT_STARTED = "REPAYMENT_STARTED";
   export const REDEEM = "REDEEM";
   export const ENDED = "ENDED";
 }
@@ -40,7 +40,7 @@ export function getPoolStatusString(state: BigInt): string {
   } else if (state == BigInt.fromI32(3)) {
     return PoolStatus.REVOKED;
   } else if (state == BigInt.fromI32(4)) {
-    return PoolStatus.PARTIAL_REDEEM;
+    return PoolStatus.REPAYMENT_STARTED;
   } else if (state == BigInt.fromI32(5)) {
     return PoolStatus.REDEEM;
   } else if (state == BigInt.fromI32(6)) {

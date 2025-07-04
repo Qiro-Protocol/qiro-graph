@@ -36,10 +36,11 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
   let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
   let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let poolObject = getPool(event.params.poolId);
-  poolObject!.poolStatus = PoolStatus.ACTIVE;
+  poolObject!.poolStatus = getPoolStatusString(operator.getState());
   poolObject!.originatorFeePaid = shelfContract.originatorFeePaidAmount();
   poolObject!.loanMaturityTimestamp = shelfContract.LOAN_START_TIMESTAMP().plus(poolObject!.loanTerm);
   poolObject!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));

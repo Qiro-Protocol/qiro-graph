@@ -35,6 +35,9 @@ enum PoolStatus {
   CAPITAL_FORMATION
   PENDING
   ACTIVE
+  REVOKED
+  REPAYMENT_STARTED
+  REDEEM
   ENDED
 }
 
@@ -141,9 +144,9 @@ type PoolAddresses @entity(immutable: false) {
 
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!
-  currencyAddress: Bytes! # address
-  currencySymbol: String!
-  currencyDecimals: Int!
+  address: Bytes! # address
+  symbol: String!
+  decimals: Int!
 } # done
 
 enum TrancheType {
