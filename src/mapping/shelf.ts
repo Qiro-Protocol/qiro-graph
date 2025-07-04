@@ -50,6 +50,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   );
   poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
   poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
+  poolObject!.principalAmount = shelfContract.principalAmount();
   poolObject!.save();
 }
 
