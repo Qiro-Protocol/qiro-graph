@@ -110,6 +110,7 @@ type Pool @entity(immutable: false) {
   pRepayFrequency: BigInt! # uint256
   juniorTranche: Tranche!
   seniorTranche: Tranche!
+  nftTokenId: BigInt! # uint256
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")
@@ -129,6 +130,7 @@ type PoolAddresses @entity(immutable: false) {
   seniorTranche: Bytes! # address
   lenderDeployer: Bytes! # address
   borrowerDeployer: Bytes! # address
+  nftContractAddress: Bytes! # address
   admin: Bytes! # address
   currency: PoolCurrency!
   seniorToken: Bytes! # address
@@ -139,9 +141,9 @@ type PoolAddresses @entity(immutable: false) {
 
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!
-  currencyAddress: Bytes! # address
-  currencySymbol: String!
-  currencyDecimals: Int!
+  address: Bytes! # address
+  symbol: String!
+  decimals: Int!
 } # done
 
 enum TrancheType {
@@ -215,9 +217,9 @@ type Lender @entity(immutable: false) {
   blockTimestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: Bytes!
-  currencySupplied: BigInt! # uint256 #pool level
-  currencyRedeemed: BigInt! # uint256 # pool level
-  tokensRedeem: BigInt! # uint256 # tranche level
+  currencySupplied: BigInt # uint256 #pool level
+  currencyRedeemed: BigInt # uint256 # pool level
+  tokensRedeem: BigInt # uint256 # tranche level
 } #done
 
 type Borrower @entity(immutable: false) {

@@ -11,6 +11,7 @@ import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistO
 import { ONE } from "../util";
 
 export function handleSupply(event: SupplyEvent): void {
+  log.info("Handling supply event for pool: {}", [event.params.poolId.toString()]);
   let entity = new SupplyRedeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -46,7 +47,13 @@ export function handleSupply(event: SupplyEvent): void {
 }
 
 function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId: BigInt, eventBlock: ethereum.Block): void {
+  log.warning("Creating lender entity for address: {}, tranche: {}, poolId: {}", [
+    lenderAddress.toHexString(),
+    trancheAddress.toHexString(),
+    poolId.toString()
+  ]);
   let lenderId = getLenderId(lenderAddress, trancheAddress, poolId);
+  log.warning("Lender ID: {}", [lenderId.toHexString()]);
   let lender = Lender.load(lenderId);
   if (lender == null) {
     lender = new Lender(lenderId);
@@ -57,12 +64,19 @@ function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId:
     lender.blockNumber = eventBlock.number;
     lender.transactionHash = eventBlock.hash;
     lender.save();
+    log.info("Created new lender entity: {}", [lender.id.toHexString()]);
   }
   updateLenderStats(Address.fromBytes(lenderAddress), Address.fromBytes(trancheAddress), poolId);
 }
 
 function updateLenderStats(lenderAddress: Address, trancheAddress: Address, poolId: BigInt): void {
+  log.info("Updating lender stats for address: {}, tranche: {}, poolId: {}", [
+    lenderAddress.toHexString(),
+    trancheAddress.toHexString(),
+    poolId.toString()
+  ]);
   let lender = Lender.load(getLenderId(lenderAddress, trancheAddress, poolId));
+  log.info("Lender entity: {}", [lender ? lender.id.toHexString() : "null"]);
   let poolAddresses = PoolAddresses.load(getPoolId(poolId));
   let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
   // get tranche and figure out it's type
@@ -146,7 +160,7 @@ function getLenderId(
   trancheAddress: Bytes,
   poolId: BigInt
 ): Bytes {
-  return Bytes.fromHexString(
-    lenderAddress.toHexString().concat(poolId.toHexString()).concat(trancheAddress.toHexString())
-  );
+  return Bytes.fromByteArray(crypto.keccak256(Bytes.fromHexString(
+    lenderAddress.toHexString().concat(poolId.toHexString()).concat("-").concat(trancheAddress.toHexString())
+  )));
 }

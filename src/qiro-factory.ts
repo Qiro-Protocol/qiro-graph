@@ -15,7 +15,7 @@ import {
   PoolCurrency,
   Borrower,
 } from "../generated/schema";
-import { Operator, Shelf } from "../generated/templates";
+import { TrustOperator, Shelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
@@ -70,8 +70,10 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
 
   updatePoolCountInFactory(event.address);
 
-  Operator.create(event.params.operator);
   Shelf.create(event.params.shelf);
+  TrustOperator.create(
+    WhitelistOperator.bind(event.params.operator).trustOperator()
+  );
 }
 
 function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): void {
@@ -132,6 +134,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.lateFeeRepaid = shelfContract.totalLateFeePaid();
   entity.seniorTranche = seniorTranch;
   entity.juniorTranche = juniorTranch;
+  entity.nftTokenId = shelfContract.token().value1;
   entity.save();
 
   let currency = getOrCreateCurrency(qiroFactoryCurrency);
@@ -149,6 +152,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   poolAddresses.seniorToken = operator.seniorToken();
   poolAddresses.juniorToken = operator.juniorToken();
   poolAddresses.root = factoryPool.getRoot();
+  poolAddresses.nftContractAddress = factory.qiroAssetNFT();
   poolAddresses.save();
 
   let junTrancheContract = TrancheContract.bind(juniorTranch);
@@ -235,9 +239,9 @@ export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency 
   if (poolCurrency == null) {
     let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
     poolCurrency = new PoolCurrency(qiroFactoryCurrency);
-    poolCurrency.currencyAddress = qiroFactoryCurrency;
-    poolCurrency.currencySymbol = qiroFactoryCurrencyBind.symbol();
-    poolCurrency.currencyDecimals = qiroFactoryCurrencyBind.decimals();
+    poolCurrency.address = qiroFactoryCurrency;
+    poolCurrency.symbol = qiroFactoryCurrencyBind.symbol();
+    poolCurrency.decimals = qiroFactoryCurrencyBind.decimals();
     poolCurrency.save();
   }
   return poolCurrency;

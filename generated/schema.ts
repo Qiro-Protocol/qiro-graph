@@ -1224,6 +1224,19 @@ export class Pool extends Entity {
     this.set("seniorTranche", Value.fromBytes(value));
   }
 
+  get nftTokenId(): BigInt {
+    let value = this.get("nftTokenId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set nftTokenId(value: BigInt) {
+    this.set("nftTokenId", Value.fromBigInt(value));
+  }
+
   get addresses(): PoolAddressesLoader {
     return new PoolAddressesLoader(
       "Pool",
@@ -1420,6 +1433,19 @@ export class PoolAddresses extends Entity {
     this.set("borrowerDeployer", Value.fromBytes(value));
   }
 
+  get nftContractAddress(): Bytes {
+    let value = this.get("nftContractAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set nftContractAddress(value: Bytes) {
+    this.set("nftContractAddress", Value.fromBytes(value));
+  }
+
   get admin(): Bytes {
     let value = this.get("admin");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1529,8 +1555,8 @@ export class PoolCurrency extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get currencyAddress(): Bytes {
-    let value = this.get("currencyAddress");
+  get address(): Bytes {
+    let value = this.get("address");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1538,12 +1564,12 @@ export class PoolCurrency extends Entity {
     }
   }
 
-  set currencyAddress(value: Bytes) {
-    this.set("currencyAddress", Value.fromBytes(value));
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
   }
 
-  get currencySymbol(): string {
-    let value = this.get("currencySymbol");
+  get symbol(): string {
+    let value = this.get("symbol");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1551,12 +1577,12 @@ export class PoolCurrency extends Entity {
     }
   }
 
-  set currencySymbol(value: string) {
-    this.set("currencySymbol", Value.fromString(value));
+  set symbol(value: string) {
+    this.set("symbol", Value.fromString(value));
   }
 
-  get currencyDecimals(): i32 {
-    let value = this.get("currencyDecimals");
+  get decimals(): i32 {
+    let value = this.get("decimals");
     if (!value || value.kind == ValueKind.NULL) {
       return 0;
     } else {
@@ -1564,8 +1590,8 @@ export class PoolCurrency extends Entity {
     }
   }
 
-  set currencyDecimals(value: i32) {
-    this.set("currencyDecimals", Value.fromI32(value));
+  set decimals(value: i32) {
+    this.set("decimals", Value.fromI32(value));
   }
 }
 
@@ -2400,43 +2426,55 @@ export class Lender extends Entity {
     this.set("transactionHash", Value.fromBytes(value));
   }
 
-  get currencySupplied(): BigInt {
+  get currencySupplied(): BigInt | null {
     let value = this.get("currencySupplied");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set currencySupplied(value: BigInt) {
-    this.set("currencySupplied", Value.fromBigInt(value));
+  set currencySupplied(value: BigInt | null) {
+    if (!value) {
+      this.unset("currencySupplied");
+    } else {
+      this.set("currencySupplied", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get currencyRedeemed(): BigInt {
+  get currencyRedeemed(): BigInt | null {
     let value = this.get("currencyRedeemed");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set currencyRedeemed(value: BigInt) {
-    this.set("currencyRedeemed", Value.fromBigInt(value));
+  set currencyRedeemed(value: BigInt | null) {
+    if (!value) {
+      this.unset("currencyRedeemed");
+    } else {
+      this.set("currencyRedeemed", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get tokensRedeem(): BigInt {
+  get tokensRedeem(): BigInt | null {
     let value = this.get("tokensRedeem");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set tokensRedeem(value: BigInt) {
-    this.set("tokensRedeem", Value.fromBigInt(value));
+  set tokensRedeem(value: BigInt | null) {
+    if (!value) {
+      this.unset("tokensRedeem");
+    } else {
+      this.set("tokensRedeem", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 

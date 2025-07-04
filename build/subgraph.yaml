@@ -176,7 +176,7 @@ dataSources:
           handler: handleUpdateNftData
       file: QiroNft/QiroNft.wasm
 templates:
-  - name: Operator
+  - name: TrustOperator
     kind: ethereum/contract
     network: polygon-amoy
     source:
@@ -185,17 +185,15 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates/Operator/Operator.wasm
+      file: templates/TrustOperator/TrustOperator.wasm
       entities:
         - Supply
         - Redeem
-        - User
-        - Pool
       abis:
         - name: WhitelistOperator
-          file: Operator/WhitelistOperator.json
+          file: TrustOperator/WhitelistOperator.json
         - name: TrustOperator
-          file: Operator/TrustOperator.json
+          file: TrustOperator/TrustOperator.json
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply

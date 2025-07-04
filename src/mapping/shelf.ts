@@ -47,6 +47,8 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
     currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
   );
+  poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
   poolObject!.save();
 }
 

@@ -176,7 +176,7 @@ dataSources:
           handler: handleUpdateNftData
       file: ./src/qiro-nft.ts
 templates:
-  - name: Operator
+  - name: TrustOperator
     kind: ethereum/contract
     network: polygon-amoy
     source:
@@ -189,8 +189,6 @@ templates:
       entities:
         - Supply
         - Redeem
-        - User
-        - Pool
       abis:
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
