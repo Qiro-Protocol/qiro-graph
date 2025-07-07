@@ -146,14 +146,20 @@ function updatePoolAndTranche(
     log.info("Message to be displayed: {}", [poolId.toHexString()]);
     return;
   }
+
+  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(pool.operator));
+
   pool.totalBalance = total;
+  pool.trancheSupplyMaxBalance = whitelistOperatorContract.totalDepositCurrencyJunior().plus(
+    whitelistOperatorContract.totalDepositCurrencySenior()
+  );
+
   let seniorTranche = Tranche.load(pool.seniorTranche);
   let juniorTranche = Tranche.load(pool.juniorTranche);
   if (seniorTranche == null || juniorTranche == null) {
     log.info("Message to be displayed: {}", [poolId.toHexString()]);
     return;
   }
-  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(pool.operator));
   // senior
   let seniorContract = TrancheContract.bind(Address.fromBytes(pool.seniorTranche));
   seniorTranche.balance = senior;
