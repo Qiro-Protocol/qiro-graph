@@ -1675,8 +1675,8 @@ export class Tranche extends Entity {
     this.set("tokenAddress", Value.fromBytes(value));
   }
 
-  get totalBalance(): BigInt {
-    let value = this.get("totalBalance");
+  get balance(): BigInt {
+    let value = this.get("balance");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1684,8 +1684,8 @@ export class Tranche extends Entity {
     }
   }
 
-  set totalBalance(value: BigInt) {
-    this.set("totalBalance", Value.fromBigInt(value));
+  set balance(value: BigInt) {
+    this.set("balance", Value.fromBigInt(value));
   }
 
   get totalTokenSupply(): BigInt {
@@ -1699,19 +1699,6 @@ export class Tranche extends Entity {
 
   set totalTokenSupply(value: BigInt) {
     this.set("totalTokenSupply", Value.fromBigInt(value));
-  }
-
-  get tokenPrice(): BigInt {
-    let value = this.get("tokenPrice");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set tokenPrice(value: BigInt) {
-    this.set("tokenPrice", Value.fromBigInt(value));
   }
 
   get tokenName(): string {
@@ -2132,6 +2119,32 @@ export class LoanRepayed extends Entity {
     this.set("lateFeeRepayed", Value.fromBigInt(value));
   }
 
+  get seniorTotalRepaid(): BigInt {
+    let value = this.get("seniorTotalRepaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set seniorTotalRepaid(value: BigInt) {
+    this.set("seniorTotalRepaid", Value.fromBigInt(value));
+  }
+
+  get juniorTotalRepaid(): BigInt {
+    let value = this.get("juniorTotalRepaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set juniorTotalRepaid(value: BigInt) {
+    this.set("juniorTotalRepaid", Value.fromBigInt(value));
+  }
+
   get blockTimestamp(): BigInt {
     let value = this.get("blockTimestamp");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2474,6 +2487,23 @@ export class Lender extends Entity {
       this.unset("tokensRedeem");
     } else {
       this.set("tokensRedeem", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get trancheTokenBalance(): BigInt | null {
+    let value = this.get("trancheTokenBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set trancheTokenBalance(value: BigInt | null) {
+    if (!value) {
+      this.unset("trancheTokenBalance");
+    } else {
+      this.set("trancheTokenBalance", Value.fromBigInt(<BigInt>value));
     }
   }
 }

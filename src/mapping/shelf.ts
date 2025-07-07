@@ -23,6 +23,7 @@ import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import { getPoolId, getPoolStatusString, PoolStatus } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
+import { Tranche } from "../../generated/QiroFactory/Tranche";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -51,6 +52,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
   poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
   poolObject!.principalAmount = shelfContract.principalAmount();
+  poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
   poolObject!.save();
 }
 
@@ -64,7 +66,19 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   entity.blockNumber = event.block.number;
   entity.save();
 
-  updatePoolStatus(event.params.poolId, PoolStatus.ENDED);
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
+
+  let pool = getPool(event.params.poolId);
+  pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  pool!.outstandingInterest = shelfContract.getOutstandingInterest();
+  pool!.poolStatus = getPoolStatusString(operator.getState());
+  pool!.shelfDebt = shelfContract.debt();
+  pool!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
+  pool!.writeoffAmount = shelfContract.totalWriteOffAmount();
+  pool!.save();
 }
 
 export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
@@ -90,6 +104,13 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
 }
 
 export function handleLoanRepayed(event: LoanRepayedEvent): void {
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
+  let seniorContract = Tranche.bind(Address.fromBytes(poolAddresses!.seniorTranche));
+  let juniorContract = Tranche.bind(Address.fromBytes(poolAddresses!.juniorTranche));
+
   let entity = new LoanRepayed(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -99,15 +120,12 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.principalRepayed = event.params.principalRepaidThisTx;
   entity.interestRepayed = event.params.interestRepaidThisTx;
   entity.lateFeeRepayed = event.params.lateFeeRepaidThisTx;
+  entity.seniorTotalRepaid = seniorContract.totalRepayedAmount();
+  entity.juniorTotalRepaid = juniorContract.totalRepayedAmount();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.blockNumber = event.block.number;
   entity.save();
-
-  let poolAddresses = getPoolAddresses(event.params.poolId);
-  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
-  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
-  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
@@ -144,17 +162,6 @@ function updatePoolBalance(poolId: BigInt, total: BigInt): void {
   }
   pool.totalBalance = total;
   // @Todo totalTokenSupply and tokenPrice change too
-  pool.save();
-}
-
-export function updatePoolStatus(poolId: BigInt, status: string): void {
-  // todo - update pool entity
-  let pool = Pool.load(getPoolId(poolId));
-  if (pool == null) {
-    log.error("Pool not found for ID: {}", [poolId.toHexString()]);
-    return;
-  }
-  pool.poolStatus = status;
   pool.save();
 }
 

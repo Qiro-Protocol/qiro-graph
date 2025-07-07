@@ -159,9 +159,8 @@ type Tranche @entity(immutable: false) {
   pool: Pool! # uint256
   trancheType: TrancheType!
   tokenAddress: Bytes! # address
-  totalBalance: BigInt!
+  balance: BigInt!
   totalTokenSupply: BigInt!
-  tokenPrice: BigInt!
   tokenName: String!
   tokenSymbol: String!
   totalInvested: BigInt!
@@ -196,6 +195,8 @@ type LoanRepayed @entity(immutable: false) {
   principalRepayed: BigInt!
   interestRepayed: BigInt!
   lateFeeRepayed: BigInt!
+  seniorTotalRepaid: BigInt!
+  juniorTotalRepaid: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
@@ -223,6 +224,7 @@ type Lender @entity(immutable: false) {
   currencySupplied: BigInt # uint256 #pool level
   currencyRedeemed: BigInt # uint256 # pool level
   tokensRedeem: BigInt # uint256 # tranche level
+  trancheTokenBalance: BigInt # uint256 # tranche level
 } #done
 
 type Borrower @entity(immutable: false) {

@@ -3,12 +3,14 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/Operator/TrustOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
+import { WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
 import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses } from "../../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
 import { getPoolId, SupplyRedeemActionType, TrancheType } from "../util";
 import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
 import { ONE } from "../util";
+import { ERC20 } from "../../generated/QiroFactory/ERC20";
 
 export function handleSupply(event: SupplyEvent): void {
   log.info("Handling supply event for pool: {}", [event.params.poolId.toString()]);
@@ -30,7 +32,7 @@ export function handleSupply(event: SupplyEvent): void {
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  updatePoolBalance(
+  updatePoolAndTranche(
     event.params.poolId,
     event.params.totalPoolBalance,
     event.params.juniorPoolBalance,
@@ -38,16 +40,16 @@ export function handleSupply(event: SupplyEvent): void {
   );
 
   // create lender entity if not exists
-  createLenderEntity(
-    event.params.supplier,
+  createOrUpdateLenderEntity(
+    Address.fromBytes(event.params.supplier),
     event.params.tranche,
     event.params.poolId,
     event.block
   );
 }
 
-function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId: BigInt, eventBlock: ethereum.Block): void {
-  log.warning("Creating lender entity for address: {}, tranche: {}, poolId: {}", [
+function createOrUpdateLenderEntity(lenderAddress: Address, trancheAddress: Bytes, poolId: BigInt, eventBlock: ethereum.Block): void {
+  log.warning("Creating or updating lender entity for address: {}, tranche: {}, poolId: {}", [
     lenderAddress.toHexString(),
     trancheAddress.toHexString(),
     poolId.toString()
@@ -56,6 +58,7 @@ function createLenderEntity(lenderAddress: Bytes, trancheAddress: Bytes, poolId:
   log.warning("Lender ID: {}", [lenderId.toHexString()]);
   let lender = Lender.load(lenderId);
   if (lender == null) {
+    log.warning("Creating new lender entity: {}", [lenderId.toHexString()]);
     lender = new Lender(lenderId);
     lender.address = lenderAddress;
     lender.tranche = trancheAddress;
@@ -82,13 +85,17 @@ function updateLenderStats(lenderAddress: Address, trancheAddress: Address, pool
   // get tranche and figure out it's type
   let tranche = Tranche.load(trancheAddress);
   if (tranche!.trancheType == TrancheType.JUNIOR) {
+    let trancheTokenContract = ERC20.bind(Address.fromBytes(poolAddresses!.juniorToken))
     lender!.currencySupplied = operator.tokenReceivedJunior(lenderAddress);
     lender!.tokensRedeem = operator.tokenRedeemedJunior(lenderAddress);
     lender!.currencyRedeemed = operator.currencyRedeemedJunior(lenderAddress);
+    lender!.trancheTokenBalance = trancheTokenContract.balanceOf(lenderAddress);
   } else if (tranche!.trancheType == TrancheType.SENIOR) {
+    let trancheTokenContract = ERC20.bind(Address.fromBytes(poolAddresses!.seniorToken))
     lender!.currencySupplied = operator.tokenReceivedSenior(lenderAddress);
     lender!.tokensRedeem = operator.tokenRedeemedSenior(lenderAddress);
     lender!.currencyRedeemed = operator.currencyRedeemedSenior(lenderAddress);
+    lender!.trancheTokenBalance = trancheTokenContract.balanceOf(lenderAddress);
   }
   lender!.save();
 }
@@ -112,7 +119,7 @@ export function handleRedeem(event: RedeemEvent): void {
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  updatePoolBalance(
+  updatePoolAndTranche(
     event.params.poolId,
     event.params.totalPoolBalance,
     event.params.juniorPoolBalance,
@@ -126,7 +133,7 @@ export function handleRedeem(event: RedeemEvent): void {
   )
 }
 
-function updatePoolBalance(
+function updatePoolAndTranche(
   poolId: BigInt,
   total: BigInt,
   junior: BigInt,
@@ -146,8 +153,22 @@ function updatePoolBalance(
     log.info("Message to be displayed: {}", [poolId.toHexString()]);
     return;
   }
-  seniorTranche.totalBalance = senior;
-  juniorTranche.totalBalance = junior;
+  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(pool.operator));
+  // senior
+  let seniorContract = TrancheContract.bind(Address.fromBytes(pool.seniorTranche));
+  seniorTranche.balance = senior;
+  seniorTranche.totalTokenSupply = seniorContract.tokenSupply();
+  seniorTranche.totalInvested = whitelistOperatorContract.totalDepositCurrencySenior();
+  seniorTranche.totalRedeemed = whitelistOperatorContract.totalRedeemedCurrencySenior();
+  seniorTranche.totalRepaid = seniorContract.totalRepayedAmount();
+
+  // junior
+  let juniorContract = TrancheContract.bind(Address.fromBytes(pool.juniorTranche));
+  juniorTranche.balance = junior;
+  juniorTranche.totalTokenSupply = juniorContract.tokenSupply();
+  juniorTranche.totalInvested = whitelistOperatorContract.totalDepositCurrencyJunior();
+  juniorTranche.totalRedeemed = whitelistOperatorContract.totalRedeemedCurrencyJunior();
+  juniorTranche.totalRepaid = juniorContract.totalRepayedAmount();
 
   // @Todo totalTokenSupply and tokenPrice change too
   pool.save();

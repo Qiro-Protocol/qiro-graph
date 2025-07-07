@@ -24,6 +24,7 @@ import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE } f
 import { FactoryCreated, QiroFactory as QiroFactoryContract, FileCall } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
+// FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
   let entity = new QiroFactory(event.params.factory);
 
@@ -46,6 +47,52 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.transactionHash = event.transaction.hash;
   entity.save();
 }
+
+export function handleFactoryFile(call: FileCall): void {
+  let factory = QiroFactory.load(call.to);
+  if (factory == null) {
+    log.error("Factory not found for address: {}", [call.to.toHexString()]);
+    return;
+  }
+
+  let what = call.inputs.what.toString();
+  let value = call.inputs._value;
+
+  if (what == "qiroFeeCollector") {
+    factory.qiroFeeCollector = value;
+  } else if (what == "qiroAssetNFT") {
+    factory.nftContractAddress = value;
+  } else if (what == "currency") {
+    factory.currency = value;
+  } else {
+    log.warning("Unknown parameter in factory file call: {}", [what]);
+  }
+  factory.save();
+}
+
+export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency {
+  let poolCurrency = PoolCurrency.load(qiroFactoryCurrency);
+  if (poolCurrency == null) {
+    let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
+    poolCurrency = new PoolCurrency(qiroFactoryCurrency);
+    poolCurrency.address = qiroFactoryCurrency;
+    poolCurrency.symbol = qiroFactoryCurrencyBind.symbol();
+    poolCurrency.decimals = qiroFactoryCurrencyBind.decimals();
+    poolCurrency.save();
+  }
+  return poolCurrency;
+}
+
+function updatePoolCountInFactory(qiroFactory: Address): void {
+  let factory = QiroFactoryContract.bind(qiroFactory);
+  let qiroFactoryEntity = QiroFactory.load(qiroFactory);
+  if (qiroFactoryEntity) {
+    qiroFactoryEntity.poolCount = factory.poolCount();
+    qiroFactoryEntity.save();
+  }
+}
+
+// POOL
 
 export function handlePoolDeployed(event: PoolDeployedEvent): void {
   let entity = new PoolDeployed(
@@ -166,9 +213,8 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   juniorTranche.pool = pool.pool;
   juniorTranche.trancheType = TrancheType.JUNIOR;
   juniorTranche.tokenAddress = junTrancheContract.token();
-  juniorTranche.totalBalance = junTrancheContract.balance();
+  juniorTranche.balance = junTrancheContract.balance();
   juniorTranche.totalTokenSupply = junTrancheContract.tokenSupply();
-  juniorTranche.tokenPrice = ONE; // scaled by 1e27
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
   juniorTranche.totalInvested = operator.totalDepositCurrencyJunior();
@@ -182,9 +228,8 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   seniorTranche.pool = pool.pool;
   seniorTranche.trancheType = TrancheType.SENIOR;
   seniorTranche.tokenAddress = operator.seniorToken();
-  seniorTranche.totalBalance = senTrancheContract.balance();
+  seniorTranche.balance = senTrancheContract.balance();
   seniorTranche.totalTokenSupply = senTrancheContract.tokenSupply();
-  seniorTranche.tokenPrice = ONE;
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();
   seniorTranche.totalInvested = operator.totalDepositCurrencySenior();
@@ -199,28 +244,6 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   getOrCreateBorrower(Address.fromBytes(entity.borrower), pool.blockTimestamp);
 }
 
-export function handleFactoryFile(call: FileCall): void {
-  let factory = QiroFactory.load(call.to);
-  if (factory == null) {
-    log.error("Factory not found for address: {}", [call.to.toHexString()]);
-    return;
-  }
-
-  let what = call.inputs.what.toString();
-  let value = call.inputs._value;
-
-  if (what == "qiroFeeCollector") {
-    factory.qiroFeeCollector = value;
-  } else if (what == "qiroAssetNFT") {
-    factory.nftContractAddress = value;
-  } else if (what == "currency") {
-    factory.currency = value;
-  } else {
-    log.warning("Unknown parameter in factory file call: {}", [what]);
-  }
-  factory.save();
-}
-
 function getOrCreateBorrower(
   borrowerAddress: Address,
   blockTimestamp: BigInt = BigInt.fromI32(0)
@@ -232,26 +255,4 @@ function getOrCreateBorrower(
     borrower.save();
   }
   return borrower;
-}
-
-export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency {
-  let poolCurrency = PoolCurrency.load(qiroFactoryCurrency);
-  if (poolCurrency == null) {
-    let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
-    poolCurrency = new PoolCurrency(qiroFactoryCurrency);
-    poolCurrency.address = qiroFactoryCurrency;
-    poolCurrency.symbol = qiroFactoryCurrencyBind.symbol();
-    poolCurrency.decimals = qiroFactoryCurrencyBind.decimals();
-    poolCurrency.save();
-  }
-  return poolCurrency;
-}
-
-function updatePoolCountInFactory(qiroFactory: Address): void {
-  let factory = QiroFactoryContract.bind(qiroFactory);
-  let qiroFactoryEntity = QiroFactory.load(qiroFactory);
-  if (qiroFactoryEntity) {
-    qiroFactoryEntity.poolCount = factory.poolCount();
-    qiroFactoryEntity.save();
-  }
 }
