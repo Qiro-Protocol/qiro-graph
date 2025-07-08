@@ -154,6 +154,32 @@ enum TrancheType {
   SENIOR
 }
 
+enum TransactionType {
+  SUPPLY
+  REDEEM
+  REPAY
+  WITHDRAW
+}
+
+enum TrancheTypeWithPool {
+  JUNIOR
+  SENIOR
+  POOL
+}
+
+type Transaction @entity(immutable: false) {
+  id: Bytes!
+  pool: Pool! # uint256
+  lenderOrBorrower: Bytes!
+  amount: BigInt! # uint256
+  type: TransactionType! # enum
+  trancheType: TrancheTypeWithPool! # enum
+  currency: PoolCurrency! # address
+  transactionHash: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+}
+
 type Tranche @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256

@@ -5,7 +5,7 @@ import {
   LoanRepayed as LoanRepayedEvent,
   OriginatorFeePaid,
 } from "../../generated/templates/Shelf/Shelf";
-
+import { getCurrencyFromPoolId } from "./operator"
 import {
   LoanStarted,
   LoanEnded,
@@ -13,6 +13,7 @@ import {
   LoanRepayed,
   Pool,
   PoolAddresses,
+  Transaction,
 } from "../../generated/schema";
 import {
   BigInt,
@@ -20,7 +21,7 @@ import {
   Address,
 } from "@graphprotocol/graph-ts";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
-import { getPoolId, getPoolStatusString, PoolStatus } from "../util";
+import { getPoolId, getPoolStatusString, PoolStatus, TrancheType, TrancheTypeWithPool, TransactionType } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
@@ -101,6 +102,8 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
     event.params.poolId,
     shelfContract.balance()
   );
+
+  createWithdrawTransaction(event);
 }
 
 export function handleLoanRepayed(event: LoanRepayedEvent): void {
@@ -145,6 +148,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   );
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
   pool!.save();
+
+  createRepayTransaction(event);
 }
 
 export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
@@ -181,4 +186,40 @@ export function getPoolAddresses(poolId: BigInt): PoolAddresses | null {
     return null;
   }
   return poolAddresses;
+}
+
+function createWithdrawTransaction(
+  event: LoanWithdrawnEvent
+): void {
+  let entity = new Transaction(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.lenderOrBorrower = event.params.borrower;
+  entity.amount = event.params.currencyAmount;
+  entity.type = TransactionType.WITHDRAW;
+  entity.trancheType = TrancheTypeWithPool.POOL;
+  entity.currency = getCurrencyFromPoolId(event.params.poolId);
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}
+
+function createRepayTransaction(
+  event: LoanRepayedEvent
+): void {
+  let entity = new Transaction(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.lenderOrBorrower = event.params.borrower;
+  entity.amount = event.params.currencyAmount;
+  entity.type = TransactionType.REPAY;
+  entity.trancheType = TrancheTypeWithPool.POOL;
+  entity.currency = getCurrencyFromPoolId(event.params.poolId);
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
 }

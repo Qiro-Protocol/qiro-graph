@@ -30,6 +30,19 @@ export namespace PoolType {
   export const SECURITISATION = "SECURITISATION";
 }
 
+export namespace TransactionType {
+  export const SUPPLY = "SUPPLY";
+  export const REDEEM = "REDEEM";
+  export const REPAY = "REPAY";
+  export const WITHDRAW = "WITHDRAW";
+}
+
+export namespace TrancheTypeWithPool {
+  export const JUNIOR = "JUNIOR";
+  export const SENIOR = "SENIOR";
+  export const POOL = "POOL";
+}
+
 export function getPoolStatusString(state: BigInt): string {
   if (state == BigInt.fromI32(0)) {
     return PoolStatus.CAPITAL_FORMATION;
