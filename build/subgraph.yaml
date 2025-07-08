@@ -38,6 +38,8 @@ dataSources:
           handler: handlePoolDeployed
         - event: FactoryCreated(address)
           handler: handleFactoryCreated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleFactoryOwnershipTransferred
       callHandlers:
         - function: file(bytes32,address)
           handler: handleFactoryFile
@@ -176,6 +178,27 @@ dataSources:
           handler: handleUpdateNftData
       file: QiroNft/QiroNft.wasm
 templates:
+  - name: WhitelistOperator
+    kind: ethereum/contract
+    network: polygon-amoy
+    source:
+      abi: WhitelistOperator
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: templates/WhitelistOperator/WhitelistOperator.wasm
+      entities:
+        - Pool
+        - PoolAddresses
+      abis:
+        - name: WhitelistOperator
+          file: WhitelistOperator/WhitelistOperator.json
+        - name: TrustOperator
+          file: WhitelistOperator/TrustOperator.json
+      callHandlers:
+        - function: depend(bytes32,address)
+          handler: handleWhitelistOperatorDepend
   - name: TrustOperator
     kind: ethereum/contract
     network: polygon-amoy
@@ -185,7 +208,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates/TrustOperator/TrustOperator.wasm
+      file: templates/WhitelistOperator/WhitelistOperator.wasm
       entities:
         - Supply
         - Redeem
@@ -240,3 +263,8 @@ templates:
           handler: handleLoanWithdrawn
         - event: OriginatorFeePaid(uint256,address,address,uint256)
           handler: handleOriginatorFeePaid
+      callHandlers:
+        - function: file(bytes32,address)
+          handler: handleShelfFile
+        - function: depend(bytes32,address)
+          handler: handleShelfDepend

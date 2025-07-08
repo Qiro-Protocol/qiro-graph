@@ -6,6 +6,20 @@ import {
   DataSourceContext,
 } from "@graphprotocol/graph-ts";
 
+export class WhitelistOperator extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("WhitelistOperator", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "WhitelistOperator",
+      [address.toHex()],
+      context,
+    );
+  }
+}
+
 export class TrustOperator extends DataSourceTemplate {
   static create(address: Address): void {
     DataSourceTemplate.create("TrustOperator", [address.toHex()]);

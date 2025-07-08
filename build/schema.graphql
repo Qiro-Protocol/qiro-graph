@@ -51,6 +51,15 @@ enum PoolType {
   SECURITISATION
 }
 
+type FactoryOwnershipTransferred @entity(immutable: false) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+} # done
+
 type QiroFactory @entity(immutable: false) {
   id: Bytes!
   shelfFab: Bytes! # address
@@ -80,6 +89,9 @@ type Pool @entity(immutable: false) {
   shelfDebt: BigInt! # uint256
   seniorInterestRate: BigInt! # uint256
   interestRate: BigInt! # uint256
+  lateFeeInterestRate: BigInt! # uint256
+  performanceFeeRate: BigInt! # uint256
+  originatorFeeRate: BigInt! # uint256
   periodLength: BigInt! # uint256
   periodCount: BigInt! # uint256
   loanTerm: BigInt! # uint256
@@ -100,6 +112,7 @@ type Pool @entity(immutable: false) {
   principalAmount: BigInt! # uint256
   interestAmount: BigInt! # uint256
   writeoffAmount: BigInt! # uint256
+  writeoffTime: BigInt! # uint256
   totalTrancheBalance: BigInt! # uint256
   trancheSupplyMaxBalance: BigInt! # uint256
   outstandingPrincipal: BigInt! # uint256

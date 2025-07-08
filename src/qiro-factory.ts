@@ -5,23 +5,24 @@ import {
   log,
 } from "@graphprotocol/graph-ts";
 import {
-  PoolDeployed as PoolDeployedEvent,
-} from "../generated/QiroFactory/QiroFactory";
-import {
   Pool,
   PoolDeployed,
   Tranche,
   PoolAddresses,
   PoolCurrency,
   Borrower,
+  FactoryOwnershipTransferred,
 } from "../generated/schema";
-import { TrustOperator, Shelf } from "../generated/templates";
+import { TrustOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE } from "./util";
-import { FactoryCreated, QiroFactory as QiroFactoryContract, FileCall } from "../generated/QiroFactory/QiroFactory";
+import {
+  FactoryCreated, QiroFactory as QiroFactoryContract, FileCall, OwnershipTransferred,
+  PoolDeployed as PoolDeployedEvent
+} from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
 // FACTORY
@@ -68,6 +69,26 @@ export function handleFactoryFile(call: FileCall): void {
     log.warning("Unknown parameter in factory file call: {}", [what]);
   }
   factory.save();
+}
+
+export function handleFactoryOwnershipTransferred(event: OwnershipTransferred): void {
+  let entity = new FactoryOwnershipTransferred(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.previousOwner = event.params.previousOwner;
+  entity.newOwner = event.params.newOwner;
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+
+  // update factory owner
+  let factory = QiroFactory.load(event.address);
+  if (factory != null) {
+    factory!.owner = event.params.newOwner;
+    factory!.save();
+  }
+log.info("Factory ownership transferred to: {}", [event.params.newOwner.toHexString()]);
 }
 
 export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency {
@@ -121,6 +142,7 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   TrustOperator.create(
     WhitelistOperator.bind(event.params.operator).trustOperator()
   );
+  WhitelistOperatorTemplate.create(event.params.operator);
 }
 
 function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): void {
@@ -142,6 +164,9 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.operator = pool.operator;
   entity.seniorInterestRate = pool.seniorRate;
   entity.interestRate = pool.interestRate;
+  entity.lateFeeInterestRate = shelfContract.lateFeeInterestRateInBps();
+  entity.performanceFeeRate = shelfContract.performanceFee();
+  entity.originatorFeeRate = BigInt.fromI32(shelfContract.allFees(BigInt.fromI32(1)).value1); // 1 is for originator fee
   entity.periodLength = pool.periodLength;
   entity.periodCount = pool.periodCount;
   entity.loanTerm = pool.periodLength.times(pool.periodCount);
@@ -159,6 +184,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.principalAmount = shelfContract.principalAmount();
   entity.interestAmount = shelfContract.totalInterestForLoanTerm();
   entity.writeoffAmount = new BigInt(0);
+  entity.writeoffTime = shelfContract.writeOffTime();
   entity.totalTrancheBalance = new BigInt(0);
   entity.trancheSupplyMaxBalance = new BigInt(0);
   entity.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
@@ -199,7 +225,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   poolAddresses.seniorToken = operator.seniorToken();
   poolAddresses.juniorToken = operator.juniorToken();
   poolAddresses.root = factoryPool.getRoot();
-  poolAddresses.nftContractAddress = factory.qiroAssetNFT();
+  poolAddresses.nftContractAddress = shelfContract.assetNFT();
   poolAddresses.save();
 
   let junTrancheContract = TrancheContract.bind(juniorTranch);

@@ -8,9 +8,10 @@ import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses, Transaction } from 
 import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
 import { getPoolId, SupplyRedeemActionType, TrancheType, TransactionType, TrancheTypeWithPool } from "../util";
-import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
+import { DependCall, WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
 import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
+import { getPool, getPoolAddresses } from "./shelf";
 
 export function handleSupply(event: SupplyEvent): void {
   log.info("Handling supply event for pool: {}", [event.params.poolId.toString()]);
@@ -249,4 +250,32 @@ function getTrancheTypeFromAddress(
     return TrancheTypeWithPool.SENIOR;
   }
   return TrancheTypeWithPool.POOL;
+}
+
+export function handleWhitelistOperatorDepend(call: DependCall): void {
+  let whitelistOperator = WhitelistOperator.bind(call.to);
+  let poolId = whitelistOperator.poolId();
+
+  let poolAddresses = getPoolAddresses(poolId);
+
+  if (call.inputs.contractName.toString() == "shelf") {
+    poolAddresses!.shelf = call.inputs.addr;
+  } else if (call.inputs.contractName.toString() == "assessor") {
+    // assessor
+    // dont need to do anything here as assessor is not stored in the graph
+  } else if (call.inputs.contractName.toString() == "distributor") {
+    // distributor
+    // dont need to do anything here as distributor is not stored in the graph
+  } else if (call.inputs.contractName.toString() == "trustOperator") {
+    poolAddresses!.trustOperator = call.inputs.addr;
+  }
+
+  poolAddresses!.save();
+  log.info("Updated pool addresses for poolId: {}, shelf: {}, trustOperator: {}",
+    [
+      poolId.toString(),
+      poolAddresses!.shelf.toHexString(),
+      poolAddresses!.trustOperator.toHexString()
+    ]
+  );
 }

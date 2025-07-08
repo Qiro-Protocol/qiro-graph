@@ -4,6 +4,8 @@ import {
   LoanWithdrawn as LoanWithdrawnEvent,
   LoanRepayed as LoanRepayedEvent,
   OriginatorFeePaid,
+  FileCall,
+  DependCall,
 } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator"
 import {
@@ -20,11 +22,13 @@ import {
   log,
   Address,
 } from "@graphprotocol/graph-ts";
+import { TrustOperator } from "../../generated/templates";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import { getPoolId, getPoolStatusString, PoolStatus, TrancheType, TrancheTypeWithPool, TransactionType } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
+import { getOrCreateCurrency } from "../qiro-factory";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -54,6 +58,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
   poolObject!.principalAmount = shelfContract.principalAmount();
   poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
+  poolObject!.nftTokenId = shelfContract.token().value1;
   poolObject!.save();
 }
 
@@ -97,11 +102,16 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
   let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
 
-  updatePoolBalance(
-    event.params.poolId,
-    shelfContract.balance()
-  );
+  let pool = getPool(event.params.poolId);
+  pool!.totalBalance = shelfContract.balance();
+  pool!.poolStatus = getPoolStatusString(operator.getState());
+  pool!.shelfBalance = shelfContract.balance();
+  pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  pool!.outstandingInterest = shelfContract.getOutstandingInterest();
+  pool!.shelfDebt = shelfContract.debt();
+  pool!.save();
 
   createWithdrawTransaction(event);
 }
@@ -158,18 +168,6 @@ export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
   pool!.save();
 }
 
-function updatePoolBalance(poolId: BigInt, total: BigInt): void {
-  // todo - update pool entity
-  let pool = Pool.load(getPoolId(poolId));
-  if (pool == null) {
-    log.info("Message to be displayed: {}", [poolId.toHexString()]);
-    return;
-  }
-  pool.totalBalance = total;
-  // @Todo totalTokenSupply and tokenPrice change too
-  pool.save();
-}
-
 export function getPool(poolId: BigInt): Pool | null {
   let pool = Pool.load(getPoolId(poolId));
   if (pool == null) {
@@ -222,4 +220,71 @@ function createRepayTransaction(
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
+}
+
+export function handleShelfFile(call: FileCall): void {
+  let shelf = Shelf.bind(call.to);
+  let poolId = shelf.poolId();
+
+  let pool = getPool(poolId);
+
+  if (call.inputs.what.toString() == "pStartFrom") {
+    pool!.pStartFrom = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "periodLength") {
+    pool!.periodLength = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "periodCount") {
+    pool!.periodCount = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "isBulletRepay") {
+    pool!.isBullet = call.inputs.data.toI32() == 1 ? true : false;
+  } else if (call.inputs.what.toString() == "gracePeriod") {
+    pool!.gracePeriod = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "writeOffTime") {
+    pool!.writeoffTime = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "lateFeeInterestRate") {
+    pool!.lateFeeInterestRate = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "annualInterestRateInBps") {
+    pool!.interestRate = BigInt.fromI32(call.inputs.data.toI32());
+  } else if (call.inputs.what.toString() == "writeOffOriginatorFee") {
+    pool!.originatorFeeRate = BigInt.fromI32(0); // hardcoded to 0 on contract too
+  }
+
+  pool!.save();
+
+  log.info("Updated pool {} with what: {}, data: {}", [
+    poolId.toHexString(),
+    call.inputs.what.toString(),
+    call.inputs.data.toString(),
+  ]);
+}
+
+export function handleShelfDepend(call: DependCall): void {
+  let shelf = Shelf.bind(call.to);
+  let poolId = shelf.poolId();
+
+  let pool = getPool(poolId);
+
+  let poolAddresses = PoolAddresses.load(getPoolId(poolId));
+
+  if (call.inputs.contractName.toString() == "lender") {
+    // whitelist operator
+    pool!.operator = call.inputs.addr;
+    // create listener for trust operator
+    TrustOperator.create(WhitelistOperator.bind(Address.fromBytes(pool!.operator)).trustOperator());
+  } else if (call.inputs.contractName.toString() == "token") {
+    // currency
+    // create new currency entity
+    getOrCreateCurrency(call.inputs.addr);
+    poolAddresses!.currency = call.inputs.addr;
+  } else if (call.inputs.contractName.toString() == "reserve") {
+    // reserve
+    // do nothing as reserve is not stored in the subgraph
+  } else if (call.inputs.contractName.toString() == "nft") {
+    poolAddresses!.nftContractAddress = call.inputs.addr;
+  } else if (call.inputs.contractName.toString() == "distributor") {
+    // distributor
+    // do nothing as distributor is not stored in the subgraph
+  }
+
+  poolAddresses!.save();
+  pool!.save();
 }
