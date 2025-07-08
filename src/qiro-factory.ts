@@ -85,8 +85,8 @@ export function handleFactoryOwnershipTransferred(event: OwnershipTransferred): 
   // update factory owner
   let factory = QiroFactory.load(event.address);
   if (factory != null) {
-    factory!.owner = event.params.newOwner;
-    factory!.save();
+    factory.owner = event.params.newOwner;
+    factory.save();
   }
 log.info("Factory ownership transferred to: {}", [event.params.newOwner.toHexString()]);
 }
