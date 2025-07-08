@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: base-sepolia
+    network: polygon-amoy
     source:
-      address: "0xb1d7aFed7bd1b9c7d934D618cd2F1E289b58479a"
+      address: "0x507183909C52bB7BFD16A3Ef56F60C0336FB09B7"
       abi: QiroFactory
-      startBlock: 28105234
+      startBlock: 23621491
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -46,11 +46,11 @@ dataSources:
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 28105234
+      startBlock: 23500735
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -71,11 +71,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: Coordinator2
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 28105234
+      startBlock: 23500735
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -96,11 +96,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: RitualConsumer
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 28105234
+      startBlock: 23500735
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -117,11 +117,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: RitualConsumer2
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 28105234
+      startBlock: 23500735
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,11 +138,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: "QiroNft"
-    network: base-sepolia
+    network: polygon-amoy
     source:
-      address: "0x1E5F5caf18c2A8839d8dBDD39d259D441990c3A6"
+      address: "0x3A7A82BDFA06327EE90010e1aD955C5a835e72d6"
       abi: QiroNft
-      startBlock: 28105234
+      startBlock: 23621490
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -180,7 +180,7 @@ dataSources:
 templates:
   - name: WhitelistOperator
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
       abi: WhitelistOperator
     mapping:
@@ -201,7 +201,7 @@ templates:
           handler: handleWhitelistOperatorDepend
   - name: TrustOperator
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
       abi: TrustOperator
     mapping:
@@ -228,7 +228,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
       abi: Shelf
     mapping:
