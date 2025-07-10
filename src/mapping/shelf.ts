@@ -6,6 +6,8 @@ import {
   OriginatorFeePaid,
   FileCall,
   DependCall,
+  PauseCall,
+  UnpauseCall,
 } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator"
 import {
@@ -22,11 +24,11 @@ import {
   log,
   Address,
 } from "@graphprotocol/graph-ts";
-import { TrustOperator } from "../../generated/templates";
+import { InvestmentOperator } from "../../generated/templates";
 import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import { getPoolId, getPoolStatusString, PoolStatus, TrancheType, TrancheTypeWithPool, TransactionType } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
-import { WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
+import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
 import { getOrCreateCurrency } from "../qiro-factory";
 
@@ -268,8 +270,8 @@ export function handleShelfDepend(call: DependCall): void {
   if (call.inputs.contractName.toString() == "lender") {
     // whitelist operator
     pool!.operator = call.inputs.addr;
-    // create listener for trust operator
-    TrustOperator.create(WhitelistOperator.bind(Address.fromBytes(pool!.operator)).trustOperator());
+    // create listener for investment operator
+    InvestmentOperator.create(WhitelistOperator.bind(Address.fromBytes(pool!.operator)).investmentOperator());
   } else if (call.inputs.contractName.toString() == "token") {
     // currency
     // create new currency entity
@@ -287,4 +289,26 @@ export function handleShelfDepend(call: DependCall): void {
 
   poolAddresses!.save();
   pool!.save();
+}
+
+export function handleShelfPaused(call: PauseCall): void {
+  let poolId = Shelf.bind(call.to).poolId();
+  let pool = getPool(poolId);
+  if (pool) {
+    pool.isShelfPaused = true;
+    pool.save();
+  } else {
+    log.warning("Pool not found for ID: {}", [poolId.toHexString()]);
+  }
+}
+
+export function handleShelfUnpaused(call: UnpauseCall): void {
+  let poolId = Shelf.bind(call.to).poolId();
+  let pool = getPool(poolId);
+  if (pool) {
+    pool.isShelfPaused = false;
+    pool.save();
+  } else {
+    log.warning("Pool not found for ID: {}", [poolId.toHexString()]);
+  }
 }

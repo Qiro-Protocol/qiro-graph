@@ -596,8 +596,8 @@ export class QiroFactory extends Entity {
     this.set("shelfFab", Value.fromBytes(value));
   }
 
-  get trustOperatorFab(): Bytes {
-    let value = this.get("trustOperatorFab");
+  get investmentOperatorFab(): Bytes {
+    let value = this.get("investmentOperatorFab");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -605,8 +605,8 @@ export class QiroFactory extends Entity {
     }
   }
 
-  set trustOperatorFab(value: Bytes) {
-    this.set("trustOperatorFab", Value.fromBytes(value));
+  set investmentOperatorFab(value: Bytes) {
+    this.set("investmentOperatorFab", Value.fromBytes(value));
   }
 
   get whitelistOperatorFab(): Bytes {
@@ -1301,8 +1301,8 @@ export class Pool extends Entity {
     this.set("poolType", Value.fromString(value));
   }
 
-  get isPaused(): boolean {
-    let value = this.get("isPaused");
+  get isShelfPaused(): boolean {
+    let value = this.get("isShelfPaused");
     if (!value || value.kind == ValueKind.NULL) {
       return false;
     } else {
@@ -1310,8 +1310,21 @@ export class Pool extends Entity {
     }
   }
 
-  set isPaused(value: boolean) {
-    this.set("isPaused", Value.fromBoolean(value));
+  set isShelfPaused(value: boolean) {
+    this.set("isShelfPaused", Value.fromBoolean(value));
+  }
+
+  get isOperatorPaused(): boolean {
+    let value = this.get("isOperatorPaused");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isOperatorPaused(value: boolean) {
+    this.set("isOperatorPaused", Value.fromBoolean(value));
   }
 
   get borrower(): Bytes {
@@ -1536,8 +1549,8 @@ export class PoolAddresses extends Entity {
     this.set("operator", Value.fromBytes(value));
   }
 
-  get trustOperator(): Bytes {
-    let value = this.get("trustOperator");
+  get investmentOperator(): Bytes {
+    let value = this.get("investmentOperator");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1545,8 +1558,8 @@ export class PoolAddresses extends Entity {
     }
   }
 
-  set trustOperator(value: Bytes) {
-    this.set("trustOperator", Value.fromBytes(value));
+  set investmentOperator(value: Bytes) {
+    this.set("investmentOperator", Value.fromBytes(value));
   }
 
   get juniorTranche(): Bytes {

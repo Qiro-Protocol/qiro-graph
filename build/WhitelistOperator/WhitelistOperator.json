@@ -282,6 +282,19 @@
   },
   {
     "type": "function",
+    "name": "investmentOperator",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract InvestmentOperator"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "junior",
     "inputs": [],
     "outputs": [
@@ -424,13 +437,13 @@
   },
   {
     "type": "function",
-    "name": "qiroFactoryMemberList",
+    "name": "qiroFactory",
     "inputs": [],
     "outputs": [
       {
         "name": "",
         "type": "address",
-        "internalType": "contract QiroFactoryMemberListLike"
+        "internalType": "contract QiroFactoryLike"
       }
     ],
     "stateMutability": "view"
@@ -846,19 +859,6 @@
   },
   {
     "type": "function",
-    "name": "trustOperator",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract TrustOperator"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "unpause",
     "inputs": [],
     "outputs": [],
@@ -1193,7 +1193,7 @@
   },
   {
     "type": "error",
-    "name": "OnlyTrustOperator",
+    "name": "OnlyInvestmentOperator",
     "inputs": []
   },
   {

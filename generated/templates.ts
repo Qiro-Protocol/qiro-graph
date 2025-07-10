@@ -20,14 +20,14 @@ export class WhitelistOperator extends DataSourceTemplate {
   }
 }
 
-export class TrustOperator extends DataSourceTemplate {
+export class InvestmentOperator extends DataSourceTemplate {
   static create(address: Address): void {
-    DataSourceTemplate.create("TrustOperator", [address.toHex()]);
+    DataSourceTemplate.create("InvestmentOperator", [address.toHex()]);
   }
 
   static createWithContext(address: Address, context: DataSourceContext): void {
     DataSourceTemplate.createWithContext(
-      "TrustOperator",
+      "InvestmentOperator",
       [address.toHex()],
       context,
     );

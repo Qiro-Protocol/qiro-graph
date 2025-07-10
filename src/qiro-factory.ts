@@ -13,8 +13,8 @@ import {
   Borrower,
   FactoryOwnershipTransferred,
 } from "../generated/schema";
-import { TrustOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate } from "../generated/templates";
-import { WhitelistOperator } from "../generated/templates/Operator/WhitelistOperator";
+import { InvestmentOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate } from "../generated/templates";
+import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
@@ -32,7 +32,7 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   let qiroFactory = QiroFactoryContract.bind(event.params.factory);
 
   entity.shelfFab = qiroFactory.shelfFab();
-  entity.trustOperatorFab = qiroFactory.trustOperatorFab();
+  entity.investmentOperatorFab = qiroFactory.investmentOperatorFab();
   entity.whitelistOperatorFab = qiroFactory.operatorFab();
   entity.defaultAssessorFab = qiroFactory.assessorFab();
   entity.distributorFab = qiroFactory.distributorFab();
@@ -139,8 +139,8 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   updatePoolCountInFactory(event.address);
 
   Shelf.create(event.params.shelf);
-  TrustOperator.create(
-    WhitelistOperator.bind(event.params.operator).trustOperator()
+  InvestmentOperator.create(
+    WhitelistOperator.bind(event.params.operator).investmentOperator()
   );
   WhitelistOperatorTemplate.create(event.params.operator);
 }
@@ -193,7 +193,8 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   );
   entity.isBullet = shelfContract.isBulletRepay();
   entity.poolType = getPoolTypeString(factoryPool.getPoolType());
-  entity.isPaused = shelfContract.paused();
+  entity.isShelfPaused = shelfContract.paused();
+  entity.isOperatorPaused = operator.paused();
   entity.blockNumber = pool.blockNumber;
   entity.blockTimestamp = pool.blockTimestamp;
   entity.transactionHash = pool.transactionHash;
@@ -215,7 +216,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   poolAddresses.pool = pool.pool;
   poolAddresses.shelf = pool.shelf;
   poolAddresses.operator = pool.operator;
-  poolAddresses.trustOperator = operator.trustOperator();
+  poolAddresses.investmentOperator = operator.investmentOperator();
   poolAddresses.juniorTranche = juniorTranch;
   poolAddresses.seniorTranche = seniorTranch;
   poolAddresses.lenderDeployer = factoryPool.getLenderDeployer();

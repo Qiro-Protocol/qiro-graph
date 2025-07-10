@@ -63,7 +63,7 @@ type FactoryOwnershipTransferred @entity(immutable: false) {
 type QiroFactory @entity(immutable: false) {
   id: Bytes!
   shelfFab: Bytes! # address
-  trustOperatorFab: Bytes! # address
+  investmentOperatorFab: Bytes! # address
   whitelistOperatorFab: Bytes! # address
   defaultAssessorFab: Bytes! # address
   distributorFab: Bytes! # address
@@ -119,7 +119,8 @@ type Pool @entity(immutable: false) {
   outstandingInterest: BigInt! # uint256
   isBullet: Boolean! # bool
   poolType: PoolType! # enum
-  isPaused: Boolean! # bool
+  isShelfPaused: Boolean! # bool
+  isOperatorPaused: Boolean! # bool
   borrower: Borrower! # address
   originatorFeePaid: BigInt! # uint256
   pStartFrom: BigInt! # uint256
@@ -141,7 +142,7 @@ type PoolAddresses @entity(immutable: false) {
   pool: Pool! # uint256
   shelf: Bytes! # address
   operator: Bytes! # address
-  trustOperator: Bytes! # address
+  investmentOperator: Bytes! # address
   juniorTranche: Bytes! # address
   seniorTranche: Bytes! # address
   lenderDeployer: Bytes! # address

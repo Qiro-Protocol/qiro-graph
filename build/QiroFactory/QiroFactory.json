@@ -169,8 +169,8 @@
           },
           {
             "name": "distributorParams",
-            "type": "uint256[3]",
-            "internalType": "uint256[3]"
+            "type": "uint256[1]",
+            "internalType": "uint256[1]"
           },
           {
             "name": "isBulletRepay",
@@ -350,6 +350,19 @@
         "name": "",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "investmentOperatorFab",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract InvestmentOperatorFab"
       }
     ],
     "stateMutability": "view"
@@ -669,7 +682,7 @@
         "internalType": "address"
       },
       {
-        "name": "_trustOperatorFab",
+        "name": "_investmentOperatorFab",
         "type": "address",
         "internalType": "address"
       }
@@ -739,19 +752,6 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "trustOperatorFab",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract TrustOperatorFab"
-      }
-    ],
-    "stateMutability": "view"
   },
   {
     "type": "function",

@@ -318,7 +318,7 @@ export class QiroFactory extends ethereum.SmartContract {
   ): BigInt {
     let result = super.call(
       "createPool",
-      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[3],bool,uint16[2],uint8)):(uint256)",
+      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[1],bool,uint16[2],uint8)):(uint256)",
       [
         ethereum.Value.fromAddress(borrowerAddress),
         ethereum.Value.fromUnsignedBigInt(tokenId),
@@ -342,7 +342,7 @@ export class QiroFactory extends ethereum.SmartContract {
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "createPool",
-      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[3],bool,uint16[2],uint8)):(uint256)",
+      "createPool(address,uint256,bytes32,address,(string,string,string,string),(uint256[5],uint256[7],uint256[1],bool,uint16[2],uint8)):(uint256)",
       [
         ethereum.Value.fromAddress(borrowerAddress),
         ethereum.Value.fromUnsignedBigInt(tokenId),
@@ -485,6 +485,29 @@ export class QiroFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  investmentOperatorFab(): Address {
+    let result = super.call(
+      "investmentOperatorFab",
+      "investmentOperatorFab():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_investmentOperatorFab(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "investmentOperatorFab",
+      "investmentOperatorFab():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   isAdmin(poolId: BigInt, admin: Address): boolean {
@@ -756,29 +779,6 @@ export class QiroFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  trustOperatorFab(): Address {
-    let result = super.call(
-      "trustOperatorFab",
-      "trustOperatorFab():(address)",
-      [],
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_trustOperatorFab(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "trustOperatorFab",
-      "trustOperatorFab():(address)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   whitelistManager(): Address {
@@ -1348,7 +1348,7 @@ export class SetContractsCall__Inputs {
     return this._call.inputValues[5].value.toAddress();
   }
 
-  get _trustOperatorFab(): Address {
+  get _investmentOperatorFab(): Address {
     return this._call.inputValues[6].value.toAddress();
   }
 }

@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: base-sepolia
+    network: polygon-amoy
     source:
-      address: "0xb1d7aFed7bd1b9c7d934D618cd2F1E289b58479a"
+      address: "0x8D7a23B626151197f639F11983620b2ff8eb0110"
       abi: QiroFactory
-      startBlock: 28105234
+      startBlock: 23737397
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -25,8 +25,8 @@ dataSources:
           file: QiroFactory/QiroFactory.json
         - name: WhitelistOperator
           file: QiroFactory/WhitelistOperator.json
-        - name: TrustOperator
-          file: QiroFactory/TrustOperator.json
+        - name: InvestmentOperator
+          file: QiroFactory/InvestmentOperator.json
         - name: Shelf
           file: QiroFactory/Shelf.json
         - name: Tranche
@@ -46,11 +46,11 @@ dataSources:
       file: QiroFactory/QiroFactory.wasm
   - kind: ethereum
     name: Coordinator
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 28105234
+      startBlock: 23737397
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -71,11 +71,11 @@ dataSources:
       file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: Coordinator2
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x5DA21CCf3c0b6B8bB0941a801deEEf53f971bb67"
       abi: Coordinator
-      startBlock: 28105234
+      startBlock: 23737397
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -96,11 +96,11 @@ dataSources:
       file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: RitualConsumer
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 28105234
+      startBlock: 23737397
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -117,11 +117,11 @@ dataSources:
       file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: RitualConsumer2
-    network: base-sepolia
+    network: polygon-amoy
     source:
       address: "0x9Ee14216A0ab80BB3F1b97cfE9F725B543138CD4"
       abi: RitualConsumer
-      startBlock: 28105234
+      startBlock: 23737397
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,11 +138,11 @@ dataSources:
       file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: QiroNft
-    network: base-sepolia
+    network: polygon-amoy
     source:
-      address: "0x1E5F5caf18c2A8839d8dBDD39d259D441990c3A6"
+      address: "0x064efc5F10076e000FCe08bc23EcF0E96F6fB7E3"
       abi: QiroNft
-      startBlock: 28105234
+      startBlock: 23737394
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -180,7 +180,7 @@ dataSources:
 templates:
   - name: WhitelistOperator
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
       abi: WhitelistOperator
     mapping:
@@ -194,16 +194,20 @@ templates:
       abis:
         - name: WhitelistOperator
           file: WhitelistOperator/WhitelistOperator.json
-        - name: TrustOperator
-          file: WhitelistOperator/TrustOperator.json
+        - name: InvestmentOperator
+          file: WhitelistOperator/InvestmentOperator.json
       callHandlers:
         - function: depend(bytes32,address)
           handler: handleWhitelistOperatorDepend
-  - name: TrustOperator
+        - function: pause()
+          handler: handleWhitelistOperatorPaused
+        - function: unpause()
+          handler: handleWhitelistOperatorUnpaused
+  - name: InvestmentOperator
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
-      abi: TrustOperator
+      abi: InvestmentOperator
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -214,13 +218,13 @@ templates:
         - Redeem
       abis:
         - name: WhitelistOperator
-          file: TrustOperator/WhitelistOperator.json
-        - name: TrustOperator
-          file: TrustOperator/TrustOperator.json
+          file: InvestmentOperator/WhitelistOperator.json
+        - name: InvestmentOperator
+          file: InvestmentOperator/InvestmentOperator.json
         - name: Tranche
-          file: TrustOperator/Tranche.json
+          file: InvestmentOperator/Tranche.json
         - name: ERC20
-          file: TrustOperator/ERC20.json
+          file: InvestmentOperator/ERC20.json
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
@@ -228,7 +232,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: base-sepolia
+    network: polygon-amoy
     source:
       abi: Shelf
     mapping:
@@ -268,3 +272,7 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
+        - function: pause()
+          handler: handleShelfPaused
+        - function: unpause()
+          handler: handleShelfUnpaused

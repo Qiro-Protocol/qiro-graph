@@ -138,9 +138,73 @@ export class Unpaused__Params {
   }
 }
 
-export class TrustOperator extends ethereum.SmartContract {
-  static bind(address: Address): TrustOperator {
-    return new TrustOperator("TrustOperator", address);
+export class InvestmentOperator__redemptionCalculatorJuniorResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
+  }
+
+  getMaxTokenAmount(): BigInt {
+    return this.value0;
+  }
+
+  getCurrencyAmount(): BigInt {
+    return this.value1;
+  }
+
+  getPrice(): BigInt {
+    return this.value2;
+  }
+}
+
+export class InvestmentOperator__redemptionCalculatorSeniorResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
+  }
+
+  getMaxTokenAmount(): BigInt {
+    return this.value0;
+  }
+
+  getCurrencyAmount(): BigInt {
+    return this.value1;
+  }
+
+  getPrice(): BigInt {
+    return this.value2;
+  }
+}
+
+export class InvestmentOperator extends ethereum.SmartContract {
+  static bind(address: Address): InvestmentOperator {
+    return new InvestmentOperator("InvestmentOperator", address);
   }
 
   JUNIOR(): Bytes {
@@ -201,6 +265,80 @@ export class TrustOperator extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  redemptionCalculatorJunior(
+    user: Address,
+  ): InvestmentOperator__redemptionCalculatorJuniorResult {
+    let result = super.call(
+      "redemptionCalculatorJunior",
+      "redemptionCalculatorJunior(address):(uint256,uint256,uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+
+    return new InvestmentOperator__redemptionCalculatorJuniorResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+    );
+  }
+
+  try_redemptionCalculatorJunior(
+    user: Address,
+  ): ethereum.CallResult<InvestmentOperator__redemptionCalculatorJuniorResult> {
+    let result = super.tryCall(
+      "redemptionCalculatorJunior",
+      "redemptionCalculatorJunior(address):(uint256,uint256,uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new InvestmentOperator__redemptionCalculatorJuniorResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+      ),
+    );
+  }
+
+  redemptionCalculatorSenior(
+    user: Address,
+  ): InvestmentOperator__redemptionCalculatorSeniorResult {
+    let result = super.call(
+      "redemptionCalculatorSenior",
+      "redemptionCalculatorSenior(address):(uint256,uint256,uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+
+    return new InvestmentOperator__redemptionCalculatorSeniorResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+    );
+  }
+
+  try_redemptionCalculatorSenior(
+    user: Address,
+  ): ethereum.CallResult<InvestmentOperator__redemptionCalculatorSeniorResult> {
+    let result = super.tryCall(
+      "redemptionCalculatorSenior",
+      "redemptionCalculatorSenior(address):(uint256,uint256,uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new InvestmentOperator__redemptionCalculatorSeniorResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+      ),
+    );
   }
 
   whitelistOperator(): Address {

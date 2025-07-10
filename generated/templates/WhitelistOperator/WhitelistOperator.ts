@@ -403,6 +403,29 @@ export class WhitelistOperator extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  investmentOperator(): Address {
+    let result = super.call(
+      "investmentOperator",
+      "investmentOperator():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_investmentOperator(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "investmentOperator",
+      "investmentOperator():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   junior(): Address {
     let result = super.call("junior", "junior():(address)", []);
 
@@ -570,22 +593,14 @@ export class WhitelistOperator extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  qiroFactoryMemberList(): Address {
-    let result = super.call(
-      "qiroFactoryMemberList",
-      "qiroFactoryMemberList():(address)",
-      [],
-    );
+  qiroFactory(): Address {
+    let result = super.call("qiroFactory", "qiroFactory():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_qiroFactoryMemberList(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "qiroFactoryMemberList",
-      "qiroFactoryMemberList():(address)",
-      [],
-    );
+  try_qiroFactory(): ethereum.CallResult<Address> {
+    let result = super.tryCall("qiroFactory", "qiroFactory():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -957,25 +972,6 @@ export class WhitelistOperator extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  trustOperator(): Address {
-    let result = super.call("trustOperator", "trustOperator():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_trustOperator(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "trustOperator",
-      "trustOperator():(address)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   wards(param0: Address): BigInt {

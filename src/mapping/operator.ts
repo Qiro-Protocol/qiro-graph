@@ -1,14 +1,14 @@
 import {
   Supply as SupplyEvent,
   Redeem as RedeemEvent,
-} from "../../generated/templates/Operator/TrustOperator";
+} from "../../generated/templates/WhitelistOperator/InvestmentOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
 import { WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
 import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses, Transaction } from "../../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
 import { getPoolId, SupplyRedeemActionType, TrancheType, TransactionType, TrancheTypeWithPool } from "../util";
-import { DependCall, WhitelistOperator } from "../../generated/templates/Operator/WhitelistOperator";
+import { DependCall, PauseCall, UnpauseCall, WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { getPool, getPoolAddresses } from "./shelf";
@@ -266,16 +266,36 @@ export function handleWhitelistOperatorDepend(call: DependCall): void {
   } else if (call.inputs.contractName.toString() == "distributor") {
     // distributor
     // dont need to do anything here as distributor is not stored in the graph
-  } else if (call.inputs.contractName.toString() == "trustOperator") {
-    poolAddresses!.trustOperator = call.inputs.addr;
+  } else if (call.inputs.contractName.toString() == "investmentOperator") {
+    poolAddresses!.investmentOperator = call.inputs.addr;
   }
 
   poolAddresses!.save();
-  log.info("Updated pool addresses for poolId: {}, shelf: {}, trustOperator: {}",
+  log.info("Updated pool addresses for poolId: {}, shelf: {}, investmentOperator: {}",
     [
       poolId.toString(),
       poolAddresses!.shelf.toHexString(),
-      poolAddresses!.trustOperator.toHexString()
+      poolAddresses!.investmentOperator.toHexString()
     ]
   );
+}
+
+export function handleWhitelistOperatorPaused(call: PauseCall): void {
+  let operator = WhitelistOperator.bind(call.to);
+  let poolId = operator.poolId();
+  let pool = getPool(poolId);
+
+  pool!.isOperatorPaused = true;
+  pool!.save();
+  log.info("Whitelist operator paused for poolId: {}", [poolId.toString()]);
+}
+
+export function handleWhitelistOperatorUnpaused(call: UnpauseCall): void {
+  let operator = WhitelistOperator.bind(call.to);
+  let poolId = operator.poolId();
+  let pool = getPool(poolId);
+
+  pool!.isOperatorPaused = false;
+  pool!.save();
+  log.info("Whitelist operator unpaused for poolId: {}", [poolId.toString()]);
 }
