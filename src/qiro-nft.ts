@@ -128,11 +128,16 @@ export function handleUpdateNftData(event: UpdateNftDataEvent): void {
   let entity = new UpdateNftData(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
-  entity.tokenId = event.params.tokenId
-  entity.prob_of_default = event.params.prob_of_default
-  entity.loss_given_default = event.params.loss_given_default
-  entity.risk_score = event.params.risk_score
-  entity.exposure_at_default = event.params.exposure_at_default
+  let nft = QiroNft.bind(event.address)
+  let nftData = nft.tokenIdToData(event.params.tokenId);
+  entity.tokenId = event.params.tokenId;
+  entity.prob_of_default = nftData.value0;
+  entity.loss_given_default = nftData.value1;
+  entity.risk_score = nftData.value2;
+  entity.exposure_at_default = nftData.value3;
+  entity.interest_rate = nftData.value4;
+  entity.nav = nftData.value5;
+  entity.isUnderwritten = nftData.value6;
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

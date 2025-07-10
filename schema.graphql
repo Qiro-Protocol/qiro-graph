@@ -404,6 +404,9 @@ type UpdateNftData @entity(immutable: false) {
   loss_given_default: BigInt! # uint256
   risk_score: BigInt! # uint256
   exposure_at_default: BigInt! # uint256
+  interest_rate: BigInt! # uint256
+  nav: BigInt! # uint256
+  isUnderwritten: Boolean! # bool
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

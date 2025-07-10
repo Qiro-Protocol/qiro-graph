@@ -756,6 +756,25 @@ export class QiroNft extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  minters(param0: Address): boolean {
+    let result = super.call("minters", "minters(address):(bool)", [
+      ethereum.Value.fromAddress(param0),
+    ]);
+
+    return result[0].toBoolean();
+  }
+
+  try_minters(param0: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall("minters", "minters(address):(bool)", [
+      ethereum.Value.fromAddress(param0),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   name(): string {
     let result = super.call("name", "name():(string)", []);
 
@@ -1504,6 +1523,36 @@ export class SetArweaveCall__Outputs {
   _call: SetArweaveCall;
 
   constructor(call: SetArweaveCall) {
+    this._call = call;
+  }
+}
+
+export class SetMinterCall extends ethereum.Call {
+  get inputs(): SetMinterCall__Inputs {
+    return new SetMinterCall__Inputs(this);
+  }
+
+  get outputs(): SetMinterCall__Outputs {
+    return new SetMinterCall__Outputs(this);
+  }
+}
+
+export class SetMinterCall__Inputs {
+  _call: SetMinterCall;
+
+  constructor(call: SetMinterCall) {
+    this._call = call;
+  }
+
+  get minter(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetMinterCall__Outputs {
+  _call: SetMinterCall;
+
+  constructor(call: SetMinterCall) {
     this._call = call;
   }
 }

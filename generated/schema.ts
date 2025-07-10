@@ -4450,6 +4450,45 @@ export class UpdateNftData extends Entity {
     this.set("exposure_at_default", Value.fromBigInt(value));
   }
 
+  get interest_rate(): BigInt {
+    let value = this.get("interest_rate");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set interest_rate(value: BigInt) {
+    this.set("interest_rate", Value.fromBigInt(value));
+  }
+
+  get nav(): BigInt {
+    let value = this.get("nav");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set nav(value: BigInt) {
+    this.set("nav", Value.fromBigInt(value));
+  }
+
+  get isUnderwritten(): boolean {
+    let value = this.get("isUnderwritten");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isUnderwritten(value: boolean) {
+    this.set("isUnderwritten", Value.fromBoolean(value));
+  }
+
   get blockNumber(): BigInt {
     let value = this.get("blockNumber");
     if (!value || value.kind == ValueKind.NULL) {
