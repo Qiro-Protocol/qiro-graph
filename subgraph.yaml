@@ -66,8 +66,8 @@ dataSources:
       eventHandlers:
         - event: SubscriptionCreated(indexed uint32)
           handler: handleSubscriptionCreated
-        - event: SubscriptionFulfilled(indexed uint32,indexed address)
-          handler: handleSubscriptionFulfilled
+        # - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          # handler: handleSubscriptionFulfilled
       file: ./src/coordinator.ts
   - kind: ethereum
     name: RitualConsumer
