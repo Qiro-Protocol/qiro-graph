@@ -412,3 +412,9 @@ type UpdateNftData @entity(immutable: false) {
 }
 
 # todo: @rahul7668gupta add entity to index all other data
+
+type ConsumerCoordinatorPair @entity {
+  id: ID!    
+  consumer: Bytes!   
+  coordinator: Bytes! 
+}

@@ -12,20 +12,24 @@ import {
 import {
   Rely,
   RitualConsumer,
+  RequestComputeAccessSet as RequestComputeAccessSetEvent,
 } from "../generated/RitualConsumer/RitualConsumer";
 import {
   ComputeSubscription,
   MonitoringSubscription,
   SubscriptionResponse,
   MonitoringResponse,
+  ConsumerCoordinatorPair,
 } from "../generated/schema";
 import { crypto, ethereum } from "@graphprotocol/graph-ts";
-import { Coordinator } from "../generated/Coordinator/Coordinator";
 
-let coordinatorAddress = Address.fromString(
-  "0x0b30F18B5feb6f59D31c3740bF7A6c41A491954a"
- );
- let consumerAddress = Address.fromString("0x0f488Fe98BB76c27Db4B3091a4e0577300dD2fe1");
+function getConsumerAddress(coordinatorId: string): Address {
+  let pair = ConsumerCoordinatorPair.load(coordinatorId);
+  if (!pair) {
+    throw new Error("Missing consumer-coordinator pair for " + coordinatorId);
+  }
+  return Address.fromBytes(pair.consumer);
+}
 
 export function handleSubscriptionCreated(
   event: SubscriptionCreatedEvent
@@ -34,8 +38,7 @@ export function handleSubscriptionCreated(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
 
-  let coordinator = Coordinator.bind(event.address); // better
-  let consumer = RitualConsumer.bind(consumerAddress); // 
+  let consumer = RitualConsumer.bind(getConsumerAddress(event.address.toHex()));
 
   let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
@@ -93,9 +96,8 @@ export function handleSubscriptionFulfilled(
     crypto.keccak256(ByteArray.fromBigInt(event.params.id))
   );
 
-  let coordinator = Coordinator.bind(coordinatorAddress);
-  let consumer = RitualConsumer.bind(consumerAddress);
-  
+  let consumer = RitualConsumer.bind(getConsumerAddress(event.address.toHex()));
+
   let isComputeSub = consumer.try_subIdToAggregatedResult(event.params.id);
   // let avg = consumer.try_subIdToAggregatedResult(event.params.id).value;
   if (isComputeSub.reverted) {
@@ -263,3 +265,15 @@ function decodeInputsCompute(
   }
 }
 export function handleRely(event: Rely): void {}
+
+export function handleRequestComputeAccessSet(
+  event: RequestComputeAccessSetEvent
+): void {
+  let consumerContract = RitualConsumer.bind(event.address);
+  let coordinatorAddr = consumerContract.getCoordinator();
+  // using coordinator address as entity id
+  let pair = new ConsumerCoordinatorPair(coordinatorAddr.toHex());
+  pair.consumer = event.address;
+  pair.coordinator = coordinatorAddr;
+  pair.save();
+}

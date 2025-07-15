@@ -9,7 +9,7 @@ import {
   Transfer as TransferEvent,
   UpdateNftData as UpdateNftDataEvent,
   QiroNft,
-} from "../generated/QiroNFT/QiroNFT"
+} from "../generated/QiroNft/QiroNft"
 import {
   ConsumerContractUpdated,
   Deny,

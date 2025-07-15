@@ -89,6 +89,8 @@ dataSources:
       eventHandlers:
         - event: Rely(indexed address)
           handler: handleRely
+        - event: RequestComputeAccessSet(indexed address,indexed bool)
+          handler: handleRequestComputeAccessSet
       file: ./src/coordinator.ts
   - kind: ethereum
     name: "QiroNft"
