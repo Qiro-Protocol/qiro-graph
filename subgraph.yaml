@@ -181,6 +181,8 @@ templates:
           file: ./abis/Tranche.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: Shelf
+          file: ./abis/Shelf.json
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply

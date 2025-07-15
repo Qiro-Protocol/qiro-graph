@@ -53,6 +53,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.loanMaturityTimestamp = shelfContract.LOAN_START_TIMESTAMP().plus(poolObject!.loanTerm);
   poolObject!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
   poolObject!.shelfDebt = shelfContract.debt();
+  poolObject!.totalBalance = shelfContract.balance();
   poolObject!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
     currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
   );
@@ -108,6 +109,7 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
 
   let pool = getPool(event.params.poolId);
   pool!.totalBalance = shelfContract.balance();
+  pool!.totalWithdrawn = pool!.totalWithdrawn.plus(event.params.currencyAmount);
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfBalance = shelfContract.balance();
   pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
@@ -263,15 +265,13 @@ export function handleShelfDepend(call: DependCall): void {
   let shelf = Shelf.bind(call.to);
   let poolId = shelf.poolId();
 
-  let pool = getPool(poolId);
-
   let poolAddresses = PoolAddresses.load(getPoolId(poolId));
 
   if (call.inputs.contractName.toString() == "lender") {
     // whitelist operator
-    pool!.operator = call.inputs.addr;
+    poolAddresses!.operator = call.inputs.addr;
     // create listener for investment operator
-    InvestmentOperator.create(WhitelistOperator.bind(Address.fromBytes(pool!.operator)).investmentOperator());
+    InvestmentOperator.create(WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator)).investmentOperator());
   } else if (call.inputs.contractName.toString() == "token") {
     // currency
     // create new currency entity
@@ -288,7 +288,6 @@ export function handleShelfDepend(call: DependCall): void {
   }
 
   poolAddresses!.save();
-  pool!.save();
 }
 
 export function handleShelfPaused(call: PauseCall): void {

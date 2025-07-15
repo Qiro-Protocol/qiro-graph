@@ -84,7 +84,6 @@ type Pool @entity(immutable: false) {
   id: Bytes!
   poolId: BigInt! # uint256
   poolStatus: PoolStatus! # enum
-  operator: Bytes! # address
   shelfBalance: BigInt! # uint256
   shelfDebt: BigInt! # uint256
   seniorInterestRate: BigInt! # uint256
@@ -128,6 +127,7 @@ type Pool @entity(immutable: false) {
   juniorTranche: Tranche!
   seniorTranche: Tranche!
   nftTokenId: BigInt! # uint256
+  totalWithdrawn: BigInt! # uint256
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")

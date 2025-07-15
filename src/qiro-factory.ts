@@ -161,7 +161,6 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
 
   entity.poolId = poolId; // uint256
   entity.poolStatus = getPoolStatusString(operator.getState());
-  entity.operator = pool.operator;
   entity.seniorInterestRate = pool.seniorRate;
   entity.interestRate = pool.interestRate;
   entity.lateFeeInterestRate = shelfContract.lateFeeInterestRateInBps();
@@ -172,6 +171,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.loanTerm = pool.periodLength.times(pool.periodCount);
   entity.gracePeriod = pool.gracePeriod;
   entity.totalBalance = shelfContract.balance();
+  entity.totalWithdrawn = new BigInt(0);
   entity.startTimestamp = pool.blockTimestamp;
   entity.loanMaturityTimestamp = pool.blockTimestamp.plus(
     pool.periodLength.times(pool.periodCount)

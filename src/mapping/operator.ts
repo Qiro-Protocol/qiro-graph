@@ -4,6 +4,7 @@ import {
 } from "../../generated/templates/WhitelistOperator/InvestmentOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
 import { WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
+import { Shelf as ShelfContract } from "../../generated/QiroFactory/Shelf";
 import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses, Transaction } from "../../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
@@ -35,7 +36,6 @@ export function handleSupply(event: SupplyEvent): void {
 
   updatePoolAndTranche(
     event.params.poolId,
-    event.params.totalPoolBalance,
     event.params.juniorPoolBalance,
     event.params.seniorPoolBalance
   );
@@ -125,7 +125,6 @@ export function handleRedeem(event: RedeemEvent): void {
 
   updatePoolAndTranche(
     event.params.poolId,
-    event.params.totalPoolBalance,
     event.params.juniorPoolBalance,
     event.params.seniorPoolBalance
   );
@@ -142,7 +141,6 @@ export function handleRedeem(event: RedeemEvent): void {
 
 function updatePoolAndTranche(
   poolId: BigInt,
-  total: BigInt,
   junior: BigInt,
   senior: BigInt
 ): void {
@@ -154,9 +152,13 @@ function updatePoolAndTranche(
     return;
   }
 
-  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(pool.operator));
+  let poolAddresses = getPoolAddresses(poolId);
 
-  pool.totalBalance = total;
+  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(poolAddresses!.operator));
+  let shelfAddress = poolAddresses!.shelf;
+  let shelfContract = ShelfContract.bind(Address.fromBytes(shelfAddress));
+
+  pool.totalBalance = shelfContract.balance();
   pool.trancheSupplyMaxBalance = whitelistOperatorContract.totalDepositCurrencyJunior().plus(
     whitelistOperatorContract.totalDepositCurrencySenior()
   );

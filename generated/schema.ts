@@ -846,19 +846,6 @@ export class Pool extends Entity {
     this.set("poolStatus", Value.fromString(value));
   }
 
-  get operator(): Bytes {
-    let value = this.get("operator");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set operator(value: Bytes) {
-    this.set("operator", Value.fromBytes(value));
-  }
-
   get shelfBalance(): BigInt {
     let value = this.get("shelfBalance");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1416,6 +1403,19 @@ export class Pool extends Entity {
 
   set nftTokenId(value: BigInt) {
     this.set("nftTokenId", Value.fromBigInt(value));
+  }
+
+  get totalWithdrawn(): BigInt {
+    let value = this.get("totalWithdrawn");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalWithdrawn(value: BigInt) {
+    this.set("totalWithdrawn", Value.fromBigInt(value));
   }
 
   get addresses(): PoolAddressesLoader {
@@ -3665,19 +3665,6 @@ export class ComputeSubscription extends Entity {
 
   set average_exposure_at_default(value: BigInt) {
     this.set("average_exposure_at_default", Value.fromBigInt(value));
-  }
-
-  get coordinatorAddress(): Bytes {
-    let value = this.get("coordinatorAddress");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set coordinatorAddress(value: Bytes) {
-    this.set("coordinatorAddress", Value.fromBytes(value));
   }
 }
 
