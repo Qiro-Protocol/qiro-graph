@@ -45,31 +45,6 @@ dataSources:
           handler: handleFactoryFile
       file: QiroFactory/QiroFactory.wasm
   - kind: ethereum
-    name: Coordinator
-    network: polygon-amoy
-    source:
-      address: "0xEcDFB125E3f87BAEE71c9D03668313B1C78cC1c7"
-      abi: Coordinator
-      startBlock: 23738098
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ComputeSubscription
-        - SubscriptionResponses
-      abis:
-        - name: Coordinator
-          file: Coordinator/Coordinator.json
-        - name: RitualConsumer
-          file: Coordinator/RitualConsumer.json
-      eventHandlers:
-        - event: SubscriptionCreated(indexed uint32)
-          handler: handleSubscriptionCreated
-        - event: SubscriptionFulfilled(indexed uint32,indexed address)
-          handler: handleSubscriptionFulfilled
-      file: Coordinator/Coordinator.wasm
-  - kind: ethereum
     name: RitualConsumer
     network: polygon-amoy
     source:
@@ -89,7 +64,9 @@ dataSources:
       eventHandlers:
         - event: Rely(indexed address)
           handler: handleRely
-      file: Coordinator/Coordinator.wasm
+        - event: RequestComputeAccessSet(indexed address,indexed bool)
+          handler: handleRequestComputeAccessSet
+      file: RitualConsumer/RitualConsumer.wasm
   - kind: ethereum
     name: QiroNft
     network: polygon-amoy

@@ -244,6 +244,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   juniorTranche.totalTokenSupply = junTrancheContract.tokenSupply();
   juniorTranche.tokenName = junTokenContract.name();
   juniorTranche.tokenSymbol = junTokenContract.symbol();
+  juniorTranche.tokenDecimals = junTokenContract.decimals();
   juniorTranche.totalInvested = operator.totalDepositCurrencyJunior();
   juniorTranche.totalRedeemed = operator.totalRedeemedCurrencyJunior();
   juniorTranche.totalRepaid = junTrancheContract.totalRepayedAmount();
@@ -259,6 +260,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   seniorTranche.totalTokenSupply = senTrancheContract.tokenSupply();
   seniorTranche.tokenName = senTokenContract.name();
   seniorTranche.tokenSymbol = senTokenContract.symbol();
+  seniorTranche.tokenDecimals = senTokenContract.decimals();
   seniorTranche.totalInvested = operator.totalDepositCurrencySenior();
   seniorTranche.totalRedeemed = operator.totalRedeemedCurrencySenior();
   seniorTranche.totalRepaid = senTrancheContract.totalRepayedAmount();

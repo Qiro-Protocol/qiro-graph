@@ -203,6 +203,7 @@ type Tranche @entity(immutable: false) {
   totalTokenSupply: BigInt!
   tokenName: String!
   tokenSymbol: String!
+  tokenDecimals: Int!
   totalInvested: BigInt!
   totalRedeemed: BigInt!
   totalRepaid: BigInt!
@@ -412,3 +413,9 @@ type UpdateNftData @entity(immutable: false) {
 }
 
 # todo: @rahul7668gupta add entity to index all other data
+
+type ConsumerCoordinatorPair @entity {
+  id: ID!    
+  consumer: Bytes!   
+  coordinator: Bytes! 
+}

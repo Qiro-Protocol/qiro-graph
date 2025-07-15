@@ -203,6 +203,7 @@ type Tranche @entity(immutable: false) {
   totalTokenSupply: BigInt!
   tokenName: String!
   tokenSymbol: String!
+  tokenDecimals: Int!
   totalInvested: BigInt!
   totalRedeemed: BigInt!
   totalRepaid: BigInt!

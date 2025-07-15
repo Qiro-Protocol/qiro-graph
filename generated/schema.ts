@@ -2069,6 +2069,19 @@ export class Tranche extends Entity {
     this.set("tokenSymbol", Value.fromString(value));
   }
 
+  get tokenDecimals(): i32 {
+    let value = this.get("tokenDecimals");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set tokenDecimals(value: i32) {
+    this.set("tokenDecimals", Value.fromI32(value));
+  }
+
   get totalInvested(): BigInt {
     let value = this.get("totalInvested");
     if (!value || value.kind == ValueKind.NULL) {
