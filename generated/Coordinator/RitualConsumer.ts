@@ -46,6 +46,28 @@ export class Rely__Params {
   }
 }
 
+export class RequestComputeAccessSet extends ethereum.Event {
+  get params(): RequestComputeAccessSet__Params {
+    return new RequestComputeAccessSet__Params(this);
+  }
+}
+
+export class RequestComputeAccessSet__Params {
+  _event: RequestComputeAccessSet;
+
+  constructor(event: RequestComputeAccessSet) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get access(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
 export class RitualConsumer__subIdToAggregatedResultResult {
   value0: boolean;
   value1: BigInt;
@@ -191,6 +213,25 @@ export class RitualConsumer extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  getCoordinator(): Address {
+    let result = super.call("getCoordinator", "getCoordinator():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_getCoordinator(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "getCoordinator",
+      "getCoordinator():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   getResponseFromSubIdAndNode(subid: BigInt, node: Address): Array<BigInt> {
@@ -360,27 +401,6 @@ export class RitualConsumer extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  nodeWeights(param0: Address): BigInt {
-    let result = super.call("nodeWeights", "nodeWeights(address):(uint256)", [
-      ethereum.Value.fromAddress(param0),
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_nodeWeights(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "nodeWeights",
-      "nodeWeights(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   proofFileArweaveTxn(param0: Bytes): string {
     let result = super.call(
       "proofFileArweaveTxn",
@@ -465,6 +485,29 @@ export class RitualConsumer extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  requestComputeAccess(param0: Address): boolean {
+    let result = super.call(
+      "requestComputeAccess",
+      "requestComputeAccess(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_requestComputeAccess(param0: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "requestComputeAccess",
+      "requestComputeAccess(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   responsesOfWindow(param0: BigInt): Bytes {
@@ -609,21 +652,6 @@ export class RitualConsumer extends ethereum.SmartContract {
       "subIdToTokenId(uint256):(uint256)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  totalWeight(): BigInt {
-    let result = super.call("totalWeight", "totalWeight():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_totalWeight(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("totalWeight", "totalWeight():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -956,6 +984,40 @@ export class RequestComputeCall__Outputs {
   }
 }
 
+export class SetRequestComputeAccessCall extends ethereum.Call {
+  get inputs(): SetRequestComputeAccessCall__Inputs {
+    return new SetRequestComputeAccessCall__Inputs(this);
+  }
+
+  get outputs(): SetRequestComputeAccessCall__Outputs {
+    return new SetRequestComputeAccessCall__Outputs(this);
+  }
+}
+
+export class SetRequestComputeAccessCall__Inputs {
+  _call: SetRequestComputeAccessCall;
+
+  constructor(call: SetRequestComputeAccessCall) {
+    this._call = call;
+  }
+
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get access(): boolean {
+    return this._call.inputValues[1].value.toBoolean();
+  }
+}
+
+export class SetRequestComputeAccessCall__Outputs {
+  _call: SetRequestComputeAccessCall;
+
+  constructor(call: SetRequestComputeAccessCall) {
+    this._call = call;
+  }
+}
+
 export class UpdateNFTFeedCall extends ethereum.Call {
   get inputs(): UpdateNFTFeedCall__Inputs {
     return new UpdateNFTFeedCall__Inputs(this);
@@ -982,40 +1044,6 @@ export class UpdateNFTFeedCall__Outputs {
   _call: UpdateNFTFeedCall;
 
   constructor(call: UpdateNFTFeedCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateNodeWeightCall extends ethereum.Call {
-  get inputs(): UpdateNodeWeightCall__Inputs {
-    return new UpdateNodeWeightCall__Inputs(this);
-  }
-
-  get outputs(): UpdateNodeWeightCall__Outputs {
-    return new UpdateNodeWeightCall__Outputs(this);
-  }
-}
-
-export class UpdateNodeWeightCall__Inputs {
-  _call: UpdateNodeWeightCall;
-
-  constructor(call: UpdateNodeWeightCall) {
-    this._call = call;
-  }
-
-  get node(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get weight(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class UpdateNodeWeightCall__Outputs {
-  _call: UpdateNodeWeightCall;
-
-  constructor(call: UpdateNodeWeightCall) {
     this._call = call;
   }
 }
