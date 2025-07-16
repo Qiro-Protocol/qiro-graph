@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0x67D6A60d2B8Fa9f250dd5F44B064f117287B9AFE"
+      address: "0x5F5c162540eCf21fF3E5f860Bba0ab5acaf65f1d"
       abi: QiroFactory
-      startBlock: 23775490
+      startBlock: 23969317
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -45,12 +45,37 @@ dataSources:
           handler: handleFactoryFile
       file: QiroFactory/QiroFactory.wasm
   - kind: ethereum
+    name: Coordinator
+    network: polygon-amoy
+    source:
+      address: "0x48A09FA779A2c97686856Aee98EC6b90BC6098A4"
+      abi: Coordinator
+      startBlock: 23943263
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComputeSubscription
+        - SubscriptionResponses
+      abis:
+        - name: Coordinator
+          file: Coordinator/Coordinator.json
+        - name: RitualConsumer
+          file: Coordinator/RitualConsumer.json
+      eventHandlers:
+        - event: SubscriptionCreated(indexed uint32)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionFulfilled(indexed uint32,indexed address)
+          handler: handleSubscriptionFulfilled
+      file: Coordinator/Coordinator.wasm
+  - kind: ethereum
     name: RitualConsumer
     network: polygon-amoy
     source:
-      address: "0xDA19380c72B744944aFd7307bdBe2505Ab549989"
+      address: "0x26318f5319EC85e4fe7A00E0C25a631beF6ace87"
       abi: RitualConsumer
-      startBlock: 23739376
+      startBlock: 23943350
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -66,14 +91,14 @@ dataSources:
           handler: handleRely
         - event: RequestComputeAccessSet(indexed address,indexed bool)
           handler: handleRequestComputeAccessSet
-      file: RitualConsumer/RitualConsumer.wasm
+      file: Coordinator/Coordinator.wasm
   - kind: ethereum
     name: QiroNft
     network: polygon-amoy
     source:
-      address: "0x2DaecE024e17995E4cf34F035fe96d8022fa61d2"
+      address: "0x8441Ab98048B8a2912c8F69265026F77C0616746"
       abi: QiroNft
-      startBlock: 23775490
+      startBlock: 23969316
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
