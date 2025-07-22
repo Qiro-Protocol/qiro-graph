@@ -8,7 +8,7 @@ import { Shelf as ShelfContract } from "../../generated/QiroFactory/Shelf";
 import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses, Transaction } from "../../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
-import { getPoolId, SupplyRedeemActionType, TrancheType, TransactionType, TrancheTypeWithPool } from "../util";
+import { getPoolId, SupplyRedeemActionType, TrancheType, TransactionType, TrancheTypeWithPool, getPoolStatusString } from "../util";
 import { DependCall, PauseCall, UnpauseCall, WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
@@ -162,6 +162,7 @@ function updatePoolAndTranche(
   pool.trancheSupplyMaxBalance = whitelistOperatorContract.totalDepositCurrencyJunior().plus(
     whitelistOperatorContract.totalDepositCurrencySenior()
   );
+  pool.poolStatus = getPoolStatusString(whitelistOperatorContract.getState());
 
   let seniorTranche = Tranche.load(pool.seniorTranche);
   let juniorTranche = Tranche.load(pool.juniorTranche);
