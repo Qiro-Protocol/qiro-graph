@@ -43,3 +43,17 @@ export class Shelf extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("Shelf", [address.toHex()], context);
   }
 }
+
+export class SecuritisationShelf extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("SecuritisationShelf", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "SecuritisationShelf",
+      [address.toHex()],
+      context,
+    );
+  }
+}

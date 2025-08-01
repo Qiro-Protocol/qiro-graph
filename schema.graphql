@@ -328,7 +328,7 @@ type NFTMinted @entity(immutable: false) {
 # _______________ Compute Subscription Schema _______________
 # ___________________________________________________________
 
-type ComputeSubscription @entity {
+type ComputeSubscription @entity(immutable: false) {
   id: Bytes!
   subscriptionId: BigInt!
   tokenId: BigInt!
@@ -342,7 +342,7 @@ type ComputeSubscription @entity {
   average_exposure_at_default: BigInt!
 }
 
-type SubscriptionResponse @entity {
+type SubscriptionResponse @entity(immutable: false) {
   id: Bytes!
   subscription: ComputeSubscription!
   output: Bytes!
@@ -358,7 +358,7 @@ type SubscriptionResponse @entity {
   transactionHash: Bytes!
 }
 
-type MonitoringSubscription @entity {
+type MonitoringSubscription @entity(immutable: false) {
   id: Bytes!
   subscriptionId: BigInt!
   blockTimestamp: BigInt!
@@ -367,7 +367,7 @@ type MonitoringSubscription @entity {
     @derivedFrom(field: "subscription")
 }
 
-type MonitoringResponse @entity {
+type MonitoringResponse @entity(immutable: false) {
   id: Bytes!
   subscription: MonitoringSubscription!
   output: Bytes!
@@ -414,7 +414,7 @@ type UpdateNftData @entity(immutable: false) {
 
 # todo: @rahul7668gupta add entity to index all other data
 
-type ConsumerCoordinatorPair @entity {
+type ConsumerCoordinatorPair @entity(immutable: false) {
   id: ID!    
   consumer: Bytes!   
   coordinator: Bytes! 

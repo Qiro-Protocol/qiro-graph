@@ -9,6 +9,11 @@ import {
   PauseCall,
   UnpauseCall,
 } from "../../generated/templates/Shelf/Shelf";
+
+import {
+  LoanStarted as LoanStartedEventSecuritisationShelf,
+} from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
+
 import { getCurrencyFromPoolId } from "./operator"
 import {
   LoanStarted,
@@ -33,6 +38,39 @@ import { Tranche } from "../../generated/QiroFactory/Tranche";
 import { getOrCreateCurrency } from "../qiro-factory";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
+  let entity = new LoanStarted(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
+  entity.save();
+
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
+  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
+
+  let poolObject = getPool(event.params.poolId);
+  poolObject!.poolStatus = getPoolStatusString(operator.getState());
+  poolObject!.originatorFeePaid = shelfContract.originatorFeePaidAmount();
+  poolObject!.loanMaturityTimestamp = shelfContract.LOAN_START_TIMESTAMP().plus(poolObject!.loanTerm);
+  poolObject!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
+  poolObject!.shelfDebt = shelfContract.debt();
+  poolObject!.totalBalance = shelfContract.balance();
+  poolObject!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
+    currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
+  );
+  poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
+  poolObject!.principalAmount = shelfContract.principalAmount();
+  poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
+  poolObject!.nftTokenId = shelfContract.token().value1;
+  poolObject!.save();
+}
+
+export function handleLoanStartedSecuritisationShelf(event: LoanStartedEventSecuritisationShelf): void {
   let entity = new LoanStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );

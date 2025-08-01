@@ -234,3 +234,49 @@ templates:
           handler: handleShelfPaused
         - function: unpause()
           handler: handleShelfUnpaused
+  - name: SecuritisationShelf
+    kind: ethereum/contract
+    network: polygon-amoy
+    source:
+      abi: SecuritisationShelf
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: templates/Shelf/Shelf.wasm
+      entities:
+        - LoanStarted
+        - LoanEnded
+        - LoanRepayed
+        - LoanWithdrawn
+        - User
+        - Pool
+      abis:
+        - name: SecuritisationShelf
+          file: SecuritisationShelf/SecuritisationShelf.json
+        - name: ERC20
+          file: SecuritisationShelf/ERC20.json
+        - name: WhitelistOperator
+          file: SecuritisationShelf/WhitelistOperator.json
+        - name: Tranche
+          file: SecuritisationShelf/Tranche.json
+      eventHandlers:
+        - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanStartedSecuritisationShelf
+        - event: LoanEnded(uint256,address,uint256,uint256,uint256)
+          handler: handleLoanEnded
+        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLoanRepayed
+        - event: LoanWithdrawn(uint256,address,address,uint256,uint256)
+          handler: handleLoanWithdrawn
+        - event: OriginatorFeePaid(uint256,address,address,uint256)
+          handler: handleOriginatorFeePaid
+      callHandlers:
+        - function: file(bytes32,address)
+          handler: handleShelfFile
+        - function: depend(bytes32,address)
+          handler: handleShelfDepend
+        - function: pause()
+          handler: handleShelfPaused
+        - function: unpause()
+          handler: handleShelfUnpaused

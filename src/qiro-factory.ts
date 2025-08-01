@@ -13,12 +13,12 @@ import {
   Borrower,
   FactoryOwnershipTransferred,
 } from "../generated/schema";
-import { InvestmentOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate } from "../generated/templates";
+import { InvestmentOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate, SecuritisationShelf } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
-import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE } from "./util";
+import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE, PoolType } from "./util";
 import {
   FactoryCreated, QiroFactory as QiroFactoryContract, FileCall, OwnershipTransferred,
   PoolDeployed as PoolDeployedEvent
@@ -134,18 +134,32 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  handlePool(entity as PoolDeployed, event.params.poolId, event.address);
+  let factory = QiroFactoryContract.bind(event.address);
+  let factoryPool = factory.pools(event.params.poolId);
+
+  let poolType = getPoolTypeString(factoryPool.getPoolType());
+  handlePool(entity as PoolDeployed, event.params.poolId, event.address, poolType);
 
   updatePoolCountInFactory(event.address);
 
-  Shelf.create(event.params.shelf);
+  if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.SECURITISATION) {
+    SecuritisationShelf.create(event.params.shelf);
+  } else if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.LOAN) {
+    Shelf.create(event.params.shelf);
+  } else{
+    // revert if pool type is unknown
+    log.error("Unknown pool type for pool ID: {}", [event.params.poolId.toString()]);
+    return;
+  }
+
+
   InvestmentOperator.create(
     WhitelistOperator.bind(event.params.operator).investmentOperator()
   );
   WhitelistOperatorTemplate.create(event.params.operator);
 }
 
-function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): void {
+function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, poolType: string): void {
   // Start
   let entity = new Pool(pool.pool); // event.poolId in bytes
   let poolAddresses = new PoolAddresses(pool.pool);
@@ -184,7 +198,11 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address): v
   entity.principalAmount = shelfContract.principalAmount();
   entity.interestAmount = shelfContract.totalInterestForLoanTerm();
   entity.writeoffAmount = new BigInt(0);
-  entity.writeoffTime = shelfContract.writeOffTime();
+  if(poolType == PoolType.LOAN) {
+    entity.writeoffTime = shelfContract.writeOffTime();
+  } else{
+    entity.writeoffTime = BigInt.fromI32(0); // Securitisation does not have writeoff time
+  }
   entity.totalTrancheBalance = new BigInt(0);
   entity.trancheSupplyMaxBalance = new BigInt(0);
   entity.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
