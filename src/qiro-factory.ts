@@ -138,6 +138,8 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   let factoryPool = factory.pools(event.params.poolId);
 
   let poolType = getPoolTypeString(factoryPool.getPoolType());
+
+  if (poolType != PoolType.LOAN) { return; } // only handle loan pools
   handlePool(entity as PoolDeployed, event.params.poolId, event.address, poolType);
 
   updatePoolCountInFactory(event.address);
@@ -199,7 +201,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   entity.interestAmount = shelfContract.totalInterestForLoanTerm();
   entity.writeoffAmount = new BigInt(0);
   if(poolType == PoolType.LOAN) {
-    entity.writeoffTime = shelfContract.writeOffTime();
+    entity.writeoffTime = shelfContract.try_writeOffTime().reverted ? BigInt.fromI32(0) : shelfContract.writeOffTime();
   } else{
     entity.writeoffTime = BigInt.fromI32(0); // Securitisation does not have writeoff time
   }
@@ -209,7 +211,7 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   entity.outstandingInterest = shelfContract.totalInterestForLoanTerm().minus(
     shelfContract.totalInterestRepayed()
   );
-  entity.isBullet = shelfContract.isBulletRepay();
+  entity.isBullet = shelfContract.try_isBulletRepay().reverted ? false : shelfContract.isBulletRepay();
   entity.poolType = getPoolTypeString(factoryPool.getPoolType());
   entity.isShelfPaused = shelfContract.paused();
   entity.isOperatorPaused = operator.paused();
