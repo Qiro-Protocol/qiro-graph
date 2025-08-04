@@ -14,6 +14,7 @@ import {
   LoanStarted as LoanStartedEventSecuritisationShelf,
 } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 
+import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { getCurrencyFromPoolId } from "./operator"
 import {
   LoanStarted,
@@ -81,25 +82,49 @@ export function handleLoanStartedSecuritisationShelf(event: LoanStartedEventSecu
   entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
-  let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
-  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let securitisationShelfContract = SecuritisationShelf.bind(
+    Address.fromBytes(poolAddresses!.shelf)
+  );
+  let operator = WhitelistOperator.bind(
+    Address.fromBytes(poolAddresses!.operator)
+  );
   let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let poolObject = getPool(event.params.poolId);
   poolObject!.poolStatus = getPoolStatusString(operator.getState());
-  poolObject!.originatorFeePaid = shelfContract.originatorFeePaidAmount();
-  poolObject!.loanMaturityTimestamp = shelfContract.LOAN_START_TIMESTAMP().plus(poolObject!.loanTerm);
-  poolObject!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
-  poolObject!.shelfDebt = shelfContract.debt();
-  poolObject!.totalBalance = shelfContract.balance();
-  poolObject!.totalTrancheBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.seniorTranche)).plus(
-    currencyContract.balanceOf(Address.fromBytes(poolAddresses!.juniorTranche))
+  poolObject!.originatorFeePaid =
+    securitisationShelfContract.originatorFeePaidAmount();
+  poolObject!.loanMaturityTimestamp = securitisationShelfContract
+    .LOAN_START_TIMESTAMP()
+    .plus(poolObject!.loanTerm);
+  poolObject!.shelfBalance = currencyContract.balanceOf(
+    Address.fromBytes(poolAddresses!.shelf)
   );
-  poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
-  poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
-  poolObject!.principalAmount = shelfContract.principalAmount();
-  poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
-  poolObject!.nftTokenId = shelfContract.token().value1;
+  poolObject!.shelfDebt = securitisationShelfContract.debt();
+  poolObject!.totalBalance = securitisationShelfContract.balance();
+  poolObject!.totalTrancheBalance = currencyContract
+    .balanceOf(Address.fromBytes(poolAddresses!.seniorTranche))
+    .plus(
+      currencyContract.balanceOf(
+        Address.fromBytes(poolAddresses!.juniorTranche)
+      )
+    );
+  poolObject!.outstandingPrincipal =
+    securitisationShelfContract.getOutstandingPrincipal();
+  poolObject!.outstandingInterest =
+    securitisationShelfContract.getOutstandingInterest();
+  poolObject!.principalAmount = securitisationShelfContract.principalAmount();
+  poolObject!.interestAmount =
+    securitisationShelfContract.totalInterestForLoanTerm();
+  poolObject!.nftTokenId = securitisationShelfContract.token().value1;
+
+  // SecuritisationShelf-specific fields
+  poolObject!.outstandingShortfallInterestAmount =
+    securitisationShelfContract.outstandingShortfallInterestAmount();
+  poolObject!.outstandingShortfallPrincipalAmount =
+    securitisationShelfContract.outstandingShortfallPrincipalAmount();
+  poolObject!.servicerFeePaid = securitisationShelfContract.servicerFeePaid();
+
   poolObject!.save();
 }
 
@@ -124,7 +149,15 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = shelfContract.debt();
   pool!.shelfBalance = currencyContract.balanceOf(Address.fromBytes(poolAddresses!.shelf));
-  pool!.writeoffAmount = shelfContract.totalWriteOffAmount();
+
+  // Handle totalWriteOffAmount - only exists in Shelf, not SecuritisationShelf
+  if (pool!.poolType == "LOAN") {
+    pool!.writeoffAmount = shelfContract.totalWriteOffAmount();
+  } else {
+    // SecuritisationShelf doesn't have totalWriteOffAmount
+    pool!.writeoffAmount = BigInt.fromI32(0);
+  }
+
   pool!.save();
 }
 
@@ -199,6 +232,19 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     operator.totalDepositCurrencySenior()
   );
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+
+  // Update SecuritisationShelf-specific fields if this is a securitisation pool
+  if (pool!.poolType == "SECURITISATION") {
+    let securitisationShelfContract = SecuritisationShelf.bind(
+      Address.fromBytes(poolAddresses!.shelf)
+    );
+    pool!.outstandingShortfallInterestAmount =
+      securitisationShelfContract.outstandingShortfallInterestAmount();
+    pool!.outstandingShortfallPrincipalAmount =
+      securitisationShelfContract.outstandingShortfallPrincipalAmount();
+    pool!.servicerFeePaid = securitisationShelfContract.servicerFeePaid();
+  }
+
   pool!.save();
 
   createRepayTransaction(event);
@@ -228,9 +274,7 @@ export function getPoolAddresses(poolId: BigInt): PoolAddresses | null {
   return poolAddresses;
 }
 
-function createWithdrawTransaction(
-  event: LoanWithdrawnEvent
-): void {
+function createWithdrawTransaction(event: LoanWithdrawnEvent): void {
   let entity = new Transaction(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -246,9 +290,7 @@ function createWithdrawTransaction(
   entity.save();
 }
 
-function createRepayTransaction(
-  event: LoanRepayedEvent
-): void {
+function createRepayTransaction(event: LoanRepayedEvent): void {
   let entity = new Transaction(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );

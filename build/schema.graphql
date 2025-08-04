@@ -128,6 +128,9 @@ type Pool @entity(immutable: false) {
   seniorTranche: Tranche!
   nftTokenId: BigInt! # uint256
   totalWithdrawn: BigInt! # uint256
+  outstandingShortfallInterestAmount: BigInt # uint256
+  outstandingShortfallPrincipalAmount: BigInt # uint256
+  servicerFeePaid: BigInt # uint256
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")

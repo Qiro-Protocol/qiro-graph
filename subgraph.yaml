@@ -29,6 +29,8 @@ dataSources:
           file: ./abis/InvestmentOperator.json
         - name: Shelf
           file: ./abis/Shelf.json
+        - name: SecuritisationShelf
+          file: ./abis/SecuritisationShelf.json
         - name: Tranche
           file: ./abis/Tranche.json
         - name: ERC20
@@ -254,6 +256,8 @@ templates:
       abis:
         - name: SecuritisationShelf
           file: ./abis/SecuritisationShelf.json
+        - name: Shelf
+          file: ./abis/Shelf.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: WhitelistOperator

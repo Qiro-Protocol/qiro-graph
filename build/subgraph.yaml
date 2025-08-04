@@ -29,6 +29,8 @@ dataSources:
           file: QiroFactory/InvestmentOperator.json
         - name: Shelf
           file: QiroFactory/Shelf.json
+        - name: SecuritisationShelf
+          file: QiroFactory/SecuritisationShelf.json
         - name: Tranche
           file: QiroFactory/Tranche.json
         - name: ERC20
@@ -254,6 +256,8 @@ templates:
       abis:
         - name: SecuritisationShelf
           file: SecuritisationShelf/SecuritisationShelf.json
+        - name: Shelf
+          file: SecuritisationShelf/Shelf.json
         - name: ERC20
           file: SecuritisationShelf/ERC20.json
         - name: WhitelistOperator

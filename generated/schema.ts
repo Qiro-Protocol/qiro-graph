@@ -9,6 +9,7 @@ import {
   Bytes,
   BigInt,
   BigDecimal,
+  Int8,
 } from "@graphprotocol/graph-ts";
 
 export class PoolDeployed extends Entity {
@@ -1416,6 +1417,63 @@ export class Pool extends Entity {
 
   set totalWithdrawn(value: BigInt) {
     this.set("totalWithdrawn", Value.fromBigInt(value));
+  }
+
+  get outstandingShortfallInterestAmount(): BigInt | null {
+    let value = this.get("outstandingShortfallInterestAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set outstandingShortfallInterestAmount(value: BigInt | null) {
+    if (!value) {
+      this.unset("outstandingShortfallInterestAmount");
+    } else {
+      this.set(
+        "outstandingShortfallInterestAmount",
+        Value.fromBigInt(<BigInt>value),
+      );
+    }
+  }
+
+  get outstandingShortfallPrincipalAmount(): BigInt | null {
+    let value = this.get("outstandingShortfallPrincipalAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set outstandingShortfallPrincipalAmount(value: BigInt | null) {
+    if (!value) {
+      this.unset("outstandingShortfallPrincipalAmount");
+    } else {
+      this.set(
+        "outstandingShortfallPrincipalAmount",
+        Value.fromBigInt(<BigInt>value),
+      );
+    }
+  }
+
+  get servicerFeePaid(): BigInt | null {
+    let value = this.get("servicerFeePaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set servicerFeePaid(value: BigInt | null) {
+    if (!value) {
+      this.unset("servicerFeePaid");
+    } else {
+      this.set("servicerFeePaid", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get addresses(): PoolAddressesLoader {

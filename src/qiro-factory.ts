@@ -1,9 +1,4 @@
-import {
-  Address,
-  BigInt,
-  Bytes,
-  log,
-} from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   Pool,
   PoolDeployed,
@@ -13,15 +8,31 @@ import {
   Borrower,
   FactoryOwnershipTransferred,
 } from "../generated/schema";
-import { InvestmentOperator, Shelf, WhitelistOperator as WhitelistOperatorTemplate, SecuritisationShelf } from "../generated/templates";
+import {
+  InvestmentOperator,
+  Shelf,
+  WhitelistOperator as WhitelistOperatorTemplate,
+  SecuritisationShelf,
+} from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
+import { SecuritisationShelf as SecuritisationShelfContract } from "../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
-import { getPoolId, TrancheType, getPoolStatusString, getPoolTypeString, ONE, PoolType } from "./util";
 import {
-  FactoryCreated, QiroFactory as QiroFactoryContract, FileCall, OwnershipTransferred,
-  PoolDeployed as PoolDeployedEvent
+  getPoolId,
+  TrancheType,
+  getPoolStatusString,
+  getPoolTypeString,
+  ONE,
+  PoolType,
+} from "./util";
+import {
+  FactoryCreated,
+  QiroFactory as QiroFactoryContract,
+  FileCall,
+  OwnershipTransferred,
+  PoolDeployed as PoolDeployedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -71,7 +82,9 @@ export function handleFactoryFile(call: FileCall): void {
   factory.save();
 }
 
-export function handleFactoryOwnershipTransferred(event: OwnershipTransferred): void {
+export function handleFactoryOwnershipTransferred(
+  event: OwnershipTransferred
+): void {
   let entity = new FactoryOwnershipTransferred(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -88,10 +101,14 @@ export function handleFactoryOwnershipTransferred(event: OwnershipTransferred): 
     factory.owner = event.params.newOwner;
     factory.save();
   }
-log.info("Factory ownership transferred to: {}", [event.params.newOwner.toHexString()]);
+  log.info("Factory ownership transferred to: {}", [
+    event.params.newOwner.toHexString(),
+  ]);
 }
 
-export function getOrCreateCurrency(qiroFactoryCurrency: Address): PoolCurrency {
+export function getOrCreateCurrency(
+  qiroFactoryCurrency: Address
+): PoolCurrency {
   let poolCurrency = PoolCurrency.load(qiroFactoryCurrency);
   if (poolCurrency == null) {
     let qiroFactoryCurrencyBind = ERC20.bind(qiroFactoryCurrency);
@@ -139,8 +156,12 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
 
   let poolType = getPoolTypeString(factoryPool.getPoolType());
 
-  if (poolType != PoolType.LOAN) { return; } // only handle loan pools
-  handlePool(entity as PoolDeployed, event.params.poolId, event.address, poolType);
+  handlePool(
+    entity as PoolDeployed,
+    event.params.poolId,
+    event.address,
+    poolType
+  );
 
   updatePoolCountInFactory(event.address);
 
@@ -148,12 +169,13 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     SecuritisationShelf.create(event.params.shelf);
   } else if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.LOAN) {
     Shelf.create(event.params.shelf);
-  } else{
+  } else {
     // revert if pool type is unknown
-    log.error("Unknown pool type for pool ID: {}", [event.params.poolId.toString()]);
+    log.error("Unknown pool type for pool ID: {}", [
+      event.params.poolId.toString(),
+    ]);
     return;
   }
-
 
   InvestmentOperator.create(
     WhitelistOperator.bind(event.params.operator).investmentOperator()
@@ -161,13 +183,30 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   WhitelistOperatorTemplate.create(event.params.operator);
 }
 
-function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, poolType: string): void {
+function handlePool(
+  pool: PoolDeployed,
+  poolId: BigInt,
+  qiroFactory: Address,
+  poolType: string
+): void {
   // Start
   let entity = new Pool(pool.pool); // event.poolId in bytes
   let poolAddresses = new PoolAddresses(pool.pool);
 
   let operator = WhitelistOperator.bind(Address.fromBytes(pool.operator));
-  let shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
+
+  // Dynamic contract binding based on pool type
+  let shelfContract: ShelfContract | null = null;
+  let securitisationShelfContract: SecuritisationShelfContract | null = null;
+
+  if (poolType == PoolType.LOAN) {
+    shelfContract = ShelfContract.bind(Address.fromBytes(pool.shelf));
+  } else if (poolType == PoolType.SECURITISATION) {
+    securitisationShelfContract = SecuritisationShelfContract.bind(
+      Address.fromBytes(pool.shelf)
+    );
+  }
+
   let factory = QiroFactoryContract.bind(qiroFactory);
   let factoryPool = factory.pools(poolId);
   let qiroFactoryCurrency = factory.currency();
@@ -175,18 +214,15 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   let juniorTranch = operator.junior();
   let seniorTranch = operator.senior();
 
+  // Common fields (same for both pool types)
   entity.poolId = poolId; // uint256
   entity.poolStatus = getPoolStatusString(operator.getState());
   entity.seniorInterestRate = pool.seniorRate;
   entity.interestRate = pool.interestRate;
-  entity.lateFeeInterestRate = shelfContract.lateFeeInterestRateInBps();
-  entity.performanceFeeRate = shelfContract.performanceFee();
-  entity.originatorFeeRate = BigInt.fromI32(shelfContract.allFees(BigInt.fromI32(1)).value1); // 1 is for originator fee
   entity.periodLength = pool.periodLength;
   entity.periodCount = pool.periodCount;
   entity.loanTerm = pool.periodLength.times(pool.periodCount);
   entity.gracePeriod = pool.gracePeriod;
-  entity.totalBalance = shelfContract.balance();
   entity.totalWithdrawn = new BigInt(0);
   entity.startTimestamp = pool.blockTimestamp;
   entity.loanMaturityTimestamp = pool.blockTimestamp.plus(
@@ -197,38 +233,95 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   entity.interestRepaid = new BigInt(0);
   entity.capitalFormationPeriod = operator.capitalFormationPeriod(); // 7 days
   entity.capitalFormationPeriodEnd = operator.capitalFormationEnd();
-  entity.principalAmount = shelfContract.principalAmount();
-  entity.interestAmount = shelfContract.totalInterestForLoanTerm();
-  entity.writeoffAmount = new BigInt(0);
-  if(poolType == PoolType.LOAN) {
-    entity.writeoffTime = shelfContract.try_writeOffTime().reverted ? BigInt.fromI32(0) : shelfContract.writeOffTime();
-  } else{
-    entity.writeoffTime = BigInt.fromI32(0); // Securitisation does not have writeoff time
+
+  // Contract-specific fields
+  if (poolType == PoolType.LOAN) {
+    entity.lateFeeInterestRate = shelfContract!.lateFeeInterestRateInBps();
+    entity.performanceFeeRate = shelfContract!.performanceFee();
+    entity.originatorFeeRate = BigInt.fromI32(
+      shelfContract!.allFees(BigInt.fromI32(1)).value1
+    ); // 1 is for originator fee
+    entity.totalBalance = shelfContract!.balance();
+    entity.principalAmount = shelfContract!.principalAmount();
+    entity.interestAmount = shelfContract!.totalInterestForLoanTerm();
+  } else if (poolType == PoolType.SECURITISATION) {
+    entity.lateFeeInterestRate =
+      securitisationShelfContract!.lateFeeInterestRateInBps();
+    entity.performanceFeeRate = securitisationShelfContract!.performanceFee();
+    entity.originatorFeeRate = BigInt.fromI32(
+      securitisationShelfContract!.allFees(BigInt.fromI32(1)).value1
+    ); // 1 is for originator fee
+    entity.totalBalance = securitisationShelfContract!.balance();
+    entity.principalAmount = securitisationShelfContract!.principalAmount();
+    entity.interestAmount =
+      securitisationShelfContract!.totalInterestForLoanTerm();
   }
+  entity.writeoffAmount = new BigInt(0);
   entity.totalTrancheBalance = new BigInt(0);
   entity.trancheSupplyMaxBalance = new BigInt(0);
-  entity.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
-  entity.outstandingInterest = shelfContract.totalInterestForLoanTerm().minus(
-    shelfContract.totalInterestRepayed()
-  );
-  entity.isBullet = shelfContract.try_isBulletRepay().reverted ? false : shelfContract.isBulletRepay();
+
+  // Pool type specific fields
+  if (poolType == PoolType.LOAN) {
+    entity.writeoffTime = shelfContract!.writeOffTime();
+    entity.outstandingPrincipal = shelfContract!.getOutstandingPrincipal();
+    entity.outstandingInterest = shelfContract!
+      .totalInterestForLoanTerm()
+      .minus(shelfContract!.totalInterestRepayed());
+    entity.isBullet = shelfContract!.isBulletRepay();
+  } else if (poolType == PoolType.SECURITISATION) {
+    entity.writeoffTime = BigInt.fromI32(0); // Securitisation does not have writeoff time
+    entity.outstandingPrincipal =
+      securitisationShelfContract!.getOutstandingPrincipal();
+    entity.outstandingInterest = securitisationShelfContract!
+      .totalInterestForLoanTerm()
+      .minus(securitisationShelfContract!.totalInterestRepayed());
+    entity.isBullet = false; // Securitisation does not have bullet repay
+  }
   entity.poolType = getPoolTypeString(factoryPool.getPoolType());
-  entity.isShelfPaused = shelfContract.paused();
   entity.isOperatorPaused = operator.paused();
   entity.blockNumber = pool.blockNumber;
   entity.blockTimestamp = pool.blockTimestamp;
   entity.transactionHash = pool.transactionHash;
-  entity.borrower = shelfContract.borrower();
-  entity.originatorFeePaid = shelfContract.originatorFeePaidAmount();
-  entity.pStartFrom = shelfContract.pStartFrom();
-  entity.pRepayFrequency = shelfContract.pRepayFrequency();
-  entity.shelfBalance = currencyContract.balanceOf(Address.fromBytes(pool.shelf));
+  entity.shelfBalance = currencyContract.balanceOf(
+    Address.fromBytes(pool.shelf)
+  );
   entity.shelfDebt = BigInt.fromI32(0);
-  entity.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
-  entity.lateFeeRepaid = shelfContract.totalLateFeePaid();
   entity.seniorTranche = seniorTranch;
   entity.juniorTranche = juniorTranch;
-  entity.nftTokenId = shelfContract.token().value1;
+
+  // Contract-specific fields
+  if (poolType == PoolType.LOAN) {
+    entity.isShelfPaused = shelfContract!.paused();
+    entity.borrower = shelfContract!.borrower();
+    entity.originatorFeePaid = shelfContract!.originatorFeePaidAmount();
+    entity.pStartFrom = shelfContract!.pStartFrom();
+    entity.pRepayFrequency = shelfContract!.pRepayFrequency();
+    entity.prepaymentAbsorbedAmount = shelfContract!.prepaymentAbsorbedAmount();
+    entity.lateFeeRepaid = shelfContract!.totalLateFeePaid();
+    entity.nftTokenId = shelfContract!.token().value1;
+    // SecuritisationShelf-specific fields - set to 0 for LOAN pools
+    entity.outstandingShortfallInterestAmount = BigInt.fromI32(0);
+    entity.outstandingShortfallPrincipalAmount = BigInt.fromI32(0);
+    entity.servicerFeePaid = BigInt.fromI32(0);
+  } else if (poolType == PoolType.SECURITISATION) {
+    entity.isShelfPaused = securitisationShelfContract!.paused();
+    entity.borrower = securitisationShelfContract!.borrower();
+    entity.originatorFeePaid =
+      securitisationShelfContract!.originatorFeePaidAmount();
+    entity.pStartFrom = securitisationShelfContract!.pStartFrom();
+    entity.pRepayFrequency = securitisationShelfContract!.pRepayFrequency();
+    entity.prepaymentAbsorbedAmount =
+      securitisationShelfContract!.prepaymentAbsorbedAmount();
+    entity.lateFeeRepaid = securitisationShelfContract!.totalLateFeePaid();
+    entity.nftTokenId = securitisationShelfContract!.token().value1;
+
+    // SecuritisationShelf-specific fields
+    entity.outstandingShortfallInterestAmount =
+      securitisationShelfContract!.outstandingShortfallInterestAmount();
+    entity.outstandingShortfallPrincipalAmount =
+      securitisationShelfContract!.outstandingShortfallPrincipalAmount();
+    entity.servicerFeePaid = securitisationShelfContract!.servicerFeePaid();
+  }
   entity.save();
 
   let currency = getOrCreateCurrency(qiroFactoryCurrency);
@@ -246,7 +339,14 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   poolAddresses.seniorToken = operator.seniorToken();
   poolAddresses.juniorToken = operator.juniorToken();
   poolAddresses.root = factoryPool.getRoot();
-  poolAddresses.nftContractAddress = shelfContract.assetNFT();
+
+  // Contract-specific fields
+  if (poolType == PoolType.LOAN) {
+    poolAddresses.nftContractAddress = shelfContract!.assetNFT();
+  } else if (poolType == PoolType.SECURITISATION) {
+    poolAddresses.nftContractAddress = securitisationShelfContract!.assetNFT();
+  }
+
   poolAddresses.save();
 
   let junTrancheContract = TrancheContract.bind(juniorTranch);
@@ -267,7 +367,10 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   juniorTranche.tokenDecimals = junTokenContract.decimals();
   juniorTranche.totalInvested = operator.totalDepositCurrencyJunior();
   juniorTranche.totalRedeemed = operator.totalRedeemedCurrencyJunior();
-  juniorTranche.totalRepaid = junTrancheContract.totalRepayedAmount();
+  juniorTranche.totalRepaid = junTrancheContract.try_totalRepayedAmount()
+    .reverted
+    ? BigInt.fromI32(0)
+    : junTrancheContract.totalRepayedAmount();
   juniorTranche.ceiling = operator.juniorTrancheCeiling();
   juniorTranche.blockTimestamp = pool.blockTimestamp;
   juniorTranche.transactionHash = pool.transactionHash;
@@ -283,7 +386,10 @@ function handlePool(pool: PoolDeployed, poolId: BigInt, qiroFactory: Address, po
   seniorTranche.tokenDecimals = senTokenContract.decimals();
   seniorTranche.totalInvested = operator.totalDepositCurrencySenior();
   seniorTranche.totalRedeemed = operator.totalRedeemedCurrencySenior();
-  seniorTranche.totalRepaid = senTrancheContract.totalRepayedAmount();
+  seniorTranche.totalRepaid = senTrancheContract.try_totalRepayedAmount()
+    .reverted
+    ? BigInt.fromI32(0)
+    : senTrancheContract.totalRepayedAmount();
   seniorTranche.ceiling = operator.seniorTrancheCeiling();
   seniorTranche.blockTimestamp = pool.blockTimestamp;
   seniorTranche.transactionHash = pool.transactionHash;
