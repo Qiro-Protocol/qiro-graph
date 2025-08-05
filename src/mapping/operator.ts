@@ -3,19 +3,50 @@ import {
   Redeem as RedeemEvent,
 } from "../../generated/templates/WhitelistOperator/InvestmentOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
+import { SecuritisationTranche as SecuritisationTrancheContract } from "../../generated/QiroFactory/SecuritisationTranche";
 import { WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
 import { Shelf as ShelfContract } from "../../generated/QiroFactory/Shelf";
-import { SupplyRedeem, Pool, Tranche, Lender, PoolAddresses, Transaction } from "../../generated/schema";
-import { Address, BigInt, ByteArray, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { SecuritisationShelf as SecuritisationShelfContract } from "../../generated/QiroFactory/SecuritisationShelf";
+import {
+  SupplyRedeem,
+  Pool,
+  Tranche,
+  Lender,
+  PoolAddresses,
+  Transaction,
+} from "../../generated/schema";
+import {
+  Address,
+  BigInt,
+  ByteArray,
+  Bytes,
+  ethereum,
+  log,
+} from "@graphprotocol/graph-ts";
 import { crypto } from "@graphprotocol/graph-ts";
-import { getPoolId, SupplyRedeemActionType, TrancheType, TransactionType, TrancheTypeWithPool, getPoolStatusString } from "../util";
-import { DependCall, PauseCall, UnpauseCall, WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
+import {
+  getPoolId,
+  SupplyRedeemActionType,
+  TrancheType,
+  TransactionType,
+  TrancheTypeWithPool,
+  getPoolStatusString,
+  PoolType,
+} from "../util";
+import {
+  DependCall,
+  PauseCall,
+  UnpauseCall,
+  WhitelistOperator,
+} from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { getPool, getPoolAddresses } from "./shelf";
 
 export function handleSupply(event: SupplyEvent): void {
-  log.info("Handling supply event for pool: {}", [event.params.poolId.toString()]);
+  log.info("Handling supply event for pool: {}", [
+    event.params.poolId.toString(),
+  ]);
   let entity = new SupplyRedeem(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -49,15 +80,25 @@ export function handleSupply(event: SupplyEvent): void {
   );
 
   createSupplyTransaction(event);
-  log.info("Supply event handled for pool: {}", [event.params.poolId.toString()]);
+  log.info("Supply event handled for pool: {}", [
+    event.params.poolId.toString(),
+  ]);
 }
 
-function createOrUpdateLenderEntity(lenderAddress: Address, trancheAddress: Bytes, poolId: BigInt, eventBlock: ethereum.Block): void {
-  log.warning("Creating or updating lender entity for address: {}, tranche: {}, poolId: {}", [
-    lenderAddress.toHexString(),
-    trancheAddress.toHexString(),
-    poolId.toString()
-  ]);
+function createOrUpdateLenderEntity(
+  lenderAddress: Address,
+  trancheAddress: Bytes,
+  poolId: BigInt,
+  eventBlock: ethereum.Block
+): void {
+  log.warning(
+    "Creating or updating lender entity for address: {}, tranche: {}, poolId: {}",
+    [
+      lenderAddress.toHexString(),
+      trancheAddress.toHexString(),
+      poolId.toString(),
+    ]
+  );
   let lenderId = getLenderId(lenderAddress, trancheAddress, poolId);
   log.warning("Lender ID: {}", [lenderId.toHexString()]);
   let lender = Lender.load(lenderId);
@@ -73,29 +114,43 @@ function createOrUpdateLenderEntity(lenderAddress: Address, trancheAddress: Byte
     lender.save();
     log.info("Created new lender entity: {}", [lender.id.toHexString()]);
   }
-  updateLenderStats(Address.fromBytes(lenderAddress), Address.fromBytes(trancheAddress), poolId);
+  updateLenderStats(
+    Address.fromBytes(lenderAddress),
+    Address.fromBytes(trancheAddress),
+    poolId
+  );
 }
 
-function updateLenderStats(lenderAddress: Address, trancheAddress: Address, poolId: BigInt): void {
+function updateLenderStats(
+  lenderAddress: Address,
+  trancheAddress: Address,
+  poolId: BigInt
+): void {
   log.info("Updating lender stats for address: {}, tranche: {}, poolId: {}", [
     lenderAddress.toHexString(),
     trancheAddress.toHexString(),
-    poolId.toString()
+    poolId.toString(),
   ]);
   let lender = Lender.load(getLenderId(lenderAddress, trancheAddress, poolId));
   log.info("Lender entity: {}", [lender ? lender.id.toHexString() : "null"]);
   let poolAddresses = PoolAddresses.load(getPoolId(poolId));
-  let operator = WhitelistOperator.bind(Address.fromBytes(poolAddresses!.operator));
+  let operator = WhitelistOperator.bind(
+    Address.fromBytes(poolAddresses!.operator)
+  );
   // get tranche and figure out it's type
   let tranche = Tranche.load(trancheAddress);
   if (tranche!.trancheType == TrancheType.JUNIOR) {
-    let trancheTokenContract = ERC20.bind(Address.fromBytes(poolAddresses!.juniorToken))
+    let trancheTokenContract = ERC20.bind(
+      Address.fromBytes(poolAddresses!.juniorToken)
+    );
     lender!.currencySupplied = operator.tokenReceivedJunior(lenderAddress);
     lender!.tokensRedeem = operator.tokenRedeemedJunior(lenderAddress);
     lender!.currencyRedeemed = operator.currencyRedeemedJunior(lenderAddress);
     lender!.trancheTokenBalance = trancheTokenContract.balanceOf(lenderAddress);
   } else if (tranche!.trancheType == TrancheType.SENIOR) {
-    let trancheTokenContract = ERC20.bind(Address.fromBytes(poolAddresses!.seniorToken))
+    let trancheTokenContract = ERC20.bind(
+      Address.fromBytes(poolAddresses!.seniorToken)
+    );
     lender!.currencySupplied = operator.tokenReceivedSenior(lenderAddress);
     lender!.tokensRedeem = operator.tokenRedeemedSenior(lenderAddress);
     lender!.currencyRedeemed = operator.currencyRedeemedSenior(lenderAddress);
@@ -136,7 +191,9 @@ export function handleRedeem(event: RedeemEvent): void {
   );
 
   createRedeemTransaction(event);
-  log.info("Redeem event handled for pool: {}", [event.params.poolId.toString()]);
+  log.info("Redeem event handled for pool: {}", [
+    event.params.poolId.toString(),
+  ]);
 }
 
 function updatePoolAndTranche(
@@ -154,14 +211,27 @@ function updatePoolAndTranche(
 
   let poolAddresses = getPoolAddresses(poolId);
 
-  let whitelistOperatorContract = WhitelistOperatorContract.bind(Address.fromBytes(poolAddresses!.operator));
-  let shelfAddress = poolAddresses!.shelf;
-  let shelfContract = ShelfContract.bind(Address.fromBytes(shelfAddress));
-
-  pool.totalBalance = shelfContract.balance();
-  pool.trancheSupplyMaxBalance = whitelistOperatorContract.totalDepositCurrencyJunior().plus(
-    whitelistOperatorContract.totalDepositCurrencySenior()
+  let whitelistOperatorContract = WhitelistOperatorContract.bind(
+    Address.fromBytes(poolAddresses!.operator)
   );
+  let shelfAddress = poolAddresses!.shelf;
+
+  // Dynamic shelf contract binding based on pool type
+  if (pool.poolType == PoolType.LOAN) {
+    let shelfContract = ShelfContract.bind(Address.fromBytes(shelfAddress));
+    pool.totalBalance = shelfContract.balance();
+  } else if (pool.poolType == PoolType.SECURITISATION) {
+    let securitisationShelfContract = SecuritisationShelfContract.bind(
+      Address.fromBytes(shelfAddress)
+    );
+    pool.totalBalance = securitisationShelfContract.balance();
+  } else {
+    log.error("Unknown pool type for pool ID: {}", [poolId.toString()]);
+    return;
+  }
+  pool.trancheSupplyMaxBalance = whitelistOperatorContract
+    .totalDepositCurrencyJunior()
+    .plus(whitelistOperatorContract.totalDepositCurrencySenior());
   pool.poolStatus = getPoolStatusString(whitelistOperatorContract.getState());
 
   let seniorTranche = Tranche.load(pool.seniorTranche);
@@ -170,21 +240,80 @@ function updatePoolAndTranche(
     log.info("Message to be displayed: {}", [poolId.toHexString()]);
     return;
   }
-  // senior
-  let seniorContract = TrancheContract.bind(Address.fromBytes(pool.seniorTranche));
-  seniorTranche.balance = senior;
-  seniorTranche.totalTokenSupply = seniorContract.tokenSupply();
-  seniorTranche.totalInvested = whitelistOperatorContract.totalDepositCurrencySenior();
-  seniorTranche.totalRedeemed = whitelistOperatorContract.totalRedeemedCurrencySenior();
-  seniorTranche.totalRepaid = seniorContract.totalRepayedAmount();
+  // Handle different tranche types based on pool type
+  if (pool.poolType == PoolType.LOAN) {
+    // senior - LOAN pool uses Tranche contract
+    let seniorContract = TrancheContract.bind(
+      Address.fromBytes(pool.seniorTranche)
+    );
+    seniorTranche.balance = senior;
+    seniorTranche.totalTokenSupply = seniorContract.tokenSupply();
+    seniorTranche.totalInvested =
+      whitelistOperatorContract.totalDepositCurrencySenior();
+    seniorTranche.totalRedeemed =
+      whitelistOperatorContract.totalRedeemedCurrencySenior();
+    seniorTranche.totalRepaid = seniorContract.totalRepayedAmount();
 
-  // junior
-  let juniorContract = TrancheContract.bind(Address.fromBytes(pool.juniorTranche));
-  juniorTranche.balance = junior;
-  juniorTranche.totalTokenSupply = juniorContract.tokenSupply();
-  juniorTranche.totalInvested = whitelistOperatorContract.totalDepositCurrencyJunior();
-  juniorTranche.totalRedeemed = whitelistOperatorContract.totalRedeemedCurrencyJunior();
-  juniorTranche.totalRepaid = juniorContract.totalRepayedAmount();
+    // junior - LOAN pool uses Tranche contract
+    let juniorContract = TrancheContract.bind(
+      Address.fromBytes(pool.juniorTranche)
+    );
+    juniorTranche.balance = junior;
+    juniorTranche.totalTokenSupply = juniorContract.tokenSupply();
+    juniorTranche.totalInvested =
+      whitelistOperatorContract.totalDepositCurrencyJunior();
+    juniorTranche.totalRedeemed =
+      whitelistOperatorContract.totalRedeemedCurrencyJunior();
+    // Use try_totalRepayedAmount to handle potential reverts during initial deployment
+    juniorTranche.totalRepaid = juniorContract.totalRepayedAmount();
+  } else if (pool.poolType == PoolType.SECURITISATION) {
+    // senior - SECURITISATION pool uses SecuritisationTranche contract
+    let seniorSecContract = SecuritisationTrancheContract.bind(
+      Address.fromBytes(pool.seniorTranche)
+    );
+    seniorTranche.balance = senior;
+    seniorTranche.totalTokenSupply = seniorSecContract.tokenSupply();
+    seniorTranche.totalInvested =
+      whitelistOperatorContract.totalDepositCurrencySenior();
+    seniorTranche.totalRedeemed =
+      whitelistOperatorContract.totalRedeemedCurrencySenior();
+    // For SECURITISATION, these fields are always present in the contract
+    let seniorPrincipal = seniorSecContract.principalRepaid();
+    let seniorInterest = seniorSecContract.interestRepaid();
+    seniorTranche.totalRepaid = seniorPrincipal.plus(seniorInterest);
+
+    seniorTranche.principalRepaid = seniorPrincipal;
+    seniorTranche.interestRepaid = seniorInterest;
+    seniorTranche.overduePrincipalAmount =
+      seniorSecContract.overduePrincipalAmount();
+    seniorTranche.lastRepaidTimestamp = seniorSecContract.lastRepaidTimestamp();
+    seniorTranche.totalDaysRepaid = seniorSecContract.totalDaysRepaid();
+
+    // junior - SECURITISATION pool uses SecuritisationTranche contract
+    let juniorSecContract = SecuritisationTrancheContract.bind(
+      Address.fromBytes(pool.juniorTranche)
+    );
+    juniorTranche.balance = junior;
+    juniorTranche.totalTokenSupply = juniorSecContract.tokenSupply();
+    juniorTranche.totalInvested =
+      whitelistOperatorContract.totalDepositCurrencyJunior();
+    juniorTranche.totalRedeemed =
+      whitelistOperatorContract.totalRedeemedCurrencyJunior();
+    // For SECURITISATION, these fields are always present in the contract
+    let juniorPrincipal = juniorSecContract.principalRepaid();
+    let juniorInterest = juniorSecContract.interestRepaid();
+    juniorTranche.totalRepaid = juniorPrincipal.plus(juniorInterest);
+
+    juniorTranche.principalRepaid = juniorPrincipal;
+    juniorTranche.interestRepaid = juniorInterest;
+    juniorTranche.overduePrincipalAmount =
+      juniorSecContract.overduePrincipalAmount();
+    juniorTranche.lastRepaidTimestamp = juniorSecContract.lastRepaidTimestamp();
+    juniorTranche.totalDaysRepaid = juniorSecContract.totalDaysRepaid();
+  } else {
+    log.error("Unknown pool type for pool ID: {}", [poolId.toString()]);
+    return;
+  }
 
   // @Todo totalTokenSupply and tokenPrice change too
   pool.save();
@@ -197,13 +326,23 @@ function getLenderId(
   trancheAddress: Bytes,
   poolId: BigInt
 ): Bytes {
-  return Bytes.fromByteArray(crypto.keccak256(Bytes.fromHexString(
-    lenderAddress.toHexString().concat(poolId.toHexString()).concat("-").concat(trancheAddress.toHexString())
-  )));
+  return Bytes.fromByteArray(
+    crypto.keccak256(
+      Bytes.fromHexString(
+        lenderAddress
+          .toHexString()
+          .concat(poolId.toHexString())
+          .concat("-")
+          .concat(trancheAddress.toHexString())
+      )
+    )
+  );
 }
 
 function createSupplyTransaction(event: SupplyEvent): void {
-  let entity = new Transaction(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  let entity = new Transaction(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
   entity.pool = getPoolId(event.params.poolId);
   entity.lenderOrBorrower = event.params.supplier;
   entity.amount = event.params.amount;
@@ -217,7 +356,9 @@ function createSupplyTransaction(event: SupplyEvent): void {
 }
 
 function createRedeemTransaction(event: RedeemEvent): void {
-  let entity = new Transaction(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  let entity = new Transaction(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
   entity.pool = getPoolId(event.params.poolId);
   entity.lenderOrBorrower = event.params.receiver;
   entity.amount = event.params.currencyAmount;
@@ -239,12 +380,12 @@ export function getCurrencyFromPoolId(poolId: BigInt): Bytes {
   return poolAddresses.currency;
 }
 
-function getTrancheTypeFromAddress(
-  trancheAddress: Bytes
-): string {
+function getTrancheTypeFromAddress(trancheAddress: Bytes): string {
   let trancheContract = Tranche.load(trancheAddress);
   if (trancheContract == null) {
-    log.error("Tranche contract not found for address: {}", [trancheAddress.toHexString()]);
+    log.error("Tranche contract not found for address: {}", [
+      trancheAddress.toHexString(),
+    ]);
     return "UNKNOWN";
   }
   if (trancheContract.trancheType == TrancheType.JUNIOR) {
@@ -274,11 +415,12 @@ export function handleWhitelistOperatorDepend(call: DependCall): void {
   }
 
   poolAddresses!.save();
-  log.info("Updated pool addresses for poolId: {}, shelf: {}, investmentOperator: {}",
+  log.info(
+    "Updated pool addresses for poolId: {}, shelf: {}, investmentOperator: {}",
     [
       poolId.toString(),
       poolAddresses!.shelf.toHexString(),
-      poolAddresses!.investmentOperator.toHexString()
+      poolAddresses!.investmentOperator.toHexString(),
     ]
   );
 }

@@ -1419,61 +1419,43 @@ export class Pool extends Entity {
     this.set("totalWithdrawn", Value.fromBigInt(value));
   }
 
-  get outstandingShortfallInterestAmount(): BigInt | null {
+  get outstandingShortfallInterestAmount(): BigInt {
     let value = this.get("outstandingShortfallInterestAmount");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set outstandingShortfallInterestAmount(value: BigInt | null) {
-    if (!value) {
-      this.unset("outstandingShortfallInterestAmount");
-    } else {
-      this.set(
-        "outstandingShortfallInterestAmount",
-        Value.fromBigInt(<BigInt>value),
-      );
-    }
+  set outstandingShortfallInterestAmount(value: BigInt) {
+    this.set("outstandingShortfallInterestAmount", Value.fromBigInt(value));
   }
 
-  get outstandingShortfallPrincipalAmount(): BigInt | null {
+  get outstandingShortfallPrincipalAmount(): BigInt {
     let value = this.get("outstandingShortfallPrincipalAmount");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set outstandingShortfallPrincipalAmount(value: BigInt | null) {
-    if (!value) {
-      this.unset("outstandingShortfallPrincipalAmount");
-    } else {
-      this.set(
-        "outstandingShortfallPrincipalAmount",
-        Value.fromBigInt(<BigInt>value),
-      );
-    }
+  set outstandingShortfallPrincipalAmount(value: BigInt) {
+    this.set("outstandingShortfallPrincipalAmount", Value.fromBigInt(value));
   }
 
-  get servicerFeePaid(): BigInt | null {
+  get servicerFeePaid(): BigInt {
     let value = this.get("servicerFeePaid");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set servicerFeePaid(value: BigInt | null) {
-    if (!value) {
-      this.unset("servicerFeePaid");
-    } else {
-      this.set("servicerFeePaid", Value.fromBigInt(<BigInt>value));
-    }
+  set servicerFeePaid(value: BigInt) {
+    this.set("servicerFeePaid", Value.fromBigInt(value));
   }
 
   get addresses(): PoolAddressesLoader {
@@ -2216,6 +2198,91 @@ export class Tranche extends Entity {
 
   set transactionHash(value: Bytes) {
     this.set("transactionHash", Value.fromBytes(value));
+  }
+
+  get principalRepaid(): BigInt | null {
+    let value = this.get("principalRepaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set principalRepaid(value: BigInt | null) {
+    if (!value) {
+      this.unset("principalRepaid");
+    } else {
+      this.set("principalRepaid", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get interestRepaid(): BigInt | null {
+    let value = this.get("interestRepaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set interestRepaid(value: BigInt | null) {
+    if (!value) {
+      this.unset("interestRepaid");
+    } else {
+      this.set("interestRepaid", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get overduePrincipalAmount(): BigInt | null {
+    let value = this.get("overduePrincipalAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set overduePrincipalAmount(value: BigInt | null) {
+    if (!value) {
+      this.unset("overduePrincipalAmount");
+    } else {
+      this.set("overduePrincipalAmount", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get lastRepaidTimestamp(): BigInt | null {
+    let value = this.get("lastRepaidTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastRepaidTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("lastRepaidTimestamp");
+    } else {
+      this.set("lastRepaidTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get totalDaysRepaid(): BigInt | null {
+    let value = this.get("totalDaysRepaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalDaysRepaid(value: BigInt | null) {
+    if (!value) {
+      this.unset("totalDaysRepaid");
+    } else {
+      this.set("totalDaysRepaid", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 

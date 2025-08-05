@@ -31,6 +31,8 @@ dataSources:
           file: QiroFactory/Shelf.json
         - name: SecuritisationShelf
           file: QiroFactory/SecuritisationShelf.json
+        - name: SecuritisationTranche
+          file: QiroFactory/SecuritisationTranche.json
         - name: Tranche
           file: QiroFactory/Tranche.json
         - name: ERC20
@@ -181,10 +183,14 @@ templates:
           file: InvestmentOperator/InvestmentOperator.json
         - name: Tranche
           file: InvestmentOperator/Tranche.json
-        - name: ERC20
-          file: InvestmentOperator/ERC20.json
+        - name: SecuritisationTranche
+          file: InvestmentOperator/SecuritisationTranche.json
         - name: Shelf
           file: InvestmentOperator/Shelf.json
+        - name: SecuritisationShelf
+          file: InvestmentOperator/SecuritisationShelf.json
+        - name: ERC20
+          file: InvestmentOperator/ERC20.json
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
@@ -245,7 +251,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates/Shelf/Shelf.wasm
+      file: templates/SecuritisationShelf/SecuritisationShelf.wasm
       entities:
         - LoanStarted
         - LoanEnded
@@ -256,25 +262,23 @@ templates:
       abis:
         - name: SecuritisationShelf
           file: SecuritisationShelf/SecuritisationShelf.json
-        - name: Shelf
-          file: SecuritisationShelf/Shelf.json
+        - name: SecuritisationTranche
+          file: SecuritisationShelf/SecuritisationTranche.json
         - name: ERC20
           file: SecuritisationShelf/ERC20.json
         - name: WhitelistOperator
           file: SecuritisationShelf/WhitelistOperator.json
-        - name: Tranche
-          file: SecuritisationShelf/Tranche.json
       eventHandlers:
         - event: LoanStarted(uint256,address,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleLoanStartedSecuritisationShelf
         - event: LoanEnded(uint256,address,uint256,uint256,uint256)
-          handler: handleLoanEnded
+          handler: handleLoanEndedSecuritisationShelf
         - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
-          handler: handleLoanRepayed
+          handler: handleLoanRepayedSecuritisationShelf
         - event: LoanWithdrawn(uint256,address,address,uint256,uint256)
-          handler: handleLoanWithdrawn
+          handler: handleLoanWithdrawnSecuritisationShelf
         - event: OriginatorFeePaid(uint256,address,address,uint256)
-          handler: handleOriginatorFeePaid
+          handler: handleOriginatorFeePaidSecuritisationShelf
       callHandlers:
         - function: file(bytes32,address)
           handler: handleShelfFile

@@ -18,6 +18,7 @@ import { WhitelistOperator } from "../generated/templates/WhitelistOperator/Whit
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
 import { SecuritisationShelf as SecuritisationShelfContract } from "../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
+import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import {
   getPoolId,
@@ -349,50 +350,108 @@ function handlePool(
 
   poolAddresses.save();
 
-  let junTrancheContract = TrancheContract.bind(juniorTranch);
-  let senTrancheContract = TrancheContract.bind(seniorTranch);
-  let junTokenContract = ERC20.bind(junTrancheContract.token());
-  let senTokenContract = ERC20.bind(operator.seniorToken());
+  // Dynamic contract binding based on pool type
+  let junTrancheContract: TrancheContract | null = null;
+  let senTrancheContract: TrancheContract | null = null;
+  let junSecTrancheContract: SecuritisationTrancheContract | null = null;
+  let senSecTrancheContract: SecuritisationTrancheContract | null = null;
+
+  if (poolType == PoolType.LOAN) {
+    junTrancheContract = TrancheContract.bind(juniorTranch);
+    senTrancheContract = TrancheContract.bind(seniorTranch);
+  } else if (poolType == PoolType.SECURITISATION) {
+    junSecTrancheContract = SecuritisationTrancheContract.bind(juniorTranch);
+    senSecTrancheContract = SecuritisationTrancheContract.bind(seniorTranch);
+  } else {
+    // Default fallback (should not happen)
+    log.error("Unknown pool type for pool ID: {}", [poolId.toString()]);
+    return;
+  }
 
   let seniorTranche = new Tranche(seniorTranch);
   let juniorTranche = new Tranche(juniorTranch);
 
+  // Common fields for both tranche types
   juniorTranche.pool = pool.pool;
   juniorTranche.trancheType = TrancheType.JUNIOR;
-  juniorTranche.tokenAddress = junTrancheContract.token();
-  juniorTranche.balance = junTrancheContract.balance();
-  juniorTranche.totalTokenSupply = junTrancheContract.tokenSupply();
-  juniorTranche.tokenName = junTokenContract.name();
-  juniorTranche.tokenSymbol = junTokenContract.symbol();
-  juniorTranche.tokenDecimals = junTokenContract.decimals();
   juniorTranche.totalInvested = operator.totalDepositCurrencyJunior();
   juniorTranche.totalRedeemed = operator.totalRedeemedCurrencyJunior();
-  juniorTranche.totalRepaid = junTrancheContract.try_totalRepayedAmount()
-    .reverted
-    ? BigInt.fromI32(0)
-    : junTrancheContract.totalRepayedAmount();
   juniorTranche.ceiling = operator.juniorTrancheCeiling();
   juniorTranche.blockTimestamp = pool.blockTimestamp;
   juniorTranche.transactionHash = pool.transactionHash;
+
+  // Contract-specific fields based on pool type
+  if (poolType == PoolType.LOAN) {
+    let junTokenContract = ERC20.bind(junTrancheContract!.token());
+    juniorTranche.tokenAddress = junTrancheContract!.token();
+    juniorTranche.balance = junTrancheContract!.balance();
+    juniorTranche.totalTokenSupply = junTrancheContract!.tokenSupply();
+    juniorTranche.tokenName = junTokenContract.name();
+    juniorTranche.tokenSymbol = junTokenContract.symbol();
+    juniorTranche.tokenDecimals = junTokenContract.decimals();
+    juniorTranche.totalRepaid = junTrancheContract!.totalRepayedAmount();
+  } else if (poolType == PoolType.SECURITISATION) {
+    let junTokenContract = ERC20.bind(junSecTrancheContract!.token());
+    juniorTranche.tokenAddress = junSecTrancheContract!.token();
+    juniorTranche.balance = junSecTrancheContract!.balance();
+    juniorTranche.totalTokenSupply = junSecTrancheContract!.tokenSupply();
+    juniorTranche.tokenName = junTokenContract.name();
+    juniorTranche.tokenSymbol = junTokenContract.symbol();
+    juniorTranche.tokenDecimals = junTokenContract.decimals();
+    // For SECURITISATION, totalRepaid is sum of principalRepaid + interestRepaid
+    juniorTranche.principalRepaid = junSecTrancheContract!.principalRepaid();
+    juniorTranche.interestRepaid = junSecTrancheContract!.interestRepaid();
+    juniorTranche.overduePrincipalAmount =
+      junSecTrancheContract!.overduePrincipalAmount();
+    juniorTranche.lastRepaidTimestamp =
+      junSecTrancheContract!.lastRepaidTimestamp();
+    juniorTranche.totalDaysRepaid = junSecTrancheContract!.totalDaysRepaid();
+    juniorTranche.totalRepaid = juniorTranche.principalRepaid!.plus(
+      juniorTranche.interestRepaid!
+    );
+  }
+
   juniorTranche.save();
 
+  // Common fields for senior tranche
   seniorTranche.pool = pool.pool;
   seniorTranche.trancheType = TrancheType.SENIOR;
   seniorTranche.tokenAddress = operator.seniorToken();
-  seniorTranche.balance = senTrancheContract.balance();
-  seniorTranche.totalTokenSupply = senTrancheContract.tokenSupply();
-  seniorTranche.tokenName = senTokenContract.name();
-  seniorTranche.tokenSymbol = senTokenContract.symbol();
-  seniorTranche.tokenDecimals = senTokenContract.decimals();
   seniorTranche.totalInvested = operator.totalDepositCurrencySenior();
   seniorTranche.totalRedeemed = operator.totalRedeemedCurrencySenior();
-  seniorTranche.totalRepaid = senTrancheContract.try_totalRepayedAmount()
-    .reverted
-    ? BigInt.fromI32(0)
-    : senTrancheContract.totalRepayedAmount();
   seniorTranche.ceiling = operator.seniorTrancheCeiling();
   seniorTranche.blockTimestamp = pool.blockTimestamp;
   seniorTranche.transactionHash = pool.transactionHash;
+
+  // Contract-specific fields for senior tranche based on pool type
+  if (poolType == PoolType.LOAN) {
+    let senTokenContract = ERC20.bind(operator.seniorToken());
+    seniorTranche.balance = senTrancheContract!.balance();
+    seniorTranche.totalTokenSupply = senTrancheContract!.tokenSupply();
+    seniorTranche.tokenName = senTokenContract.name();
+    seniorTranche.tokenSymbol = senTokenContract.symbol();
+    seniorTranche.tokenDecimals = senTokenContract.decimals();
+    seniorTranche.totalRepaid = senTrancheContract!.totalRepayedAmount();
+  } else if (poolType == PoolType.SECURITISATION) {
+    let senTokenContract = ERC20.bind(operator.seniorToken());
+    seniorTranche.balance = senSecTrancheContract!.balance();
+    seniorTranche.totalTokenSupply = senSecTrancheContract!.tokenSupply();
+    seniorTranche.tokenName = senTokenContract.name();
+    seniorTranche.tokenSymbol = senTokenContract.symbol();
+    seniorTranche.tokenDecimals = senTokenContract.decimals();
+    // For SECURITISATION, totalRepaid is sum of principalRepaid + interestRepaid
+    seniorTranche.principalRepaid = senSecTrancheContract!.principalRepaid();
+    seniorTranche.interestRepaid = senSecTrancheContract!.interestRepaid();
+    seniorTranche.overduePrincipalAmount =
+      senSecTrancheContract!.overduePrincipalAmount();
+    seniorTranche.lastRepaidTimestamp =
+      senSecTrancheContract!.lastRepaidTimestamp();
+    seniorTranche.totalDaysRepaid = senSecTrancheContract!.totalDaysRepaid();
+    seniorTranche.totalRepaid = seniorTranche.principalRepaid!.plus(
+      seniorTranche.interestRepaid!
+    );
+  }
+
   seniorTranche.save();
 
   // creates the borrower entity if it does not exist

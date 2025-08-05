@@ -207,6 +207,12 @@ type Tranche @entity(immutable: false) {
   ceiling: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  # SecuritisationTranche-specific fields (optional - will be null for Loan Tranches)
+  principalRepaid: BigInt # uint256
+  interestRepaid: BigInt # uint256
+  overduePrincipalAmount: BigInt # uint256
+  lastRepaidTimestamp: BigInt # uint256
+  totalDaysRepaid: BigInt # uint256
 } # done
 type LoanStarted @entity(immutable: false) {
   id: Bytes!
