@@ -386,7 +386,7 @@ export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
   let securitisationShelf = SecuritisationShelf.bind(call.to);
   let poolId = securitisationShelf.poolId();
 
-  let poolAddresses = PoolAddresses.load(getPoolId(poolId));
+  let poolAddresses = getPoolAddresses(poolId);
 
   if (call.inputs.contractName.toString() == "lender") {
     // whitelist operator

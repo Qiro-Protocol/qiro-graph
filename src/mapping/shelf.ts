@@ -302,7 +302,7 @@ export function handleShelfDepend(call: DependCall): void {
   let shelf = Shelf.bind(call.to);
   let poolId = shelf.poolId();
 
-  let poolAddresses = PoolAddresses.load(getPoolId(poolId));
+  let poolAddresses = getPoolAddresses(poolId);
 
   if (call.inputs.contractName.toString() == "lender") {
     // whitelist operator
