@@ -127,6 +127,9 @@ type Pool @entity(immutable: false) {
   outstandingShortfallInterestAmount: BigInt! # uint256
   outstandingShortfallPrincipalAmount: BigInt! # uint256
   servicerFeePaid: BigInt! # uint256
+  # reserve related fields
+  reserveBalance: BigInt! # uint256 - balance() from reserve contract
+  eisBalance: BigInt! # uint256 - eisBalance from reserve contract
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")
@@ -152,7 +155,7 @@ type PoolAddresses @entity(immutable: false) {
   seniorToken: Bytes! # address
   juniorToken: Bytes! # address
   root: Bytes! # address
-  # add more addresses as needed
+  reserve: Bytes! # address
 } # done
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!

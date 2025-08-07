@@ -37,6 +37,10 @@ dataSources:
           file: ./abis/Tranche.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: Reserve
+          file: ./abis/Reserve.json
+        - name: SecuritisationReserve
+          file: ./abis/SecuritisationReserve.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
@@ -218,6 +222,8 @@ templates:
           file: ./abis/Shelf.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: Reserve
+          file: ./abis/Reserve.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
         - name: Tranche
@@ -266,6 +272,8 @@ templates:
           file: ./abis/SecuritisationTranche.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: SecuritisationReserve
+          file: ./abis/SecuritisationReserve.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
       eventHandlers:

@@ -35,6 +35,7 @@ import {
 } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
+import { SecuritisationReserve } from "../../generated/QiroFactory/SecuritisationReserve";
 import { getOrCreateCurrency } from "../qiro-factory";
 
 export function handleLoanStartedSecuritisationShelf(
@@ -246,6 +247,12 @@ export function handleLoanRepayedSecuritisationShelf(
   pool!.outstandingShortfallPrincipalAmount =
     securitisationShelfContract.outstandingShortfallPrincipalAmount();
   pool!.servicerFeePaid = securitisationShelfContract.servicerFeePaid();
+  // Update reserve balance and EIS balance
+  let reserveContract = SecuritisationReserve.bind(
+    Address.fromBytes(poolAddresses!.reserve)
+  );
+  pool!.reserveBalance = reserveContract.balance();
+  pool!.eisBalance = reserveContract.eisBalance();
 
   pool!.save();
 
@@ -397,7 +404,7 @@ export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
     poolAddresses!.currency = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "reserve") {
     // reserve
-    // do nothing as reserve is not stored in the subgraph
+    poolAddresses!.reserve = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "nft") {
     poolAddresses!.nftContractAddress = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "distributor") {

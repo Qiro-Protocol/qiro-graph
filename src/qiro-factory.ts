@@ -323,6 +323,9 @@ function handlePool(
       securitisationShelfContract!.outstandingShortfallPrincipalAmount();
     entity.servicerFeePaid = securitisationShelfContract!.servicerFeePaid();
   }
+  // Initialize reserve-related fields (will be updated when reserve is set via depend call)
+  entity.reserveBalance = BigInt.fromI32(0);
+  entity.eisBalance = BigInt.fromI32(0);
   entity.save();
 
   let currency = getOrCreateCurrency(qiroFactoryCurrency);
@@ -344,8 +347,10 @@ function handlePool(
   // Contract-specific fields
   if (poolType == PoolType.LOAN) {
     poolAddresses.nftContractAddress = shelfContract!.assetNFT();
+    poolAddresses.reserve = shelfContract!.reserve();
   } else if (poolType == PoolType.SECURITISATION) {
     poolAddresses.nftContractAddress = securitisationShelfContract!.assetNFT();
+    poolAddresses.reserve = securitisationShelfContract!.reserve();
   }
 
   poolAddresses.save();

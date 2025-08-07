@@ -37,6 +37,10 @@ dataSources:
           file: QiroFactory/Tranche.json
         - name: ERC20
           file: QiroFactory/ERC20.json
+        - name: Reserve
+          file: QiroFactory/Reserve.json
+        - name: SecuritisationReserve
+          file: QiroFactory/SecuritisationReserve.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
@@ -218,6 +222,8 @@ templates:
           file: Shelf/Shelf.json
         - name: ERC20
           file: Shelf/ERC20.json
+        - name: Reserve
+          file: Shelf/Reserve.json
         - name: WhitelistOperator
           file: Shelf/WhitelistOperator.json
         - name: Tranche
@@ -266,6 +272,8 @@ templates:
           file: SecuritisationShelf/SecuritisationTranche.json
         - name: ERC20
           file: SecuritisationShelf/ERC20.json
+        - name: SecuritisationReserve
+          file: SecuritisationShelf/SecuritisationReserve.json
         - name: WhitelistOperator
           file: SecuritisationShelf/WhitelistOperator.json
       eventHandlers:

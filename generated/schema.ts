@@ -1458,6 +1458,32 @@ export class Pool extends Entity {
     this.set("servicerFeePaid", Value.fromBigInt(value));
   }
 
+  get reserveBalance(): BigInt {
+    let value = this.get("reserveBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set reserveBalance(value: BigInt) {
+    this.set("reserveBalance", Value.fromBigInt(value));
+  }
+
+  get eisBalance(): BigInt {
+    let value = this.get("eisBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set eisBalance(value: BigInt) {
+    this.set("eisBalance", Value.fromBigInt(value));
+  }
+
   get addresses(): PoolAddressesLoader {
     return new PoolAddressesLoader(
       "Pool",
@@ -1730,6 +1756,19 @@ export class PoolAddresses extends Entity {
 
   set root(value: Bytes) {
     this.set("root", Value.fromBytes(value));
+  }
+
+  get reserve(): Bytes {
+    let value = this.get("reserve");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set reserve(value: Bytes) {
+    this.set("reserve", Value.fromBytes(value));
   }
 }
 

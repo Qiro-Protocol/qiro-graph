@@ -195,6 +195,12 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     .totalDepositCurrencyJunior()
     .plus(operator.totalDepositCurrencySenior());
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+  // For regular Reserve, get balance from currency contract
+  pool!.reserveBalance = currencyContract.balanceOf(
+    Address.fromBytes(poolAddresses!.reserve)
+  );
+  // Regular Reserve doesn't have eisBalance, set to 0
+  pool!.eisBalance = BigInt.fromI32(0);
 
   pool!.save();
 
@@ -314,7 +320,7 @@ export function handleShelfDepend(call: DependCall): void {
     poolAddresses!.currency = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "reserve") {
     // reserve
-    // do nothing as reserve is not stored in the subgraph
+    poolAddresses!.reserve = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "nft") {
     poolAddresses!.nftContractAddress = call.inputs.addr;
   } else if (call.inputs.contractName.toString() == "distributor") {
