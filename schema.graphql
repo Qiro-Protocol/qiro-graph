@@ -13,7 +13,6 @@ type PoolDeployed @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
-
 type SupplyRedeem @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -30,7 +29,6 @@ type SupplyRedeem @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
-
 enum PoolStatus {
   CAPITAL_FORMATION
   PENDING
@@ -59,7 +57,6 @@ type FactoryOwnershipTransferred @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
-
 type QiroFactory @entity(immutable: false) {
   id: Bytes!
   shelfFab: Bytes! # address
@@ -78,7 +75,6 @@ type QiroFactory @entity(immutable: false) {
   nftContractAddress: Bytes! # address
   currency: Bytes! # address
 } # done
-
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
@@ -128,6 +124,12 @@ type Pool @entity(immutable: false) {
   seniorTranche: Tranche!
   nftTokenId: BigInt! # uint256
   totalWithdrawn: BigInt! # uint256
+  outstandingShortfallInterestAmount: BigInt! # uint256
+  outstandingShortfallPrincipalAmount: BigInt! # uint256
+  servicerFeePaid: BigInt! # uint256
+  # reserve related fields
+  reserveBalance: BigInt! # uint256 - balance() from reserve contract
+  eisBalance: BigInt! # uint256 - eisBalance from reserve contract
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")
@@ -153,16 +155,14 @@ type PoolAddresses @entity(immutable: false) {
   seniorToken: Bytes! # address
   juniorToken: Bytes! # address
   root: Bytes! # address
-  # add more addresses as needed
+  reserve: Bytes! # address
 } # done
-
 type PoolCurrency @entity(immutable: false) {
   id: Bytes!
   address: Bytes! # address
   symbol: String!
   decimals: Int!
 } # done
-
 enum TrancheType {
   JUNIOR
   SENIOR
@@ -210,8 +210,13 @@ type Tranche @entity(immutable: false) {
   ceiling: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  # SecuritisationTranche-specific fields (optional - will be null for Loan Tranches)
+  principalRepaid: BigInt # uint256
+  interestRepaid: BigInt # uint256
+  overduePrincipalAmount: BigInt # uint256
+  lastRepaidTimestamp: BigInt # uint256
+  totalDaysRepaid: BigInt # uint256
 } # done
-
 type LoanStarted @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -219,7 +224,6 @@ type LoanStarted @entity(immutable: false) {
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
-
 type LoanEnded @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -227,7 +231,6 @@ type LoanEnded @entity(immutable: false) {
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
-
 type LoanRepayed @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -242,7 +245,6 @@ type LoanRepayed @entity(immutable: false) {
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
-
 type LoanWithdrawn @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -253,7 +255,6 @@ type LoanWithdrawn @entity(immutable: false) {
   blockNumber: BigInt!
   transactionHash: Bytes!
 } #done
-
 type Lender @entity(immutable: false) {
   id: Bytes! # lenderAddress+poolId+trancheAddress
   address: Bytes! # address
@@ -267,13 +268,11 @@ type Lender @entity(immutable: false) {
   tokensRedeem: BigInt # uint256 # tranche level
   trancheTokenBalance: BigInt # uint256 # tranche level
 } #done
-
 type Borrower @entity(immutable: false) {
   id: Bytes!
   poolsBorrowedFrom: [Pool!] @derivedFrom(field: "borrower")
   blockTimestamp: BigInt!
 } #done
-
 # these are not included in implementation yet
 type Rely @entity(immutable: false) {
   id: Bytes!
@@ -328,7 +327,7 @@ type NFTMinted @entity(immutable: false) {
 # _______________ Compute Subscription Schema _______________
 # ___________________________________________________________
 
-type ComputeSubscription @entity {
+type ComputeSubscription @entity(immutable: false) {
   id: Bytes!
   subscriptionId: BigInt!
   tokenId: BigInt!
@@ -342,7 +341,7 @@ type ComputeSubscription @entity {
   average_exposure_at_default: BigInt!
 }
 
-type SubscriptionResponse @entity {
+type SubscriptionResponse @entity(immutable: false) {
   id: Bytes!
   subscription: ComputeSubscription!
   output: Bytes!
@@ -358,7 +357,7 @@ type SubscriptionResponse @entity {
   transactionHash: Bytes!
 }
 
-type MonitoringSubscription @entity {
+type MonitoringSubscription @entity(immutable: false) {
   id: Bytes!
   subscriptionId: BigInt!
   blockTimestamp: BigInt!
@@ -367,7 +366,7 @@ type MonitoringSubscription @entity {
     @derivedFrom(field: "subscription")
 }
 
-type MonitoringResponse @entity {
+type MonitoringResponse @entity(immutable: false) {
   id: Bytes!
   subscription: MonitoringSubscription!
   output: Bytes!
@@ -414,8 +413,8 @@ type UpdateNftData @entity(immutable: false) {
 
 # todo: @rahul7668gupta add entity to index all other data
 
-type ConsumerCoordinatorPair @entity {
-  id: ID!    
-  consumer: Bytes!   
-  coordinator: Bytes! 
+type ConsumerCoordinatorPair @entity(immutable: false) {
+  id: ID!
+  consumer: Bytes!
+  coordinator: Bytes!
 }
