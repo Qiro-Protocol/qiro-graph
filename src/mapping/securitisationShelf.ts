@@ -300,7 +300,7 @@ export function handleOriginatorFeePaidSecuritisationShelf(
 export function getPool(poolId: BigInt): Pool | null {
   let pool = Pool.load(getPoolId(poolId));
   if (pool == null) {
-    log.error("Pool not found for ID: {}", [poolId.toHexString()]);
+    log.error("Pool not found for ID: {}", [poolId.toString()]);
     return null;
   }
   return pool;
@@ -309,7 +309,7 @@ export function getPool(poolId: BigInt): Pool | null {
 export function getPoolAddresses(poolId: BigInt): PoolAddresses | null {
   let poolAddresses = PoolAddresses.load(getPoolId(poolId));
   if (poolAddresses == null) {
-    log.error("Pool not found for ID: {}", [poolId.toHexString()]);
+    log.error("Pool not found for ID: {}", [poolId.toString()]);
     return null;
   }
   return poolAddresses;
@@ -376,7 +376,7 @@ export function handleShelfFile(call: FileCallSecuritisationShelf): void {
   pool!.save();
 
   log.info("Updated pool {} with what: {}, data: {}", [
-    poolId.toHexString(),
+    poolId.toString(),
     call.inputs.what.toString(),
     call.inputs.data.toString(),
   ]);
@@ -422,7 +422,7 @@ export function handleShelfPaused(call: PauseCallSecuritisationShelf): void {
     pool.isShelfPaused = true;
     pool.save();
   } else {
-    log.warning("Pool not found for ID: {}", [poolId.toHexString()]);
+    log.warning("Pool not found for ID: {}", [poolId.toString()]);
   }
 }
 
@@ -435,6 +435,6 @@ export function handleShelfUnpaused(
     pool.isShelfPaused = false;
     pool.save();
   } else {
-    log.warning("Pool not found for ID: {}", [poolId.toHexString()]);
+    log.warning("Pool not found for ID: {}", [poolId.toString()]);
   }
 }
