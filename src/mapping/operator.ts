@@ -326,15 +326,12 @@ function getLenderId(
   trancheAddress: Bytes,
   poolId: BigInt
 ): Bytes {
+  // Simply concatenate the bytes directly without string conversion
   return Bytes.fromByteArray(
     crypto.keccak256(
-      Bytes.fromHexString(
-        lenderAddress
-          .toHexString()
-          .concat(poolId.toHexString())
-          .concat("-")
-          .concat(trancheAddress.toHexString())
-      )
+      lenderAddress
+        .concat(Bytes.fromByteArray(ByteArray.fromBigInt(poolId)))
+        .concat(trancheAddress)
     )
   );
 }
