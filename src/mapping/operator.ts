@@ -4,7 +4,7 @@ import {
 } from "../../generated/templates/WhitelistOperator/InvestmentOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../../generated/QiroFactory/SecuritisationTranche";
-import { WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
+import { UpdatedPoolState, WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
 import { Shelf as ShelfContract } from "../../generated/QiroFactory/Shelf";
 import { SecuritisationShelf as SecuritisationShelfContract } from "../../generated/QiroFactory/SecuritisationShelf";
 import {
@@ -440,4 +440,13 @@ export function handleWhitelistOperatorUnpaused(call: UnpauseCall): void {
   pool!.isOperatorPaused = false;
   pool!.save();
   log.info("Whitelist operator unpaused for poolId: {}", [poolId.toString()]);
+}
+
+export function handleWhitelistOperatorUpdateState(event: UpdatedPoolState): void {
+  let poolId = event.params.poolId;
+  let pool = getPool(poolId);
+
+  pool!.poolStatus = getPoolStatusString(BigInt.fromI32(event.params.state));
+  pool!.save();
+  log.info("Whitelist operator updated state for poolId: {}", [poolId.toString()]);
 }

@@ -167,6 +167,9 @@ templates:
           handler: handleWhitelistOperatorPaused
         - function: unpause()
           handler: handleWhitelistOperatorUnpaused
+      eventHandlers:
+        - event: UpdatedPoolState(uint256,uint8)
+          handler: handleWhitelistOperatorUpdateState
   - name: InvestmentOperator
     kind: ethereum/contract
     network: polygon-amoy
