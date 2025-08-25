@@ -48,6 +48,14 @@ dataSources:
           handler: handleFactoryCreated
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleFactoryOwnershipTransferred
+        - event: ProtocolPaused(indexed address)
+          handler: handleProtocolPaused
+        - event: ProtocolUnpaused(indexed address)
+          handler: handleProtocolUnpaused
+        - event: PoolsPaused(indexed address,uint256)
+          handler: handlePoolsPaused
+        - event: PoolsUnpaused(indexed address,uint256)
+          handler: handlePoolsUnpaused
       callHandlers:
         - function: file(bytes32,address)
           handler: handleFactoryFile
@@ -163,10 +171,6 @@ templates:
       callHandlers:
         - function: depend(bytes32,address)
           handler: handleWhitelistOperatorDepend
-        - function: pause()
-          handler: handleWhitelistOperatorPaused
-        - function: unpause()
-          handler: handleWhitelistOperatorUnpaused
       eventHandlers:
         - event: UpdatedPoolState(uint256,uint8)
           handler: handleWhitelistOperatorUpdateState
@@ -247,10 +251,6 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
-        - function: pause()
-          handler: handleShelfPaused
-        - function: unpause()
-          handler: handleShelfUnpaused
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: polygon-amoy
@@ -295,7 +295,3 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
-        - function: pause()
-          handler: handleShelfPaused
-        - function: unpause()
-          handler: handleShelfUnpaused

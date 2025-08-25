@@ -6,8 +6,6 @@ import {
   OriginatorFeePaid,
   FileCall,
   DependCall,
-  PauseCall,
-  UnpauseCall,
 } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator";
 import {
@@ -331,24 +329,4 @@ export function handleShelfDepend(call: DependCall): void {
   poolAddresses!.save();
 }
 
-export function handleShelfPaused(call: PauseCall): void {
-  let poolId = Shelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = true;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}
 
-export function handleShelfUnpaused(call: UnpauseCall): void {
-  let poolId = Shelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = false;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}

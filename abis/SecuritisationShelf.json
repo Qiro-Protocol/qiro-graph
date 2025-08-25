@@ -242,6 +242,13 @@
   },
   {
     "type": "function",
+    "name": "exitFunds",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "file",
     "inputs": [
       {
@@ -413,6 +420,19 @@
   },
   {
     "type": "function",
+    "name": "originatorFeePaid",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "originatorFeePaidAmount",
     "inputs": [],
     "outputs": [
@@ -478,15 +498,14 @@
   },
   {
     "type": "function",
-    "name": "pause",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "paused",
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
     "outputs": [
       {
         "name": "",
@@ -704,16 +723,16 @@
   },
   {
     "type": "function",
-    "name": "takeOriginatorFee",
+    "name": "takeFeeFromPrincipal",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -810,13 +829,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "unpause",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -1105,19 +1117,6 @@
   },
   {
     "type": "event",
-    "name": "Paused",
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "Rely",
     "inputs": [
       {
@@ -1130,21 +1129,8 @@
     "anonymous": false
   },
   {
-    "type": "event",
-    "name": "Unpaused",
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
     "type": "error",
-    "name": "EnforcedPause",
+    "name": "AddressZero",
     "inputs": []
   },
   {
@@ -1159,8 +1145,14 @@
   },
   {
     "type": "error",
-    "name": "ExpectedPause",
-    "inputs": []
+    "name": "ExpectedPausedState",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
   },
   {
     "type": "error",
@@ -1234,7 +1226,12 @@
   },
   {
     "type": "error",
-    "name": "NotSuperAdmin",
+    "name": "OnlyExitManager",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OperatorNotInPendingState",
     "inputs": []
   },
   {
@@ -1264,6 +1261,22 @@
   },
   {
     "type": "error",
+    "name": "PoolPaused",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ProtocolPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "ReentrancyGuardReentrantCall",
     "inputs": []
   },
@@ -1277,11 +1290,6 @@
         "internalType": "address"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "ZeroFeeAmount",
-    "inputs": []
   },
   {
     "type": "error",

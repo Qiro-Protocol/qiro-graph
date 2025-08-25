@@ -34,6 +34,10 @@ import {
   FileCall,
   OwnershipTransferred,
   PoolDeployed as PoolDeployedEvent,
+  ProtocolPaused,
+  ProtocolUnpaused,
+  PoolsPaused,
+  PoolsUnpaused,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -56,6 +60,7 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.poolCount = qiroFactory.poolCount();
   entity.nftContractAddress = qiroFactory.qiroAssetNFT();
   entity.currency = qiroFactory.currency();
+  entity.protocolPaused = false; // Initialize as not paused
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
@@ -279,7 +284,7 @@ function handlePool(
     entity.isBullet = false; // Securitisation does not have bullet repay
   }
   entity.poolType = getPoolTypeString(factoryPool.getPoolType());
-  entity.isOperatorPaused = operator.paused();
+  entity.isPaused = false; // Initialize as not paused
   entity.blockNumber = pool.blockNumber;
   entity.blockTimestamp = pool.blockTimestamp;
   entity.transactionHash = pool.transactionHash;
@@ -292,7 +297,6 @@ function handlePool(
 
   // Contract-specific fields
   if (poolType == PoolType.LOAN) {
-    entity.isShelfPaused = shelfContract!.paused();
     entity.borrower = shelfContract!.borrower();
     entity.originatorFeePaid = shelfContract!.originatorFeePaidAmount();
     entity.pStartFrom = shelfContract!.pStartFrom();
@@ -305,7 +309,6 @@ function handlePool(
     entity.outstandingShortfallPrincipalAmount = BigInt.fromI32(0);
     entity.servicerFeePaid = BigInt.fromI32(0);
   } else if (poolType == PoolType.SECURITISATION) {
-    entity.isShelfPaused = securitisationShelfContract!.paused();
     entity.borrower = securitisationShelfContract!.borrower();
     entity.originatorFeePaid =
       securitisationShelfContract!.originatorFeePaidAmount();
@@ -474,4 +477,45 @@ function getOrCreateBorrower(
     borrower.save();
   }
   return borrower;
+}
+
+// PAUSE HANDLERS
+export function handleProtocolPaused(event: ProtocolPaused): void {
+  let factory = QiroFactory.load(event.address);
+  if (factory != null) {
+    factory.protocolPaused = true;
+    factory.blockTimestamp = event.block.timestamp;
+    factory.transactionHash = event.transaction.hash;
+    factory.save();
+  }
+}
+
+export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
+  let factory = QiroFactory.load(event.address);
+  if (factory != null) {
+    factory.protocolPaused = false;
+    factory.blockTimestamp = event.block.timestamp;
+    factory.transactionHash = event.transaction.hash;
+    factory.save();
+  }
+}
+
+export function handlePoolsPaused(event: PoolsPaused): void {
+  let pool = Pool.load(getPoolId(event.params.poolId));
+  if (pool != null) {
+    pool.isPaused = true;
+    pool.blockTimestamp = event.block.timestamp;
+    pool.transactionHash = event.transaction.hash;
+    pool.save();
+  }
+}
+
+export function handlePoolsUnpaused(event: PoolsUnpaused): void {
+  let pool = Pool.load(getPoolId(event.params.poolId));
+  if (pool != null) {
+    pool.isPaused = false;
+    pool.blockTimestamp = event.block.timestamp;
+    pool.transactionHash = event.transaction.hash;
+    pool.save();
+  }
 }

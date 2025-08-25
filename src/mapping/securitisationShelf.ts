@@ -6,8 +6,6 @@ import {
   OriginatorFeePaid as OriginatorFeePaidSecuritisationShelf,
   FileCall as FileCallSecuritisationShelf,
   DependCall as DependCallSecuritisationShelf,
-  PauseCall as PauseCallSecuritisationShelf,
-  UnpauseCall as UnpauseCallSecuritisationShelf,
 } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
@@ -415,26 +413,4 @@ export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
   poolAddresses!.save();
 }
 
-export function handleShelfPaused(call: PauseCallSecuritisationShelf): void {
-  let poolId = SecuritisationShelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = true;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}
 
-export function handleShelfUnpaused(
-  call: UnpauseCallSecuritisationShelf
-): void {
-  let poolId = SecuritisationShelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = false;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}
