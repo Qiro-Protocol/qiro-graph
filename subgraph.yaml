@@ -8,7 +8,7 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xA74cCbc79d741b32d55F7A02eb27900a5C2004B8"
+      address: "0x11ed0d6A2C84C861Eb77f1631272BED06D677758"
       abi: QiroFactory
       startBlock: 23969317
     mapping:
@@ -112,7 +112,7 @@ dataSources:
     name: "QiroNft"
     network: polygon-amoy
     source:
-      address: "0x5AA3F4b58A7D654C1300579dF3040592e7118Eb8"
+      address: "0x063546dfC2010dAD409d67AeA918399abF2c9b60"
       abi: QiroNft
       startBlock: 23969316
     mapping:

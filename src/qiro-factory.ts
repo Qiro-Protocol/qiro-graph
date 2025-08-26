@@ -484,8 +484,6 @@ export function handleProtocolPaused(event: ProtocolPaused): void {
   let factory = QiroFactory.load(event.address);
   if (factory != null) {
     factory.protocolPaused = true;
-    factory.blockTimestamp = event.block.timestamp;
-    factory.transactionHash = event.transaction.hash;
     factory.save();
   }
 }
@@ -494,8 +492,6 @@ export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
   let factory = QiroFactory.load(event.address);
   if (factory != null) {
     factory.protocolPaused = false;
-    factory.blockTimestamp = event.block.timestamp;
-    factory.transactionHash = event.transaction.hash;
     factory.save();
   }
 }
@@ -504,8 +500,6 @@ export function handlePoolsPaused(event: PoolsPaused): void {
   let pool = Pool.load(getPoolId(event.params.poolId));
   if (pool != null) {
     pool.isPaused = true;
-    pool.blockTimestamp = event.block.timestamp;
-    pool.transactionHash = event.transaction.hash;
     pool.save();
   }
 }
@@ -514,8 +508,6 @@ export function handlePoolsUnpaused(event: PoolsUnpaused): void {
   let pool = Pool.load(getPoolId(event.params.poolId));
   if (pool != null) {
     pool.isPaused = false;
-    pool.blockTimestamp = event.block.timestamp;
-    pool.transactionHash = event.transaction.hash;
     pool.save();
   }
 }
