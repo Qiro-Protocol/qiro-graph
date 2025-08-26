@@ -16,6 +16,7 @@ import {
   Pool,
   PoolAddresses,
   Transaction,
+  Tranche as TrancheEntity,
 } from "../../generated/schema";
 import { BigInt, log, Address } from "@graphprotocol/graph-ts";
 import { InvestmentOperator } from "../../generated/templates";
@@ -74,6 +75,31 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
   poolObject!.nftTokenId = shelfContract.token().value1;
   poolObject!.save();
+
+  let seniorTranche = TrancheEntity.load(poolAddresses!.seniorTranche);
+  let juniorTranche = TrancheEntity.load(poolAddresses!.juniorTranche);
+  if (seniorTranche) {
+    seniorTranche.balance = currencyContract.balanceOf(
+      Address.fromBytes(poolAddresses!.seniorTranche)
+    );
+    seniorTranche.save();
+  } else {
+    // fail
+    log.error("Senior tranche not found for pool: {}", [
+      poolObject!.id.toString(),
+    ]);
+  }
+  if (juniorTranche) {
+    juniorTranche.balance = currencyContract.balanceOf(
+      Address.fromBytes(poolAddresses!.juniorTranche)
+    );
+    juniorTranche.save();
+  } else {
+    // fail
+    log.error("Junior tranche not found for pool: {}", [
+      poolObject!.id.toString(),
+    ]);
+  }
 }
 
 export function handleLoanEnded(event: LoanEndedEvent): void {
