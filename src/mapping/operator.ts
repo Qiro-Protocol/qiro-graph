@@ -35,8 +35,6 @@ import {
 } from "../util";
 import {
   DependCall,
-  PauseCall,
-  UnpauseCall,
   WhitelistOperator,
 } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { ONE } from "../util";
@@ -422,25 +420,7 @@ export function handleWhitelistOperatorDepend(call: DependCall): void {
   );
 }
 
-export function handleWhitelistOperatorPaused(call: PauseCall): void {
-  let operator = WhitelistOperator.bind(call.to);
-  let poolId = operator.poolId();
-  let pool = getPool(poolId);
 
-  pool!.isOperatorPaused = true;
-  pool!.save();
-  log.info("Whitelist operator paused for poolId: {}", [poolId.toString()]);
-}
-
-export function handleWhitelistOperatorUnpaused(call: UnpauseCall): void {
-  let operator = WhitelistOperator.bind(call.to);
-  let poolId = operator.poolId();
-  let pool = getPool(poolId);
-
-  pool!.isOperatorPaused = false;
-  pool!.save();
-  log.info("Whitelist operator unpaused for poolId: {}", [poolId.toString()]);
-}
 
 export function handleWhitelistOperatorUpdateState(event: UpdatedPoolState): void {
   let poolId = event.params.poolId;

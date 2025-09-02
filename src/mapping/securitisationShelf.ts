@@ -6,8 +6,6 @@ import {
   OriginatorFeePaid as OriginatorFeePaidSecuritisationShelf,
   FileCall as FileCallSecuritisationShelf,
   DependCall as DependCallSecuritisationShelf,
-  PauseCall as PauseCallSecuritisationShelf,
-  UnpauseCall as UnpauseCallSecuritisationShelf,
 } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
@@ -95,6 +93,31 @@ export function handleLoanStartedSecuritisationShelf(
   poolObject!.servicerFeePaid = securitisationShelfContract.servicerFeePaid();
 
   poolObject!.save();
+
+  let seniorTranche = TrancheEntity.load(poolAddresses!.seniorTranche);
+  let juniorTranche = TrancheEntity.load(poolAddresses!.juniorTranche);
+  if (seniorTranche) {
+    seniorTranche.balance = currencyContract.balanceOf(
+      Address.fromBytes(poolAddresses!.seniorTranche)
+    );
+    seniorTranche.save();
+  } else {
+    // fail
+    log.error("Senior tranche not found for pool: {}", [
+      poolObject!.id.toString(),
+    ]);
+  }
+  if (juniorTranche) {
+    juniorTranche.balance = currencyContract.balanceOf(
+      Address.fromBytes(poolAddresses!.juniorTranche)
+    );
+    juniorTranche.save();
+  } else {
+    // fail
+    log.error("Junior tranche not found for pool: {}", [
+      poolObject!.id.toString(),
+    ]);
+  }
 }
 
 export function handleLoanEndedSecuritisationShelf(
@@ -415,26 +438,4 @@ export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
   poolAddresses!.save();
 }
 
-export function handleShelfPaused(call: PauseCallSecuritisationShelf): void {
-  let poolId = SecuritisationShelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = true;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}
 
-export function handleShelfUnpaused(
-  call: UnpauseCallSecuritisationShelf
-): void {
-  let poolId = SecuritisationShelf.bind(call.to).poolId();
-  let pool = getPool(poolId);
-  if (pool) {
-    pool.isShelfPaused = false;
-    pool.save();
-  } else {
-    log.warning("Pool not found for ID: {}", [poolId.toString()]);
-  }
-}

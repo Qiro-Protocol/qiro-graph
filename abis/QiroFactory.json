@@ -21,8 +21,38 @@
         "name": "_qiroAssetNFT",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "_pauser",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_exitFundsRecipient",
+        "type": "address",
+        "internalType": "address"
       }
     ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "EXIT_FUNDS_RECIPIENT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "acceptOwnership",
+    "inputs": [],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -33,19 +63,6 @@
         "name": "address_",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "addMemberBulk",
-    "inputs": [
-      {
-        "name": "address_",
-        "type": "address[]",
-        "internalType": "address[]"
       }
     ],
     "outputs": [],
@@ -81,25 +98,6 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "convertToRatePerSecond",
-    "inputs": [
-      {
-        "name": "aprInBps",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -300,6 +298,19 @@
   },
   {
     "type": "function",
+    "name": "exitManager",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IExitManager"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "file",
     "inputs": [
       {
@@ -318,10 +329,23 @@
   },
   {
     "type": "function",
-    "name": "getRatePerSecondForAPRInBps",
+    "name": "getExitFundsRecipient",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPoolAdmin",
     "inputs": [
       {
-        "name": "aprInBps",
+        "name": "poolId",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -329,11 +353,11 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "address",
+        "internalType": "address"
       }
     ],
-    "stateMutability": "pure"
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -412,6 +436,38 @@
   },
   {
     "type": "function",
+    "name": "isPoolPaused",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isProtocolPaused",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "juniorTrancheFab",
     "inputs": [],
     "outputs": [
@@ -419,6 +475,19 @@
         "name": "",
         "type": "address",
         "internalType": "contract JuniorTrancheFab"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "maxBatchSize",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -439,6 +508,71 @@
   {
     "type": "function",
     "name": "owner",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pausePools",
+    "inputs": [
+      {
+        "name": "poolIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "pauseProtocol",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "paused",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pauser",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pendingOwner",
     "inputs": [],
     "outputs": [
       {
@@ -616,19 +750,6 @@
   },
   {
     "type": "function",
-    "name": "removeMemberBulk",
-    "inputs": [
-      {
-        "name": "address_",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "renounceOwnership",
     "inputs": [],
     "outputs": [],
@@ -685,6 +806,16 @@
         "name": "_investmentOperatorFab",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "_exitManager",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_deployerFactory",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -703,6 +834,32 @@
         "name": "access",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMaxBatchSize",
+    "inputs": [
+      {
+        "name": "newMax",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setPauser",
+    "inputs": [
+      {
+        "name": "newPauser",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -755,6 +912,26 @@
   },
   {
     "type": "function",
+    "name": "unpausePools",
+    "inputs": [
+      {
+        "name": "poolIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unpauseProtocol",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "updateWhitelistManager",
     "inputs": [
       {
@@ -794,6 +971,44 @@
   },
   {
     "type": "event",
+    "name": "MaxBatchSizeUpdated",
+    "inputs": [
+      {
+        "name": "previousSize",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newSize",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferStarted",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "OwnershipTransferred",
     "inputs": [
       {
@@ -804,6 +1019,25 @@
       },
       {
         "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PauserUpdated",
+    "inputs": [
+      {
+        "name": "previousPauser",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newPauser",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -910,6 +1144,90 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "PoolsPaused",
+    "inputs": [
+      {
+        "name": "by",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PoolsUnpaused",
+    "inputs": [
+      {
+        "name": "by",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolPaused",
+    "inputs": [
+      {
+        "name": "by",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolUnpaused",
+    "inputs": [
+      {
+        "name": "by",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "EmptyArray",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ExceedsMaxBatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidMaxBatchSize",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidPoolId",
+    "inputs": []
+  },
+  {
     "type": "error",
     "name": "NotCreatePoolAdmin",
     "inputs": [
@@ -922,6 +1240,16 @@
   },
   {
     "type": "error",
+    "name": "NotOwner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotPauser",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "NotWhitelistManager",
     "inputs": [
       {
@@ -930,6 +1258,11 @@
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "OriginatorFeeOutOfBounds",
+    "inputs": []
   },
   {
     "type": "error",
@@ -952,5 +1285,82 @@
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "PerformanceFeeOutOfBounds",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PoolAlreadyCreated",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PoolAlreadyUnpaused",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "PoolDoesNotExist",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ProtocolAlreadyPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ProtocolAlreadyUnpaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ProtocolIsPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SeniorCeilingTooLow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SeniorRateExceedsFee",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SingleTrancheRateMismatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TokenNotUnderwritten",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnknownParam",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddress",
+    "inputs": []
   }
 ]

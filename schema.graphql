@@ -74,6 +74,7 @@ type QiroFactory @entity(immutable: false) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   currency: Bytes! # address
+  protocolPaused: Boolean! # bool
 } # done
 # main Schema
 type Pool @entity(immutable: false) {
@@ -114,8 +115,7 @@ type Pool @entity(immutable: false) {
   outstandingInterest: BigInt! # uint256
   isBullet: Boolean! # bool
   poolType: PoolType! # enum
-  isShelfPaused: Boolean! # bool
-  isOperatorPaused: Boolean! # bool
+  isPaused: Boolean! # bool
   borrower: Borrower! # address
   originatorFeePaid: BigInt! # uint256
   pStartFrom: BigInt! # uint256

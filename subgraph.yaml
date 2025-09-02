@@ -8,7 +8,7 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0xA74cCbc79d741b32d55F7A02eb27900a5C2004B8"
+      address: "0x11ed0d6A2C84C861Eb77f1631272BED06D677758"
       abi: QiroFactory
       startBlock: 23969317
     mapping:
@@ -48,6 +48,14 @@ dataSources:
           handler: handleFactoryCreated
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleFactoryOwnershipTransferred
+        - event: ProtocolPaused(indexed address)
+          handler: handleProtocolPaused
+        - event: ProtocolUnpaused(indexed address)
+          handler: handleProtocolUnpaused
+        - event: PoolsPaused(indexed address,uint256)
+          handler: handlePoolsPaused
+        - event: PoolsUnpaused(indexed address,uint256)
+          handler: handlePoolsUnpaused
       callHandlers:
         - function: file(bytes32,address)
           handler: handleFactoryFile
@@ -104,7 +112,7 @@ dataSources:
     name: "QiroNft"
     network: polygon-amoy
     source:
-      address: "0x5AA3F4b58A7D654C1300579dF3040592e7118Eb8"
+      address: "0x063546dfC2010dAD409d67AeA918399abF2c9b60"
       abi: QiroNft
       startBlock: 23969316
     mapping:
@@ -163,10 +171,6 @@ templates:
       callHandlers:
         - function: depend(bytes32,address)
           handler: handleWhitelistOperatorDepend
-        - function: pause()
-          handler: handleWhitelistOperatorPaused
-        - function: unpause()
-          handler: handleWhitelistOperatorUnpaused
       eventHandlers:
         - event: UpdatedPoolState(uint256,uint8)
           handler: handleWhitelistOperatorUpdateState
@@ -247,10 +251,6 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
-        - function: pause()
-          handler: handleShelfPaused
-        - function: unpause()
-          handler: handleShelfUnpaused
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: polygon-amoy
@@ -295,7 +295,3 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
-        - function: pause()
-          handler: handleShelfPaused
-        - function: unpause()
-          handler: handleShelfUnpaused
