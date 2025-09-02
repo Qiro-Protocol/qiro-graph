@@ -84,6 +84,7 @@ type Pool @entity(immutable: false) {
   shelfBalance: BigInt! # uint256
   shelfDebt: BigInt! # uint256
   seniorInterestRate: BigInt! # uint256
+  juniorInterestRate: BigInt! # uint256
   interestRate: BigInt! # uint256
   lateFeeInterestRate: BigInt! # uint256
   performanceFeeRate: BigInt! # uint256
@@ -211,6 +212,7 @@ type Tranche @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   # SecuritisationTranche-specific fields (optional - will be null for Loan Tranches)
+  interestRate: BigInt # uint256 - for junior tranches in loan pool, this can be null
   principalRepaid: BigInt # uint256
   interestRepaid: BigInt # uint256
   overduePrincipalAmount: BigInt # uint256
