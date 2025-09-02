@@ -224,6 +224,7 @@ function handlePool(
   entity.poolId = poolId; // uint256
   entity.poolStatus = getPoolStatusString(operator.getState());
   entity.seniorInterestRate = pool.seniorRate;
+  entity.juniorInterestRate = BigInt.fromI32(0); // Initialize to 0, will be updated for Securitisation pools
   entity.interestRate = pool.interestRate;
   entity.periodLength = pool.periodLength;
   entity.periodCount = pool.periodCount;
@@ -376,6 +377,12 @@ function handlePool(
     return;
   }
 
+  // Update interest rates for Securitisation pools
+  if (poolType == PoolType.SECURITISATION) {
+    entity.juniorInterestRate = junSecTrancheContract!.aprInBps();
+    entity.save();
+  }
+
   let seniorTranche = new Tranche(seniorTranch);
   let juniorTranche = new Tranche(juniorTranch);
 
@@ -398,6 +405,7 @@ function handlePool(
     juniorTranche.tokenSymbol = junTokenContract.symbol();
     juniorTranche.tokenDecimals = junTokenContract.decimals();
     juniorTranche.totalRepaid = junTrancheContract!.totalRepayedAmount();
+    juniorTranche.interestRate = BigInt.fromI32(0); // for loan pools, this is not defined hence setting zero
   } else if (poolType == PoolType.SECURITISATION) {
     let junTokenContract = ERC20.bind(junSecTrancheContract!.token());
     juniorTranche.tokenAddress = junSecTrancheContract!.token();
@@ -414,6 +422,7 @@ function handlePool(
     juniorTranche.lastRepaidTimestamp =
       junSecTrancheContract!.lastRepaidTimestamp();
     juniorTranche.totalDaysRepaid = junSecTrancheContract!.totalDaysRepaid();
+    juniorTranche.interestRate = junSecTrancheContract!.aprInBps();
     juniorTranche.totalRepaid = juniorTranche.principalRepaid!.plus(
       juniorTranche.interestRepaid!
     );
@@ -440,6 +449,7 @@ function handlePool(
     seniorTranche.tokenSymbol = senTokenContract.symbol();
     seniorTranche.tokenDecimals = senTokenContract.decimals();
     seniorTranche.totalRepaid = senTrancheContract!.totalRepayedAmount();
+    seniorTranche.interestRate = senTrancheContract!.seniorAprInBps();
   } else if (poolType == PoolType.SECURITISATION) {
     let senTokenContract = ERC20.bind(operator.seniorToken());
     seniorTranche.balance = senSecTrancheContract!.balance();
@@ -455,6 +465,7 @@ function handlePool(
     seniorTranche.lastRepaidTimestamp =
       senSecTrancheContract!.lastRepaidTimestamp();
     seniorTranche.totalDaysRepaid = senSecTrancheContract!.totalDaysRepaid();
+    seniorTranche.interestRate = senSecTrancheContract!.aprInBps();
     seniorTranche.totalRepaid = seniorTranche.principalRepaid!.plus(
       seniorTranche.interestRepaid!
     );
