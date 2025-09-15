@@ -230,6 +230,7 @@ function updatePoolAndTranche(
   pool.trancheSupplyMaxBalance = whitelistOperatorContract
     .totalDepositCurrencyJunior()
     .plus(whitelistOperatorContract.totalDepositCurrencySenior());
+  pool.trancheTotalRedeemed = whitelistOperatorContract.totalRedeemedCurrencyJunior().plus(whitelistOperatorContract.totalRedeemedCurrencySenior());
   pool.poolStatus = getPoolStatusString(whitelistOperatorContract.getState());
 
   let seniorTranche = Tranche.load(pool.seniorTranche);

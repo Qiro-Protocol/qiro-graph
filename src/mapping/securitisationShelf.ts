@@ -261,6 +261,9 @@ export function handleLoanRepayedSecuritisationShelf(
   pool!.trancheSupplyMaxBalance = operator
     .totalDepositCurrencyJunior()
     .plus(operator.totalDepositCurrencySenior());
+  pool!.trancheTotalRedeemed = operator
+    .totalRedeemedCurrencyJunior()
+    .plus(operator.totalRedeemedCurrencySenior());
   pool!.prepaymentAbsorbedAmount =
     securitisationShelfContract.prepaymentAbsorbedAmount();
 
