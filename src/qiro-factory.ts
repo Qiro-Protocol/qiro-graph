@@ -266,6 +266,7 @@ function handlePool(
   entity.writeoffAmount = new BigInt(0);
   entity.totalTrancheBalance = new BigInt(0);
   entity.trancheSupplyMaxBalance = new BigInt(0);
+  entity.trancheTotalRedeemed = new BigInt(0);
 
   // Pool type specific fields
   if (poolType == PoolType.LOAN) {

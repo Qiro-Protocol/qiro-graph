@@ -112,6 +112,7 @@ type Pool @entity(immutable: false) {
   writeoffTime: BigInt! # uint256
   totalTrancheBalance: BigInt! # uint256
   trancheSupplyMaxBalance: BigInt! # uint256
+  trancheTotalRedeemed: BigInt! # uint256
   outstandingPrincipal: BigInt! # uint256
   outstandingInterest: BigInt! # uint256
   isBullet: Boolean! # bool
