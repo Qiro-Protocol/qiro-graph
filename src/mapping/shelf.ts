@@ -218,9 +218,6 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   pool!.trancheSupplyMaxBalance = operator
     .totalDepositCurrencyJunior()
     .plus(operator.totalDepositCurrencySenior());
-  pool!.trancheTotalRedeemed = operator
-    .totalRedeemedCurrencyJunior()
-    .plus(operator.totalRedeemedCurrencySenior());
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
   // For regular Reserve, get balance from currency contract
   pool!.reserveBalance = currencyContract.balanceOf(
