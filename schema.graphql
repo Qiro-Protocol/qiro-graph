@@ -67,6 +67,10 @@ type QiroFactory @entity(immutable: false) {
   seniorTrancheFab: Bytes! # address
   juniorTrancheFab: Bytes! # address
   qiroFeeCollector: Bytes! # address
+  timelockVaultContract: Bytes! # address
+  exitManagerContract: Bytes! # address
+  pauserRole: Bytes! # address
+  timelockManager: Bytes! # address
   owner: Bytes! # address
   whitelistManager: Bytes! # address
   poolCount: BigInt! # uint256

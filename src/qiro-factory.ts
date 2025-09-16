@@ -13,6 +13,7 @@ import {
   Shelf,
   WhitelistOperator as WhitelistOperatorTemplate,
   SecuritisationShelf,
+  TimelockVault as TimelockVaultTemplate,
 } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
@@ -20,6 +21,7 @@ import { SecuritisationShelf as SecuritisationShelfContract } from "../generated
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
+import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
 import {
   getPoolId,
   TrancheType,
@@ -38,6 +40,7 @@ import {
   ProtocolUnpaused,
   PoolsPaused,
   PoolsUnpaused,
+  PauserUpdated,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -63,7 +66,18 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.protocolPaused = false; // Initialize as not paused
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
+  entity.exitManagerContract = qiroFactory.exitManager();
+  entity.timelockVaultContract = qiroFactory.getExitFundsRecipient();
+  entity.pauserRole = qiroFactory.pauser();
+  
+  // Initialize timelockManager from TimelockVault
+  let timelockVaultAddress = Address.fromBytes(entity.timelockVaultContract);
+  let timelockVault = TimelockVaultContract.bind(timelockVaultAddress);
+  entity.timelockManager = timelockVault.timelockManager();
   entity.save();
+
+  // Start listening to TimelockVault events
+  TimelockVaultTemplate.create(timelockVaultAddress);
 }
 
 export function handleFactoryFile(call: FileCall): void {
@@ -521,5 +535,13 @@ export function handlePoolsUnpaused(event: PoolsUnpaused): void {
   if (pool != null) {
     pool.isPaused = false;
     pool.save();
+  }
+}
+
+export function handlePauserUpdated(event: PauserUpdated): void {
+  let factory = QiroFactory.load(event.address);
+  if (factory != null) {
+    factory.pauserRole = event.params.newPauser;
+    factory.save();
   }
 }
