@@ -115,104 +115,6 @@
   },
   {
     "type": "function",
-    "name": "calculatePeriodPayment",
-    "inputs": [
-      {
-        "name": "periodNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "initialPrincipal",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "annualRateInBasisPoints",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_periodLength",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "totalPeriods",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_pStartFrom",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_pRepayFrequency",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "principalPayment",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "interestPayment",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "pure"
-  },
-  {
-    "type": "function",
-    "name": "calculateTotalInterestForAmortisation",
-    "inputs": [
-      {
-        "name": "_principalAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_periodCount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_periodLength",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_aprInBasisPoints",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_pStartFrom",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_pRepayFrequency",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "pure"
-  },
-  {
-    "type": "function",
     "name": "currency",
     "inputs": [],
     "outputs": [
@@ -346,6 +248,19 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "originalTrancheInterest",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -1017,17 +932,7 @@
   },
   {
     "type": "error",
-    "name": "PeriodCountZero",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "PeriodLengthTooLong",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "PeriodLengthZero",
     "inputs": []
   },
   {

@@ -115,6 +115,11 @@
         "name": "price",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "userLateFeePortion",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -142,6 +147,11 @@
       },
       {
         "name": "price",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "userLateFeePortion",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -329,22 +339,12 @@
   },
   {
     "type": "error",
-    "name": "RedeemNotApproved",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "ReentrancyGuardReentrantCall",
     "inputs": []
   },
   {
     "type": "error",
     "name": "SeniorTrancheFull",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "SupplyNotApproved",
     "inputs": []
   },
   {
