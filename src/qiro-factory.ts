@@ -7,6 +7,8 @@ import {
   PoolCurrency,
   Borrower,
   FactoryOwnershipTransferred,
+  KycUser,
+  WhitelistedProtocol,
 } from "../generated/schema";
 import {
   InvestmentOperator,
@@ -45,6 +47,9 @@ import {
   PauserUpdated,
   UpdateWhitelistManagerCall,
   ChangePoolAdminCall,
+  AddMemberCall,
+  RemoveMemberCall,
+  SetProtocolContractCall,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -130,6 +135,49 @@ export function handleChangePoolAdmin(call: ChangePoolAdminCall): void {
     poolAddresses.admin = call.inputs.newAdmin;
     poolAddresses.save();
   }
+}
+
+export function handleAddMember(call: AddMemberCall): void {
+  // KYC user added
+  let userId = call.inputs.address_;
+  let kyc = KycUser.load(userId);
+  if (kyc == null) {
+    kyc = new KycUser(userId);
+    kyc.address = userId;
+    kyc.factory = call.to;
+  }
+  kyc.isKyc = true;
+  kyc.blockTimestamp = call.block.timestamp;
+  kyc.save();
+}
+
+export function handleRemoveMember(call: RemoveMemberCall): void {
+  // KYC user removed
+  let userId = call.inputs.address_;
+  let kyc = KycUser.load(userId);
+  if (kyc == null) {
+    kyc = new KycUser(userId);
+    kyc.address = userId;
+    kyc.factory = call.to;
+  }
+  kyc.isKyc = false;
+  kyc.blockTimestamp = call.block.timestamp;
+  kyc.save();
+}
+
+export function handleSetProtocolContract(
+  call: SetProtocolContractCall
+): void {
+  let contractAddr = call.inputs.contract_;
+  let wl = WhitelistedProtocol.load(contractAddr);
+  if (wl == null) {
+    wl = new WhitelistedProtocol(contractAddr);
+    wl.address = contractAddr;
+    wl.factory = call.to;
+  }
+  wl.isWhitelisted = call.inputs.isProtocolContract_;
+  wl.blockTimestamp = call.block.timestamp;
+  wl.save();
 }
 
 export function handleFactoryOwnershipTransferred(

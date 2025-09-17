@@ -69,6 +69,12 @@ dataSources:
           handler: handleChangePoolAdmin
         - function: updateWhitelistManager(address)
           handler: handleUpdateWhitelistManager
+        - function: addMember(address)
+          handler: handleAddMember
+        - function: removeMember(address)
+          handler: handleRemoveMember
+        - function: setProtocolContract(address,bool)
+          handler: handleSetProtocolContract
       file: ./src/qiro-factory.ts
   # - kind: ethereum
   #   name: Coordinator
