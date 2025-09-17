@@ -43,6 +43,8 @@ dataSources:
           file: ./abis/Reserve.json
         - name: SecuritisationReserve
           file: ./abis/SecuritisationReserve.json
+        - name: ExitManager
+          file: ./abis/ExitManager.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
@@ -63,6 +65,10 @@ dataSources:
       callHandlers:
         - function: file(bytes32,address)
           handler: handleFactoryFile
+        - function: changePoolAdmin(uint256,address)
+          handler: handleChangePoolAdmin
+        - function: updateWhitelistManager(address)
+          handler: handleUpdateWhitelistManager
       file: ./src/qiro-factory.ts
   # - kind: ethereum
   #   name: Coordinator
@@ -255,6 +261,8 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
+        - function: updateBorrowerAddress(address)
+          handler: handleShelfUpdateBorrowerAddress
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: base-sepolia
@@ -299,6 +307,8 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
+        - function: updateBorrowerAddress(address)
+          handler: handleSecuritisationShelfUpdateBorrowerAddress
   - name: TimelockVault
     kind: ethereum/contract
     network: base-sepolia
@@ -317,3 +327,21 @@ templates:
       eventHandlers:
         - event: TimelockManagerUpdated(indexed address,indexed address)
           handler: handleTimelockManagerUpdated
+  - name: ExitManager
+    kind: ethereum/contract
+    network: base-sepolia
+    source:
+      abi: ExitManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/exitManager.ts
+      entities:
+        - QiroFactory
+      abis:
+        - name: ExitManager
+          file: ./abis/ExitManager.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleExitManagerOwnershipTransferred

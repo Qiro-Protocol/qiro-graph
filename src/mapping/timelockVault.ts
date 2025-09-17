@@ -16,7 +16,7 @@ export function handleTimelockManagerUpdated(
     return;
   }
 
-  factory.timelockManager = event.params.newManager;
+  factory.timelockManagerRole = event.params.newManager;
   factory.save();
 }
 

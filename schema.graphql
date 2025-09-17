@@ -70,7 +70,8 @@ type QiroFactory @entity(immutable: false) {
   timelockVaultContract: Bytes! # address
   exitManagerContract: Bytes! # address
   pauserRole: Bytes! # address
-  timelockManager: Bytes! # address
+  timelockManagerRole: Bytes! # address
+  exitManagerOwnerRole: Bytes! # address
   owner: Bytes! # address
   whitelistManager: Bytes! # address
   poolCount: BigInt! # uint256

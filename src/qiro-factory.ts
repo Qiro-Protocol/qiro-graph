@@ -14,6 +14,7 @@ import {
   WhitelistOperator as WhitelistOperatorTemplate,
   SecuritisationShelf,
   TimelockVault as TimelockVaultTemplate,
+  ExitManager as ExitManagerTemplate,
 } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
@@ -22,6 +23,7 @@ import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
+import { ExitManager as ExitManagerContract } from "../generated/QiroFactory/ExitManager";
 import {
   getPoolId,
   TrancheType,
@@ -41,6 +43,8 @@ import {
   PoolsPaused,
   PoolsUnpaused,
   PauserUpdated,
+  UpdateWhitelistManagerCall,
+  ChangePoolAdminCall,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -73,11 +77,18 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   // Initialize timelockManager from TimelockVault
   let timelockVaultAddress = Address.fromBytes(entity.timelockVaultContract);
   let timelockVault = TimelockVaultContract.bind(timelockVaultAddress);
-  entity.timelockManager = timelockVault.timelockManager();
+  entity.timelockManagerRole = timelockVault.timelockManager();
+  
+  // Initialize exitManagerOwnerRole from ExitManager
+  let exitManagerAddress = Address.fromBytes(entity.exitManagerContract);
+  let exitManager = ExitManagerContract.bind(exitManagerAddress);
+  entity.exitManagerOwnerRole = exitManager.owner();
   entity.save();
 
   // Start listening to TimelockVault events
   TimelockVaultTemplate.create(timelockVaultAddress);
+  // Start listening to ExitManager events
+  ExitManagerTemplate.create(exitManagerAddress);
 }
 
 export function handleFactoryFile(call: FileCall): void {
@@ -100,6 +111,25 @@ export function handleFactoryFile(call: FileCall): void {
     log.warning("Unknown parameter in factory file call: {}", [what]);
   }
   factory.save();
+}
+
+export function handleUpdateWhitelistManager(call: UpdateWhitelistManagerCall): void {
+  let factory = QiroFactory.load(call.to);
+  if (factory != null) {
+    factory.whitelistManager = call.inputs._whitelistManager;
+    factory.save();
+  }
+}
+
+export function handleChangePoolAdmin(call: ChangePoolAdminCall): void {
+  // Update PoolAddresses.admin for the given poolId
+  let poolId = call.inputs.poolId;
+  let poolEntityId = getPoolId(poolId);
+  let poolAddresses = PoolAddresses.load(poolEntityId);
+  if (poolAddresses != null) {
+    poolAddresses.admin = call.inputs.newAdmin;
+    poolAddresses.save();
+  }
 }
 
 export function handleFactoryOwnershipTransferred(
@@ -492,7 +522,7 @@ function handlePool(
   getOrCreateBorrower(Address.fromBytes(entity.borrower), pool.blockTimestamp);
 }
 
-function getOrCreateBorrower(
+export function getOrCreateBorrower(
   borrowerAddress: Address,
   blockTimestamp: BigInt = BigInt.fromI32(0)
 ): Borrower {
