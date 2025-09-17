@@ -13,7 +13,7 @@ export function handleExitManagerOwnershipTransferred(
 
   let factory = QiroFactory.load(factoryAddress);
   if (factory == null) {
-    return;
+    throw new Error("Factory not found for exit manager address:" + event.address.toHexString());
   }
 
   factory.exitManagerOwnerRole = event.params.newOwner;

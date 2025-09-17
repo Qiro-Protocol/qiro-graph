@@ -13,7 +13,7 @@ export function handleTimelockManagerUpdated(
 
   let factory = QiroFactory.load(factoryAddress);
   if (factory == null) {
-    return;
+    throw new Error("Factory not found for timelock address:" + event.address.toHexString());
   }
 
   factory.timelockManagerRole = event.params.newManager;

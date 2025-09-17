@@ -78,7 +78,11 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.exitManagerContract = qiroFactory.exitManager();
   entity.timelockVaultContract = qiroFactory.getExitFundsRecipient();
   entity.pauserRole = qiroFactory.pauser();
-  
+
+  setupRolesAddresses(entity);
+}
+
+function setupRolesAddresses(entity: QiroFactory): void {
   // Initialize timelockManager from TimelockVault
   let timelockVaultAddress = Address.fromBytes(entity.timelockVaultContract);
   let timelockVault = TimelockVaultContract.bind(timelockVaultAddress);
@@ -136,16 +140,27 @@ export function handleChangePoolAdmin(call: ChangePoolAdminCall): void {
     poolAddresses.save();
   }
 }
+function getOrCreateKycUser(
+  userAddress: Address,
+  factoryAddress: Address,
+  blockTimestamp: BigInt
+): KycUser {
+  let kyc = KycUser.load(userAddress);
+  if (kyc == null) {
+    kyc = new KycUser(userAddress);
+    kyc.address = userAddress;
+    kyc.factory = factoryAddress;
+    kyc.blockTimestamp = blockTimestamp;
+    kyc.isKyc = false;
+    kyc.save();
+  }
+  return kyc as KycUser;
+}
 
 export function handleAddMember(call: AddMemberCall): void {
   // KYC user added
   let userId = call.inputs.address_;
-  let kyc = KycUser.load(userId);
-  if (kyc == null) {
-    kyc = new KycUser(userId);
-    kyc.address = userId;
-    kyc.factory = call.to;
-  }
+  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
   kyc.isKyc = true;
   kyc.blockTimestamp = call.block.timestamp;
   kyc.save();
@@ -154,12 +169,7 @@ export function handleAddMember(call: AddMemberCall): void {
 export function handleRemoveMember(call: RemoveMemberCall): void {
   // KYC user removed
   let userId = call.inputs.address_;
-  let kyc = KycUser.load(userId);
-  if (kyc == null) {
-    kyc = new KycUser(userId);
-    kyc.address = userId;
-    kyc.factory = call.to;
-  }
+  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
   kyc.isKyc = false;
   kyc.blockTimestamp = call.block.timestamp;
   kyc.save();
