@@ -67,6 +67,11 @@ type QiroFactory @entity(immutable: false) {
   seniorTrancheFab: Bytes! # address
   juniorTrancheFab: Bytes! # address
   qiroFeeCollector: Bytes! # address
+  timelockVaultContract: Bytes! # address
+  exitManagerContract: Bytes! # address
+  pauserRole: Bytes! # address
+  timelockManagerRole: Bytes! # address
+  exitManagerOwnerRole: Bytes! # address
   owner: Bytes! # address
   whitelistManager: Bytes! # address
   poolCount: BigInt! # uint256
@@ -75,7 +80,27 @@ type QiroFactory @entity(immutable: false) {
   nftContractAddress: Bytes! # address
   currency: Bytes! # address
   protocolPaused: Boolean! # bool
+  kycUsers: [KycUser!] @derivedFrom(field: "factory")
+  whitelistedProtocols: [WhitelistedProtocol!] @derivedFrom(field: "factory")
 } # done
+
+# Factory-scoped KYC user
+type KycUser @entity(immutable: false) {
+  id: Bytes! # user address
+  factory: QiroFactory!
+  address: Bytes! # address
+  isKyc: Boolean!
+  blockTimestamp: BigInt!
+}
+
+# Factory-scoped whitelisted protocol
+type WhitelistedProtocol @entity(immutable: false) {
+  id: Bytes! # contract address
+  factory: QiroFactory!
+  address: Bytes! # address
+  isWhitelisted: Boolean!
+  blockTimestamp: BigInt!
+}
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!

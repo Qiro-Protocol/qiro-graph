@@ -7,12 +7,16 @@ import {
   PoolCurrency,
   Borrower,
   FactoryOwnershipTransferred,
+  KycUser,
+  WhitelistedProtocol,
 } from "../generated/schema";
 import {
   InvestmentOperator,
   Shelf,
   WhitelistOperator as WhitelistOperatorTemplate,
   SecuritisationShelf,
+  TimelockVault as TimelockVaultTemplate,
+  ExitManager as ExitManagerTemplate,
 } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
@@ -20,6 +24,8 @@ import { SecuritisationShelf as SecuritisationShelfContract } from "../generated
 import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
+import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
+import { ExitManager as ExitManagerContract } from "../generated/QiroFactory/ExitManager";
 import {
   getPoolId,
   TrancheType,
@@ -38,6 +44,12 @@ import {
   ProtocolUnpaused,
   PoolsPaused,
   PoolsUnpaused,
+  PauserUpdated,
+  UpdateWhitelistManagerCall,
+  ChangePoolAdminCall,
+  AddMemberCall,
+  RemoveMemberCall,
+  SetProtocolContractCall,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -63,7 +75,29 @@ export function handleFactoryCreated(event: FactoryCreated): void {
   entity.protocolPaused = false; // Initialize as not paused
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
+  entity.exitManagerContract = qiroFactory.exitManager();
+  entity.timelockVaultContract = qiroFactory.getExitFundsRecipient();
+  entity.pauserRole = qiroFactory.pauser();
+
+  setupRolesAddresses(entity);
+}
+
+function setupRolesAddresses(entity: QiroFactory): void {
+  // Initialize timelockManager from TimelockVault
+  let timelockVaultAddress = Address.fromBytes(entity.timelockVaultContract);
+  let timelockVault = TimelockVaultContract.bind(timelockVaultAddress);
+  entity.timelockManagerRole = timelockVault.timelockManager();
+  
+  // Initialize exitManagerOwnerRole from ExitManager
+  let exitManagerAddress = Address.fromBytes(entity.exitManagerContract);
+  let exitManager = ExitManagerContract.bind(exitManagerAddress);
+  entity.exitManagerOwnerRole = exitManager.owner();
   entity.save();
+
+  // Start listening to TimelockVault events
+  TimelockVaultTemplate.create(timelockVaultAddress);
+  // Start listening to ExitManager events
+  ExitManagerTemplate.create(exitManagerAddress);
 }
 
 export function handleFactoryFile(call: FileCall): void {
@@ -86,6 +120,74 @@ export function handleFactoryFile(call: FileCall): void {
     log.warning("Unknown parameter in factory file call: {}", [what]);
   }
   factory.save();
+}
+
+export function handleUpdateWhitelistManager(call: UpdateWhitelistManagerCall): void {
+  let factory = QiroFactory.load(call.to);
+  if (factory != null) {
+    factory.whitelistManager = call.inputs._whitelistManager;
+    factory.save();
+  }
+}
+
+export function handleChangePoolAdmin(call: ChangePoolAdminCall): void {
+  // Update PoolAddresses.admin for the given poolId
+  let poolId = call.inputs.poolId;
+  let poolEntityId = getPoolId(poolId);
+  let poolAddresses = PoolAddresses.load(poolEntityId);
+  if (poolAddresses != null) {
+    poolAddresses.admin = call.inputs.newAdmin;
+    poolAddresses.save();
+  }
+}
+function getOrCreateKycUser(
+  userAddress: Address,
+  factoryAddress: Address,
+  blockTimestamp: BigInt
+): KycUser {
+  let kyc = KycUser.load(userAddress);
+  if (kyc == null) {
+    kyc = new KycUser(userAddress);
+    kyc.address = userAddress;
+    kyc.factory = factoryAddress;
+    kyc.blockTimestamp = blockTimestamp;
+    kyc.isKyc = false;
+    kyc.save();
+  }
+  return kyc as KycUser;
+}
+
+export function handleAddMember(call: AddMemberCall): void {
+  // KYC user added
+  let userId = call.inputs.address_;
+  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
+  kyc.isKyc = true;
+  kyc.blockTimestamp = call.block.timestamp;
+  kyc.save();
+}
+
+export function handleRemoveMember(call: RemoveMemberCall): void {
+  // KYC user removed
+  let userId = call.inputs.address_;
+  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
+  kyc.isKyc = false;
+  kyc.blockTimestamp = call.block.timestamp;
+  kyc.save();
+}
+
+export function handleSetProtocolContract(
+  call: SetProtocolContractCall
+): void {
+  let contractAddr = call.inputs.contract_;
+  let wl = WhitelistedProtocol.load(contractAddr);
+  if (wl == null) {
+    wl = new WhitelistedProtocol(contractAddr);
+    wl.address = contractAddr;
+    wl.factory = call.to;
+  }
+  wl.isWhitelisted = call.inputs.isProtocolContract_;
+  wl.blockTimestamp = call.block.timestamp;
+  wl.save();
 }
 
 export function handleFactoryOwnershipTransferred(
@@ -478,7 +580,7 @@ function handlePool(
   getOrCreateBorrower(Address.fromBytes(entity.borrower), pool.blockTimestamp);
 }
 
-function getOrCreateBorrower(
+export function getOrCreateBorrower(
   borrowerAddress: Address,
   blockTimestamp: BigInt = BigInt.fromI32(0)
 ): Borrower {
@@ -521,5 +623,13 @@ export function handlePoolsUnpaused(event: PoolsUnpaused): void {
   if (pool != null) {
     pool.isPaused = false;
     pool.save();
+  }
+}
+
+export function handlePauserUpdated(event: PauserUpdated): void {
+  let factory = QiroFactory.load(event.address);
+  if (factory != null) {
+    factory.pauserRole = event.params.newPauser;
+    factory.save();
   }
 }

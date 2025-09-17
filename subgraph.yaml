@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: polygon-amoy
+    network: base-sepolia
     source:
-      address: "0x11ed0d6A2C84C861Eb77f1631272BED06D677758"
+      address: "0xa27028120e496db5745DBe34FA5B3c579b381512"
       abi: QiroFactory
-      startBlock: 23969317
+      startBlock: 31120687
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -23,6 +23,8 @@ dataSources:
       abis:
         - name: QiroFactory
           file: ./abis/QiroFactory.json
+        - name: TimelockVault
+          file: ./abis/TimelockVault.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
         - name: InvestmentOperator
@@ -41,6 +43,8 @@ dataSources:
           file: ./abis/Reserve.json
         - name: SecuritisationReserve
           file: ./abis/SecuritisationReserve.json
+        - name: ExitManager
+          file: ./abis/ExitManager.json
       eventHandlers:
         - event: PoolDeployed(uint256,uint256,uint256,uint256,uint256,uint256,address,address)
           handler: handlePoolDeployed
@@ -56,65 +60,77 @@ dataSources:
           handler: handlePoolsPaused
         - event: PoolsUnpaused(indexed address,uint256)
           handler: handlePoolsUnpaused
+        - event: PauserUpdated(indexed address,indexed address)
+          handler: handlePauserUpdated
       callHandlers:
         - function: file(bytes32,address)
           handler: handleFactoryFile
+        - function: changePoolAdmin(uint256,address)
+          handler: handleChangePoolAdmin
+        - function: updateWhitelistManager(address)
+          handler: handleUpdateWhitelistManager
+        - function: addMember(address)
+          handler: handleAddMember
+        - function: removeMember(address)
+          handler: handleRemoveMember
+        - function: setProtocolContract(address,bool)
+          handler: handleSetProtocolContract
       file: ./src/qiro-factory.ts
-  - kind: ethereum
-    name: Coordinator
-    network: polygon-amoy
-    source:
-      address: "0x48A09FA779A2c97686856Aee98EC6b90BC6098A4"
-      abi: Coordinator
-      startBlock: 23943263
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ComputeSubscription
-        - SubscriptionResponses
-      abis:
-        - name: Coordinator
-          file: ./abis/Coordinator.json
-        - name: RitualConsumer
-          file: ./abis/RitualConsumer.json
-      eventHandlers:
-        - event: SubscriptionCreated(indexed uint32)
-          handler: handleSubscriptionCreated
-        - event: SubscriptionFulfilled(indexed uint32,indexed address)
-          handler: handleSubscriptionFulfilled
-      file: ./src/coordinator.ts
-  - kind: ethereum
-    name: RitualConsumer
-    network: polygon-amoy
-    source:
-      address: "0x26318f5319EC85e4fe7A00E0C25a631beF6ace87"
-      abi: RitualConsumer
-      startBlock: 23943350
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ComputeSubscription
-        - SubscriptionResponses
-      abis:
-        - name: RitualConsumer
-          file: ./abis/RitualConsumer.json
-      eventHandlers:
-        - event: Rely(indexed address)
-          handler: handleRely
-        - event: RequestComputeAccessSet(indexed address,indexed bool)
-          handler: handleRequestComputeAccessSet
-      file: ./src/coordinator.ts
+  # - kind: ethereum
+  #   name: Coordinator
+  #   network: base-sepolia
+  #   source:
+  #     address: "0x48A09FA779A2c97686856Aee98EC6b90BC6098A4"
+  #     abi: Coordinator
+  #     startBlock: 31120687
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - ComputeSubscription
+  #       - SubscriptionResponses
+  #     abis:
+  #       - name: Coordinator
+  #         file: ./abis/Coordinator.json
+  #       - name: RitualConsumer
+  #         file: ./abis/RitualConsumer.json
+  #     eventHandlers:
+  #       - event: SubscriptionCreated(indexed uint32)
+  #         handler: handleSubscriptionCreated
+  #       - event: SubscriptionFulfilled(indexed uint32,indexed address)
+  #         handler: handleSubscriptionFulfilled
+  #     file: ./src/coordinator.ts
+  # - kind: ethereum
+  #   name: RitualConsumer
+  #   network: base-sepolia
+  #   source:
+  #     address: "0x26318f5319EC85e4fe7A00E0C25a631beF6ace87"
+  #     abi: RitualConsumer
+  #     startBlock: 23943350
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - ComputeSubscription
+  #       - SubscriptionResponses
+  #     abis:
+  #       - name: RitualConsumer
+  #         file: ./abis/RitualConsumer.json
+  #     eventHandlers:
+  #       - event: Rely(indexed address)
+  #         handler: handleRely
+  #       - event: RequestComputeAccessSet(indexed address,indexed bool)
+  #         handler: handleRequestComputeAccessSet
+  #     file: ./src/coordinator.ts
   - kind: ethereum
     name: "QiroNft"
-    network: polygon-amoy
+    network: base-sepolia
     source:
-      address: "0x063546dfC2010dAD409d67AeA918399abF2c9b60"
+      address: "0x74E28AaF2DA7D6D06324a1B40A6180C55A8BAfCa"
       abi: QiroNft
-      startBlock: 23969316
+      startBlock: 31120687
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -152,7 +168,7 @@ dataSources:
 templates:
   - name: WhitelistOperator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: base-sepolia
     source:
       abi: WhitelistOperator
     mapping:
@@ -176,7 +192,7 @@ templates:
           handler: handleWhitelistOperatorUpdateState
   - name: InvestmentOperator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: base-sepolia
     source:
       abi: InvestmentOperator
     mapping:
@@ -209,7 +225,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: base-sepolia
     source:
       abi: Shelf
     mapping:
@@ -251,9 +267,11 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
+        - function: updateBorrowerAddress(address)
+          handler: handleShelfUpdateBorrowerAddress
   - name: SecuritisationShelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: base-sepolia
     source:
       abi: SecuritisationShelf
     mapping:
@@ -295,3 +313,41 @@ templates:
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
+        - function: updateBorrowerAddress(address)
+          handler: handleSecuritisationShelfUpdateBorrowerAddress
+  - name: TimelockVault
+    kind: ethereum/contract
+    network: base-sepolia
+    source:
+      abi: TimelockVault
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/timelockVault.ts
+      entities:
+        - QiroFactory
+      abis:
+        - name: TimelockVault
+          file: ./abis/TimelockVault.json
+      eventHandlers:
+        - event: TimelockManagerUpdated(indexed address,indexed address)
+          handler: handleTimelockManagerUpdated
+  - name: ExitManager
+    kind: ethereum/contract
+    network: base-sepolia
+    source:
+      abi: ExitManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/exitManager.ts
+      entities:
+        - QiroFactory
+      abis:
+        - name: ExitManager
+          file: ./abis/ExitManager.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleExitManagerOwnershipTransferred

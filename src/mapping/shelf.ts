@@ -7,6 +7,7 @@ import {
   FileCall,
   DependCall,
 } from "../../generated/templates/Shelf/Shelf";
+import { UpdateBorrowerAddressCall } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator";
 import {
   LoanStarted,
@@ -32,7 +33,7 @@ import {
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
-import { getOrCreateCurrency } from "../qiro-factory";
+import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -353,6 +354,21 @@ export function handleShelfDepend(call: DependCall): void {
   }
 
   poolAddresses!.save();
+}
+
+export function handleShelfUpdateBorrowerAddress(
+  call: UpdateBorrowerAddressCall
+): void {
+  let shelf = Shelf.bind(call.to);
+  let poolId = shelf.poolId();
+
+  let pool = getPool(poolId);
+  if (pool != null) {
+    // Ensure Borrower entity exists
+    getOrCreateBorrower(call.inputs._borrower, call.block.timestamp);
+    pool.borrower = call.inputs._borrower;
+    pool.save();
+  }
 }
 
 

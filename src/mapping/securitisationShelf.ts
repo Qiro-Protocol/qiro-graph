@@ -7,6 +7,7 @@ import {
   FileCall as FileCallSecuritisationShelf,
   DependCall as DependCallSecuritisationShelf,
 } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
+import { UpdateBorrowerAddressCall as UpdateBorrowerAddressCallSec } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { SecuritisationTranche } from "../../generated/QiroFactory/SecuritisationTranche";
@@ -34,7 +35,7 @@ import {
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { SecuritisationReserve } from "../../generated/QiroFactory/SecuritisationReserve";
-import { getOrCreateCurrency } from "../qiro-factory";
+import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 
 export function handleLoanStartedSecuritisationShelf(
   event: LoanStartedEventSecuritisationShelf
@@ -436,6 +437,21 @@ export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
   }
 
   poolAddresses!.save();
+}
+
+export function handleSecuritisationShelfUpdateBorrowerAddress(
+  call: UpdateBorrowerAddressCallSec
+): void {
+  let shelf = SecuritisationShelf.bind(call.to);
+  let poolId = shelf.poolId();
+
+  let pool = getPool(poolId);
+  if (pool != null) {
+    // Ensure Borrower entity exists
+    getOrCreateBorrower(call.inputs._borrower, call.block.timestamp);
+    pool.borrower = call.inputs._borrower;
+    pool.save();
+  }
 }
 
 
