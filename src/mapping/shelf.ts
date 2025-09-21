@@ -69,7 +69,13 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
         Address.fromBytes(poolAddresses!.juniorTranche)
       )
     );
-  poolObject!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  let outstandingPrincipal = shelfContract.try_getOutstandingPrincipal();
+  if (outstandingPrincipal.reverted) {
+    poolObject!.outstandingPrincipal = BigInt.fromI32(0);
+  } else{
+    poolObject!.outstandingPrincipal = outstandingPrincipal.value;
+  }
+  
   poolObject!.outstandingInterest = shelfContract.getOutstandingInterest();
   poolObject!.principalAmount = shelfContract.principalAmount();
   poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
@@ -120,7 +126,12 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
 
   let pool = getPool(event.params.poolId);
-  pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  let outstandingPrincipal = shelfContract.try_getOutstandingPrincipal();
+  if (outstandingPrincipal.reverted) {
+    pool!.outstandingPrincipal = BigInt.fromI32(0);
+  } else{
+    pool!.outstandingPrincipal = outstandingPrincipal.value;
+  }
   pool!.outstandingInterest = shelfContract.getOutstandingInterest();
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = shelfContract.debt();
@@ -158,7 +169,12 @@ export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
   pool!.totalWithdrawn = pool!.totalWithdrawn.plus(event.params.currencyAmount);
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfBalance = shelfContract.balance();
-  pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  let outstandingPrincipal = shelfContract.try_getOutstandingPrincipal();
+  if (outstandingPrincipal.reverted) {
+    pool!.outstandingPrincipal = BigInt.fromI32(0);
+  } else{
+    pool!.outstandingPrincipal = outstandingPrincipal.value;
+  }
   pool!.outstandingInterest = shelfContract.getOutstandingInterest();
   pool!.shelfDebt = shelfContract.debt();
   pool!.save();
@@ -197,7 +213,12 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.save();
 
   let pool = getPool(event.params.poolId);
-  pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();
+  let outstandingPrincipal = shelfContract.try_getOutstandingPrincipal();
+  if (outstandingPrincipal.reverted) {
+    pool!.outstandingPrincipal = BigInt.fromI32(0);
+  } else{
+    pool!.outstandingPrincipal = outstandingPrincipal.value;
+  }
   pool!.outstandingInterest = shelfContract.getOutstandingInterest();
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = shelfContract.debt();

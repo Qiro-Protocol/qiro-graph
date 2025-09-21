@@ -10,7 +10,7 @@ dataSources:
     source:
       address: "0x11ed0d6A2C84C861Eb77f1631272BED06D677758"
       abi: QiroFactory
-      startBlock: 23969317
+      startBlock: 25622176
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
