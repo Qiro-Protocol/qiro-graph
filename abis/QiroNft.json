@@ -6,6 +6,58 @@
   },
   {
     "type": "function",
+    "name": "BASIS_POINTS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_AMOUNT_100BILLION",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_INTEREST_RATE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_RISK_SCORE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "_tokenMetadata",
     "inputs": [
       {
@@ -36,37 +88,7 @@
         "internalType": "string"
       },
       {
-        "name": "noOfLoans",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "totalPrincipalAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "averageInterestRate",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "portfolioTerm",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "portfolioStatus",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "writedown",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "writeoff",
         "type": "uint256",
         "internalType": "uint256"
       },
@@ -336,19 +358,9 @@
         "internalType": "string"
       },
       {
-        "name": "_portfolioTerm",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_portfolioStatus",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
         "name": "_portfolioData",
-        "type": "uint256[6]",
-        "internalType": "uint256[6]"
+        "type": "uint256[2]",
+        "internalType": "uint256[2]"
       }
     ],
     "outputs": [
@@ -953,43 +965,7 @@
         "internalType": "string"
       },
       {
-        "name": "noOfLoans",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
         "name": "totalPrincipalAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "averageInterestRate",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "portfolioTerm",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "portfolioStatus",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "writedown",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "writeoff",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"

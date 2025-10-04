@@ -199,19 +199,6 @@
   },
   {
     "type": "function",
-    "name": "current",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "deny",
     "inputs": [
       {
@@ -293,19 +280,6 @@
       }
     ],
     "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "getCurrentState",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "enum State"
-      }
-    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -554,6 +528,29 @@
   },
   {
     "type": "function",
+    "name": "reduceCurrencyReceived",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isJunior",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "rely",
     "inputs": [
       {
@@ -679,19 +676,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "supply",
-    "inputs": [
-      {
-        "name": "currencyAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -916,19 +900,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "updateCurrent",
-    "inputs": [
-      {
-        "name": "newCurrent",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -1244,7 +1215,28 @@
   },
   {
     "type": "error",
+    "name": "InsufficientCurrencyReceived",
+    "inputs": [
+      {
+        "name": "actualBalance",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "requiredBalance",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "InvalidAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidDependParam",
     "inputs": []
   },
   {
@@ -1322,6 +1314,16 @@
   {
     "type": "error",
     "name": "TrancheFull",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ValueAlreadySet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddress",
     "inputs": []
   },
   {

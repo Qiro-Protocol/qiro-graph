@@ -242,6 +242,12 @@
         "internalType": "uint256"
       },
       {
+        "name": "userLateFeePortion",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
         "name": "price",
         "type": "uint256",
         "indexed": false,
@@ -324,6 +330,21 @@
   },
   {
     "type": "error",
+    "name": "JuniorTrancheNotFull",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MaxWithdrawTokenAmountIsZeroForJuniorTrancheUser",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MaxWithdrawTokenAmountIsZeroForSeniorTrancheUser",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "NotEnoughBalanceInJT",
     "inputs": []
   },
@@ -335,6 +356,11 @@
   {
     "type": "error",
     "name": "NotWhitelistOperator",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RedemptionNotAllowedInThisState",
     "inputs": []
   },
   {

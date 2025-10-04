@@ -20,6 +20,7 @@ type SupplyRedeem @entity(immutable: false) {
   supplierOrReciever: Bytes! # address
   currencyAmount: BigInt!
   tokenAmount: BigInt!
+  userLateFeePortion: BigInt! # uint256
   price: BigInt! # uint256
   totalPoolBalance: BigInt!
   juniorPoolBalance: BigInt!
@@ -336,13 +337,7 @@ type NFTMinted @entity(immutable: false) {
   desc: String! # string
   imageURI: String! # string
   portfolioID: String! # string
-  noOfLoans: BigInt! # uint256
   totalPrincipalAmount: BigInt! # uint256
-  averageInterestRate: BigInt! # uint256
-  portfolioTerm: String! # string
-  portfolioStatus: String! # string
-  writedown: BigInt! # uint256
-  writeoff: BigInt! # uint256
   maturityDate: String! # string
   blockNumber: BigInt!
   blockTimestamp: BigInt!

@@ -294,24 +294,14 @@ export function handleShelfFile(call: FileCall): void {
 
   let pool = getPool(poolId);
 
-  if (call.inputs.what.toString() == "pStartFrom") {
-    pool!.pStartFrom = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "periodLength") {
-    pool!.periodLength = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "periodCount") {
-    pool!.periodCount = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "isBulletRepay") {
-    pool!.isBullet = call.inputs.data.toI32() == 1 ? true : false;
-  } else if (call.inputs.what.toString() == "gracePeriod") {
+  if (call.inputs.what.toString() == "gracePeriod") { 
     pool!.gracePeriod = BigInt.fromI32(call.inputs.data.toI32());
   } else if (call.inputs.what.toString() == "writeOffTime") {
     pool!.writeoffTime = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "lateFeeInterestRate") {
+  } else if (call.inputs.what.toString() == "lateFeeInterestRateInBps") {
     pool!.lateFeeInterestRate = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "annualInterestRateInBps") {
-    pool!.interestRate = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "writeOffOriginatorFee") {
-    pool!.originatorFeeRate = BigInt.fromI32(0); // hardcoded to 0 on contract too
+  } else{
+    throw new Error("Invalid what attempted to file: " + call.inputs.what.toString());
   }
 
   pool!.save();

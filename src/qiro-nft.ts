@@ -74,13 +74,7 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   entity.desc = event.params.desc
   entity.imageURI = event.params.imageURI
   entity.portfolioID = event.params.portfolioID
-  entity.noOfLoans = event.params.noOfLoans
   entity.totalPrincipalAmount = event.params.totalPrincipalAmount
-  entity.averageInterestRate = event.params.averageInterestRate
-  entity.portfolioTerm = event.params.portfolioTerm
-  entity.portfolioStatus = event.params.portfolioStatus
-  entity.writedown = event.params.writedown
-  entity.writeoff = event.params.writeoff
   entity.maturityDate = event.params.maturityDate
 
   entity.blockNumber = event.block.number
