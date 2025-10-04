@@ -166,6 +166,7 @@ export function handleRedeem(event: RedeemEvent): void {
   entity.supplierOrReciever = event.params.receiver;
   entity.currencyAmount = event.params.currencyAmount;
   entity.tokenAmount = event.params.tokenAmount;
+  entity.userLateFeePortion = event.params.userLateFeePortion;
   entity.price = event.params.price;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;

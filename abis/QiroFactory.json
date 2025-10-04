@@ -32,6 +32,45 @@
   },
   {
     "type": "function",
+    "name": "MAX_APR_IN_BPS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_TOTAL_PERIODS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MIN_SENIOR_CEILING",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "acceptOwnership",
     "inputs": [],
     "outputs": [],
@@ -1008,6 +1047,44 @@
   },
   {
     "type": "event",
+    "name": "ContractFiled",
+    "inputs": [
+      {
+        "name": "param",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "value",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CreatePoolAccessUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "access",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "FactoryCreated",
     "inputs": [
       {
@@ -1090,6 +1167,31 @@
         "name": "newPauser",
         "type": "address",
         "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PoolAdminChanged",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "oldAdmin",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "newAdmin",
+        "type": "address",
+        "indexed": false,
         "internalType": "address"
       }
     ],
@@ -1233,6 +1335,25 @@
   },
   {
     "type": "event",
+    "name": "ProtocolContractUpdated",
+    "inputs": [
+      {
+        "name": "contract_",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "isProtocolContract_",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "ProtocolPaused",
     "inputs": [
       {
@@ -1258,6 +1379,44 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "UserKycUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "isKycUser",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WhitelistManagerUpdated",
+    "inputs": [
+      {
+        "name": "oldManager",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "newManager",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "CeilingsSumMismatch",
     "inputs": []
@@ -1275,6 +1434,11 @@
   {
     "type": "error",
     "name": "ExceedsMaxBatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ExceedsMaximumTotalPeriods",
     "inputs": []
   },
   {
@@ -1349,6 +1513,11 @@
   {
     "type": "error",
     "name": "PerformanceFeeOutOfBounds",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PoolAPROutOfBounds",
     "inputs": []
   },
   {

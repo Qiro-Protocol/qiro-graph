@@ -78,6 +78,32 @@
   },
   {
     "type": "function",
+    "name": "MIN_PRINCIPAL_AMOUNT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MIN_PRINCIPAL_VALUE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "allFees",
     "inputs": [
       {
@@ -88,9 +114,9 @@
     ],
     "outputs": [
       {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
+        "name": "feeType",
+        "type": "uint8",
+        "internalType": "uint8"
       },
       {
         "name": "amount",
@@ -102,7 +128,46 @@
   },
   {
     "type": "function",
-    "name": "annualInterestRateInBps",
+    "name": "amountPulledFromReserveForInterest",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "amountPulledFromReserveForPrincipal",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "arrearsPaidToReserveForInterest",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "arrearsPaidToReserveForPrincipal",
     "inputs": [],
     "outputs": [
       {
@@ -178,7 +243,7 @@
       {
         "name": "",
         "type": "address",
-        "internalType": "contract IERC20"
+        "internalType": "contract IERC20Qiro"
       }
     ],
     "stateMutability": "view"
@@ -584,6 +649,11 @@
       },
       {
         "name": "arrearsPrincipal",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "arrearsInterest",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -1200,12 +1270,22 @@
   },
   {
     "type": "error",
+    "name": "InsufficientForArrearsInterest",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InsufficientForArrearsPrincipal",
     "inputs": []
   },
   {
     "type": "error",
     "name": "InvalidAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidDependParam",
     "inputs": []
   },
   {
@@ -1261,6 +1341,11 @@
   {
     "type": "error",
     "name": "NotEnoughBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotMinimumPrincipal",
     "inputs": []
   },
   {
@@ -1329,6 +1414,11 @@
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "ValueAlreadySet",
+    "inputs": []
   },
   {
     "type": "error",
