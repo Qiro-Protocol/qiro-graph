@@ -126,6 +126,8 @@ type Pool @entity(immutable: false) {
   principalRepaid: BigInt! # uint256
   interestRepaid: BigInt! # uint256
   prepaymentAbsorbedAmount: BigInt! # uint256
+  prepaymentPeriod: BigInt! # uint256
+  postPrePaymentOSPrincipal: BigInt! # uint256
   lateFeeRepaid: BigInt! # uint256
   capitalFormationPeriod: BigInt! # uint256
   capitalFormationPeriodEnd: BigInt! # uint256
@@ -156,8 +158,10 @@ type Pool @entity(immutable: false) {
   outstandingShortfallPrincipalAmount: BigInt! # uint256
   servicerFeePaid: BigInt! # uint256
   # reserve related fields
-  reserveBalance: BigInt! # uint256 - balance() from reserve contract
+  reserveBalance: BigInt! # uint256 - latest borrower's balance() from reserve contract - when latest borrower deposits cash collateral
   eisBalance: BigInt! # uint256 - eisBalance from reserve contract
+  maxServicerFeeAmount: BigInt! # uint256 - maxServicerFeeAmount from securitisation shelf contract
+  recoveryAmountPaid: BigInt! # uint256 - recoveryAmountPaid from LOAN shelf contract
   addresses: PoolAddresses! @derivedFrom(field: "pool")
   # done
   lenders: [Lender!] @derivedFrom(field: "pool")
@@ -165,6 +169,19 @@ type Pool @entity(immutable: false) {
   withdrawals: [LoanWithdrawn!] @derivedFrom(field: "pool")
   supplyRedeems: [SupplyRedeem!] @derivedFrom(field: "pool")
   poolDeployed: PoolDeployed! @derivedFrom(field: "pool")
+  prepaymentsApplied: [PrepaymentApplied!] @derivedFrom(field: "pool")
+}
+
+type PrepaymentApplied @entity(immutable: true) {
+  id: Bytes!
+  pool: Pool! # uint256
+  prepaymentPeriod: BigInt! # uint256
+  prepaymentAbsorbedAmount: BigInt! # uint256
+  postPrePaymentOSPrincipal: BigInt! # uint256
+  totalInterestForLoanTerm: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }
 
 type PoolAddresses @entity(immutable: false) {

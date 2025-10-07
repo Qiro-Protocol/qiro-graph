@@ -10,13 +10,15 @@ import {
   KycUser,
   WhitelistedProtocol,
 } from "../generated/schema";
+import { Shelf } from "../generated/templates/Shelf/Shelf";
 import {
   InvestmentOperator,
-  Shelf,
+  Shelf as ShelfTemplate,
   WhitelistOperator as WhitelistOperatorTemplate,
-  SecuritisationShelf,
+  SecuritisationShelf as SecuritisationShelfTemplate,
   TimelockVault as TimelockVaultTemplate,
   ExitManager as ExitManagerTemplate,
+  Reserve as ReserveTemplate,
 } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
@@ -274,9 +276,9 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   updatePoolCountInFactory(event.address);
 
   if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.SECURITISATION) {
-    SecuritisationShelf.create(event.params.shelf);
+    SecuritisationShelfTemplate.create(event.params.shelf);
   } else if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.LOAN) {
-    Shelf.create(event.params.shelf);
+    ShelfTemplate.create(event.params.shelf);
   } else {
     // revert if pool type is unknown
     log.error("Unknown pool type for pool ID: {}", [
@@ -289,6 +291,8 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     WhitelistOperator.bind(event.params.operator).investmentOperator()
   );
   WhitelistOperatorTemplate.create(event.params.operator);
+  // Start listening to Reserve events, get reserve address from shelf contract
+  ReserveTemplate.create(Shelf.bind(event.params.shelf).reserve());
 }
 
 function handlePool(
@@ -396,6 +400,8 @@ function handlePool(
     Address.fromBytes(pool.shelf)
   );
   entity.shelfDebt = BigInt.fromI32(0);
+  entity.maxServicerFeeAmount = BigInt.fromI32(0);
+  entity.recoveryAmountPaid = BigInt.fromI32(0);
   entity.seniorTranche = seniorTranch;
   entity.juniorTranche = juniorTranch;
 
@@ -406,6 +412,8 @@ function handlePool(
     entity.pStartFrom = shelfContract!.pStartFrom();
     entity.pRepayFrequency = shelfContract!.pRepayFrequency();
     entity.prepaymentAbsorbedAmount = shelfContract!.prepaymentAbsorbedAmount();
+    entity.postPrePaymentOSPrincipal = shelfContract!.postPrePaymentOSPrincipal();
+    entity.prepaymentPeriod = shelfContract!.prePaymentPeriod();
     entity.lateFeeRepaid = shelfContract!.totalLateFeePaid();
     entity.nftTokenId = shelfContract!.token().value1;
     // SecuritisationShelf-specific fields - set to 0 for LOAN pools
@@ -420,6 +428,8 @@ function handlePool(
     entity.pRepayFrequency = securitisationShelfContract!.pRepayFrequency();
     entity.prepaymentAbsorbedAmount =
       securitisationShelfContract!.prepaymentAbsorbedAmount();
+    entity.prepaymentPeriod = BigInt.fromI32(0);
+    entity.postPrePaymentOSPrincipal = BigInt.fromI32(0);
     entity.lateFeeRepaid = securitisationShelfContract!.totalLateFeePaid();
     entity.nftTokenId = securitisationShelfContract!.token().value1;
 

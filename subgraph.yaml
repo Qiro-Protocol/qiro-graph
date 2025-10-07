@@ -239,6 +239,7 @@ templates:
         - LoanWithdrawn
         - User
         - Pool
+        - PrepaymentApplied
       abis:
         - name: Shelf
           file: ./abis/Shelf.json
@@ -261,6 +262,10 @@ templates:
           handler: handleLoanWithdrawn
         - event: OriginatorFeePaid(uint256,address,address,uint256)
           handler: handleOriginatorFeePaid
+        - event: RecoveryPaid(uint256,address,uint256)
+          handler: handleRecoveryPaid
+        - event: PrepaymentApplied(uint256,uint256,uint256,uint256,uint256)
+          handler: handlePrepaymentApplied
       callHandlers:
         - function: file(bytes32,uint256)
           handler: handleShelfFile
@@ -307,6 +312,8 @@ templates:
           handler: handleLoanWithdrawnSecuritisationShelf
         - event: OriginatorFeePaid(uint256,address,address,uint256)
           handler: handleOriginatorFeePaidSecuritisationShelf
+        - event: PrepaymentAppliedSecuritisation(uint256,uint256)
+          handler: handlePrepaymentAppliedSecuritisationShelf
       callHandlers:
         - function: file(bytes32,uint256)
           handler: handleSecuritisationShelfFile
@@ -350,3 +357,25 @@ templates:
       eventHandlers:
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleExitManagerOwnershipTransferred
+  - name: Reserve
+    kind: ethereum/contract
+    network: polygon-amoy
+    source:
+      abi: SecuritisationReserve
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/reserve.ts
+      entities:
+        - Pool
+      abis:
+        - name: SecuritisationReserve
+          file: ./abis/SecuritisationReserve.json
+      eventHandlers:
+        - event: Withdraw(uint256,indexed address,uint256)
+          handler: handleReserveWithdraw
+        - event: Supply(uint256,indexed address,uint256)
+          handler: handleReserveSupply
+        - event: DepositEIS(uint256,indexed address,uint256)
+          handler: handleReserveEisDeposit

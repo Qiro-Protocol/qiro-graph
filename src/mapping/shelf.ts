@@ -6,8 +6,11 @@ import {
   OriginatorFeePaid,
   FileCall,
   DependCall,
+  UpdateBorrowerAddressCall,
+  Shelf,
+  RecoveryPaid,
+  PrepaymentApplied as PrepaymentAppliedEvent,
 } from "../../generated/templates/Shelf/Shelf";
-import { UpdateBorrowerAddressCall } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator";
 import {
   LoanStarted,
@@ -18,15 +21,13 @@ import {
   PoolAddresses,
   Transaction,
   Tranche as TrancheEntity,
+  PrepaymentApplied,
 } from "../../generated/schema";
 import { BigInt, log, Address } from "@graphprotocol/graph-ts";
 import { InvestmentOperator } from "../../generated/templates";
-import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import {
   getPoolId,
   getPoolStatusString,
-  PoolStatus,
-  TrancheType,
   TrancheTypeWithPool,
   TransactionType,
 } from "../util";
@@ -34,6 +35,7 @@ import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
+import { updateReserveBalance } from "./reserve";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -220,6 +222,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     .totalDepositCurrencyJunior()
     .plus(operator.totalDepositCurrencySenior());
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+  pool!.prepaymentPeriod = shelfContract.prePaymentPeriod();
+  pool!.postPrePaymentOSPrincipal = shelfContract.postPrePaymentOSPrincipal();
   // For regular Reserve, get balance from currency contract
   pool!.reserveBalance = currencyContract.balanceOf(
     Address.fromBytes(poolAddresses!.reserve)
@@ -230,6 +234,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   pool!.save();
 
   createRepayTransaction(event);
+
+  updateReserveBalance(event.params.poolId, Address.fromBytes(poolAddresses!.reserve));
 }
 
 export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
@@ -313,6 +319,13 @@ export function handleShelfFile(call: FileCall): void {
   ]);
 }
 
+export function handleRecoveryPaid(event: RecoveryPaid): void {
+  let shelf = Shelf.bind(event.address);
+  let pool = getPool(event.params.poolId);
+  pool!.recoveryAmountPaid = shelf.recoveryAmountPaid();
+  pool!.save();
+}
+
 export function handleShelfDepend(call: DependCall): void {
   let shelf = Shelf.bind(call.to);
   let poolId = shelf.poolId();
@@ -361,4 +374,21 @@ export function handleShelfUpdateBorrowerAddress(
   }
 }
 
+export function handlePrepaymentApplied(event: PrepaymentAppliedEvent): void {
+  createPrepaymentAppliedTransaction(event);
+}
 
+function createPrepaymentAppliedTransaction(event: PrepaymentAppliedEvent): void {
+  let entity = new PrepaymentApplied(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params._poolId);
+  entity.prepaymentPeriod = event.params._prepaymentPeriod;
+  entity.prepaymentAbsorbedAmount = event.params._prepaymentAbsorbedAmount;
+  entity.postPrePaymentOSPrincipal = event.params._postPrePaymentOSPrincipal;
+  entity.totalInterestForLoanTerm = event.params._totalInterestForLoanTerm;
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}

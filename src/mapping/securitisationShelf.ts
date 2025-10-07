@@ -6,9 +6,10 @@ import {
   OriginatorFeePaid as OriginatorFeePaidSecuritisationShelf,
   FileCall as FileCallSecuritisationShelf,
   DependCall as DependCallSecuritisationShelf,
+  PrepaymentAppliedSecuritisation as PrepaymentAppliedEventSecuritisationEvent,
 } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { UpdateBorrowerAddressCall as UpdateBorrowerAddressCallSec } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
-
+import { updateEisAndReserveBalance } from "./reserve";
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { SecuritisationTranche } from "../../generated/QiroFactory/SecuritisationTranche";
 import { Tranche as TrancheEntity } from "../../generated/schema";
@@ -27,10 +28,9 @@ import { InvestmentOperator } from "../../generated/templates";
 import {
   getPoolId,
   getPoolStatusString,
-  PoolStatus,
-  TrancheType,
   TrancheTypeWithPool,
   TransactionType,
+  PoolType,
 } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
@@ -152,9 +152,6 @@ export function handleLoanEndedSecuritisationShelf(
   pool!.shelfBalance = currencyContract.balanceOf(
     Address.fromBytes(poolAddresses!.shelf)
   );
-
-  // SecuritisationShelf doesn't have totalWriteOffAmount, set to 0
-  pool!.writeoffAmount = BigInt.fromI32(0);
 
   pool!.save();
 }
@@ -311,6 +308,8 @@ export function handleLoanRepayedSecuritisationShelf(
   }
 
   createRepayTransaction(event);
+
+  updateEisAndReserveBalance(event.params.poolId, Address.fromBytes(poolAddresses!.reserve));
 }
 
 export function handleOriginatorFeePaidSecuritisationShelf(
@@ -383,7 +382,9 @@ export function handleShelfFile(call: FileCallSecuritisationShelf): void {
 
   if (call.inputs.what.toString() == "poolInterest") {
     pool!.shelfDebt = securitisationShelf.debt();
-  } else{
+  } else if (call.inputs.what.toString() == "maxServicerFeeAmount") {
+    pool!.maxServicerFeeAmount = securitisationShelf.maxServicerFeeAmount();
+  } else {
     throw new Error("Invalid what attempted to file: " + call.inputs.what.toString());
   }
 
@@ -444,4 +445,8 @@ export function handleSecuritisationShelfUpdateBorrowerAddress(
   }
 }
 
-
+export function handlePrepaymentAppliedSecuritisationShelf(event: PrepaymentAppliedEventSecuritisationEvent): void {
+  let pool = getPool(event.params.poolId);
+  pool!.prepaymentAbsorbedAmount = event.params.prepaymentAbsorbedAmount;
+  pool!.save();
+}
