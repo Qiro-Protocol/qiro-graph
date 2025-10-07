@@ -175,24 +175,6 @@
   },
   {
     "type": "function",
-    "name": "depend",
-    "inputs": [
-      {
-        "name": "contractName",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "addr",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "erc20Transfer",
     "inputs": [
       {
@@ -457,6 +439,19 @@
   },
   {
     "type": "function",
+    "name": "reduceSuppliedCurrency",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "rely",
     "inputs": [
       {
@@ -656,25 +651,6 @@
         "name": "usr",
         "type": "address",
         "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Depend",
-    "inputs": [
-      {
-        "name": "contractName",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "addr",
-        "type": "address",
-        "indexed": false,
         "internalType": "address"
       }
     ],

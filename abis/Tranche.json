@@ -32,6 +32,97 @@
   },
   {
     "type": "function",
+    "name": "FEES",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "PERIOD",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "PERIOD_COUNT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "PERIOD_LENGTH",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "P_REPAY_FREQUENCY",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "P_START_FROM",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "RATE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "assessor",
     "inputs": [],
     "outputs": [
@@ -121,7 +212,7 @@
       {
         "name": "",
         "type": "address",
-        "internalType": "contract IERC20"
+        "internalType": "contract IERC20Qiro"
       }
     ],
     "stateMutability": "view"
@@ -145,24 +236,6 @@
     "inputs": [
       {
         "name": "usr",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "depend",
-    "inputs": [
-      {
-        "name": "contractName",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "addr",
         "type": "address",
         "internalType": "address"
       }
@@ -374,6 +447,19 @@
       },
       {
         "name": "tokenAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "reduceSuppliedCurrency",
+    "inputs": [
+      {
+        "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -645,25 +731,6 @@
         "name": "usr",
         "type": "address",
         "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Depend",
-    "inputs": [
-      {
-        "name": "contractName",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "addr",
-        "type": "address",
-        "indexed": false,
         "internalType": "address"
       }
     ],

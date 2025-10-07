@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: polygon-amoy
     source:
-      address: "0x87d637Dec1B0964ff58d631Ae78835B7103FC7a0"
+      address: "0x1Cd2C6a06Ba7E03FF32F0Eba94C6BCF3D681763f"
       abi: QiroFactory
-      startBlock: 26655718
+      startBlock: 27250232
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -76,61 +76,61 @@ dataSources:
         - function: setProtocolContract(address,bool)
           handler: handleSetProtocolContract
       file: ./src/qiro-factory.ts
-  - kind: ethereum
-    name: Coordinator
-    network: polygon-amoy
-    source:
-      address: "0xaA19C8C529982e2B1ded622DD18AA7B83bb09bf0"
-      abi: Coordinator
-      startBlock: 26655718
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ComputeSubscription
-        - SubscriptionResponses
-      abis:
-        - name: Coordinator
-          file: ./abis/Coordinator.json
-        - name: RitualConsumer
-          file: ./abis/RitualConsumer.json
-      eventHandlers:
-        - event: SubscriptionCreated(indexed uint32)
-          handler: handleSubscriptionCreated
-        - event: SubscriptionFulfilled(indexed uint32,indexed address)
-          handler: handleSubscriptionFulfilled
-      file: ./src/coordinator.ts
-  - kind: ethereum
-    name: RitualConsumer
-    network: polygon-amoy
-    source:
-      address: "0x60b4896fF4642E21c5118093E70A8E61Cd1346Cf"
-      abi: RitualConsumer
-      startBlock: 26655718
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ComputeSubscription
-        - SubscriptionResponses
-      abis:
-        - name: RitualConsumer
-          file: ./abis/RitualConsumer.json
-      eventHandlers:
-        - event: Rely(indexed address)
-          handler: handleRely
-        - event: RequestComputeAccessSet(indexed address,indexed bool)
-          handler: handleRequestComputeAccessSet
-      file: ./src/coordinator.ts
+  # - kind: ethereum
+  #   name: Coordinator
+  #   network: polygon-amoy
+  #   source:
+  #     address: "0xaA19C8C529982e2B1ded622DD18AA7B83bb09bf0"
+  #     abi: Coordinator
+  #     startBlock: 27250232
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - ComputeSubscription
+  #       - SubscriptionResponses
+  #     abis:
+  #       - name: Coordinator
+  #         file: ./abis/Coordinator.json
+  #       - name: RitualConsumer
+  #         file: ./abis/RitualConsumer.json
+  #     eventHandlers:
+  #       - event: SubscriptionCreated(indexed uint32)
+  #         handler: handleSubscriptionCreated
+  #       - event: SubscriptionFulfilled(indexed uint32,indexed address)
+  #         handler: handleSubscriptionFulfilled
+  #     file: ./src/coordinator.ts
+  # - kind: ethereum
+  #   name: RitualConsumer
+  #   network: polygon-amoy
+  #   source:
+  #     address: "0x60b4896fF4642E21c5118093E70A8E61Cd1346Cf"
+  #     abi: RitualConsumer
+  #     startBlock: 27250232
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - ComputeSubscription
+  #       - SubscriptionResponses
+  #     abis:
+  #       - name: RitualConsumer
+  #         file: ./abis/RitualConsumer.json
+  #     eventHandlers:
+  #       - event: Rely(indexed address)
+  #         handler: handleRely
+  #       - event: RequestComputeAccessSet(indexed address,indexed bool)
+  #         handler: handleRequestComputeAccessSet
+  #     file: ./src/coordinator.ts
   - kind: ethereum
     name: "QiroNft"
     network: polygon-amoy
     source:
-      address: "0x4B5B89db0519352A03800A771d67B94077ff6378"
+      address: "0x918aF02420A3CED94157CC7F608d89ba3808D715"
       abi: QiroNft
-      startBlock: 26655718
+      startBlock: 27250232
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -155,8 +155,7 @@ dataSources:
           handler: handleDeny
         - event: File(bytes32,uint256,uint256)
           handler: handleFile
-        - event: NFTMinted(indexed
-            address,uint256,string,string,string,string,uint256,uint256,uint256,string,string,uint256,uint256,string)
+        - event: NFTMinted(indexed address,uint256,string,string,string,string,uint256,string)
           handler: handleNFTMinted
         - event: Rely(indexed address)
           handler: handleRely
@@ -221,7 +220,7 @@ templates:
       eventHandlers:
         - event: Supply(uint256,address,address,uint256,uint256,uint256,uint256)
           handler: handleSupply
-        - event: Redeem(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+        - event: Redeem(uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
@@ -263,7 +262,7 @@ templates:
         - event: OriginatorFeePaid(uint256,address,address,uint256)
           handler: handleOriginatorFeePaid
       callHandlers:
-        - function: file(bytes32,address)
+        - function: file(bytes32,uint256)
           handler: handleShelfFile
         - function: depend(bytes32,address)
           handler: handleShelfDepend
@@ -309,10 +308,10 @@ templates:
         - event: OriginatorFeePaid(uint256,address,address,uint256)
           handler: handleOriginatorFeePaidSecuritisationShelf
       callHandlers:
-        - function: file(bytes32,address)
-          handler: handleShelfFile
+        - function: file(bytes32,uint256)
+          handler: handleSecuritisationShelfFile
         - function: depend(bytes32,address)
-          handler: handleShelfDepend
+          handler: handleSecuritisationShelfDepend
         - function: updateBorrowerAddress(address)
           handler: handleSecuritisationShelfUpdateBorrowerAddress
   - name: TimelockVault

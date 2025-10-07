@@ -381,20 +381,10 @@ export function handleShelfFile(call: FileCallSecuritisationShelf): void {
 
   let pool = getPool(poolId);
 
-  if (call.inputs.what.toString() == "pStartFrom") {
-    pool!.pStartFrom = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "periodLength") {
-    pool!.periodLength = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "periodCount") {
-    pool!.periodCount = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "gracePeriod") {
-    pool!.gracePeriod = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "lateFeeInterestRate") {
-    pool!.lateFeeInterestRate = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "annualInterestRateInBps") {
-    pool!.interestRate = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "writeOffOriginatorFee") {
-    pool!.originatorFeeRate = BigInt.fromI32(0); // hardcoded to 0 on contract too
+  if (call.inputs.what.toString() == "poolInterest") {
+    pool!.shelfDebt = securitisationShelf.debt();
+  } else{
+    throw new Error("Invalid what attempted to file: " + call.inputs.what.toString());
   }
 
   pool!.save();
@@ -406,7 +396,7 @@ export function handleShelfFile(call: FileCallSecuritisationShelf): void {
   ]);
 }
 
-export function handleShelfDepend(call: DependCallSecuritisationShelf): void {
+export function handleSecuritisationShelfDepend(call: DependCallSecuritisationShelf): void {
   let securitisationShelf = SecuritisationShelf.bind(call.to);
   let poolId = securitisationShelf.poolId();
 
