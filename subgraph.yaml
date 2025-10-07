@@ -256,7 +256,7 @@ templates:
           handler: handleLoanStarted
         - event: LoanEnded(uint256,address,uint256,uint256,uint256)
           handler: handleLoanEnded
-        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
+        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleLoanRepayed
         - event: LoanWithdrawn(uint256,address,address,uint256,uint256)
           handler: handleLoanWithdrawn
@@ -306,7 +306,7 @@ templates:
           handler: handleLoanStartedSecuritisationShelf
         - event: LoanEnded(uint256,address,uint256,uint256,uint256)
           handler: handleLoanEndedSecuritisationShelf
-        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256)
+        - event: LoanRepayed(uint256,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleLoanRepayedSecuritisationShelf
         - event: LoanWithdrawn(uint256,address,address,uint256,uint256)
           handler: handleLoanWithdrawnSecuritisationShelf

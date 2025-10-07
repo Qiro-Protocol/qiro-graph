@@ -189,6 +189,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.borrower = event.params.borrower;
   entity.amountRepayed = event.params.currencyAmount;
+  entity.prePaymentPrincipal = event.params.prepaymentAbsorbedAmountThisTx;
   entity.principalRepayed = event.params.principalRepaidThisTx;
   entity.interestRepayed = event.params.interestRepaidThisTx;
   entity.lateFeeRepayed = event.params.lateFeeRepaidThisTx;

@@ -282,8 +282,10 @@ type LoanRepayed @entity(immutable: false) {
   pool: Pool! # uint256
   borrower: Borrower! # address
   amountRepayed: BigInt!
+  # includes principal repaid and prepayment principal repaid
   principalRepayed: BigInt!
   interestRepayed: BigInt!
+  prePaymentPrincipal: BigInt!
   lateFeeRepayed: BigInt!
   seniorTotalRepaid: BigInt!
   juniorTotalRepaid: BigInt!
