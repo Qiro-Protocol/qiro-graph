@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: QiroFactory
-    network: polygon-amoy
+    network: plume-mainnet
     source:
-      address: "0x32Fa5a735c49666F2e58AED4fB7e5571c785A43D"
+      address: "0x1525dD786065fD427503Bce46d0c6e1d6F53a7DF"
       abi: QiroFactory
-      startBlock: 27437816
+      startBlock: 32400646
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -78,11 +78,11 @@ dataSources:
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
-    network: polygon-amoy
+    network: plume-mainnet
     source:
-      address: "0x7E33e977b5Cc4F687904D77c9d0261921F2363f2"
+      address: "0xa751e6b9A3fEc51966AeeacE259F2B2E7356dfb6"
       abi: Coordinator
-      startBlock: 27263797
+      startBlock: 31261480
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -103,11 +103,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: RitualConsumer
-    network: polygon-amoy
+    network: plume-mainnet
     source:
-      address: "0xaf0e791288D9C6E4d3B2525768c6B4fFB736ecC0"
+      address: "0xdc66547496B75C16fA17E3c836adE20e9572CcC4"
       abi: RitualConsumer
-      startBlock: 27263797
+      startBlock: 31261480
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -126,11 +126,11 @@ dataSources:
       file: ./src/coordinator.ts
   - kind: ethereum
     name: "QiroNft"
-    network: polygon-amoy
+    network: plume-mainnet
     source:
-      address: "0xA55A11F00a522049A7C08a661cc0121f8Fe9e0BB"
+      address: "0x9b838483eD44c34443ca5F990869F23BC9496277"
       abi: QiroNft
-      startBlock: 27437816
+      startBlock: 32400634
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -167,7 +167,7 @@ dataSources:
 templates:
   - name: WhitelistOperator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: WhitelistOperator
     mapping:
@@ -191,7 +191,7 @@ templates:
           handler: handleWhitelistOperatorUpdateState
   - name: InvestmentOperator
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: InvestmentOperator
     mapping:
@@ -224,7 +224,7 @@ templates:
           handler: handleRedeem
   - name: Shelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: Shelf
     mapping:
@@ -275,7 +275,7 @@ templates:
           handler: handleShelfUpdateBorrowerAddress
   - name: SecuritisationShelf
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: SecuritisationShelf
     mapping:
@@ -323,7 +323,7 @@ templates:
           handler: handleSecuritisationShelfUpdateBorrowerAddress
   - name: TimelockVault
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: TimelockVault
     mapping:
@@ -341,7 +341,7 @@ templates:
           handler: handleTimelockManagerUpdated
   - name: ExitManager
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: ExitManager
     mapping:
@@ -359,7 +359,7 @@ templates:
           handler: handleExitManagerOwnershipTransferred
   - name: Reserve
     kind: ethereum/contract
-    network: polygon-amoy
+    network: plume-mainnet
     source:
       abi: SecuritisationReserve
     mapping:
