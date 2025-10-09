@@ -53,6 +53,7 @@ export function handleSupply(event: SupplyEvent): void {
   entity.supplierOrReciever = event.params.supplier;
   entity.currencyAmount = event.params.amount;
   entity.tokenAmount = event.params.amount;
+  entity.userLateFeePortion = BigInt.fromI32(0);
   entity.price = ONE;
   entity.totalPoolBalance = event.params.totalPoolBalance;
   entity.juniorPoolBalance = event.params.juniorPoolBalance;
