@@ -34,7 +34,7 @@ import {
   PoolType,
 } from "../util";
 import {
-  DependCall,
+  OperatorFiled as OperatorFiledEvent,
   WhitelistOperator,
 } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { ONE } from "../util";
@@ -393,22 +393,16 @@ function getTrancheTypeFromAddress(trancheAddress: Bytes): string {
   return TrancheTypeWithPool.POOL;
 }
 
-export function handleWhitelistOperatorDepend(call: DependCall): void {
-  let whitelistOperator = WhitelistOperator.bind(call.to);
+export function handleWhitelistOperatorFiled(event: OperatorFiledEvent): void {
+  let whitelistOperator = WhitelistOperator.bind(event.address);
   let poolId = whitelistOperator.poolId();
 
   let poolAddresses = getPoolAddresses(poolId);
 
-  if (call.inputs.contractName.toString() == "shelf") {
-    poolAddresses!.shelf = call.inputs.addr;
-  } else if (call.inputs.contractName.toString() == "assessor") {
-    // assessor
-    // dont need to do anything here as assessor is not stored in the graph
-  } else if (call.inputs.contractName.toString() == "distributor") {
-    // distributor
-    // dont need to do anything here as distributor is not stored in the graph
-  } else if (call.inputs.contractName.toString() == "investmentOperator") {
-    poolAddresses!.investmentOperator = call.inputs.addr;
+  if (event.params.contractName.toString() == "shelf") {
+    poolAddresses!.shelf = event.params.addr;
+  } else if (event.params.contractName.toString() == "investmentOperator") {
+    poolAddresses!.investmentOperator = event.params.addr;
   }
 
   poolAddresses!.save();

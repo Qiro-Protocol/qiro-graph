@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: plume-mainnet
     source:
-      address: "0x1525dD786065fD427503Bce46d0c6e1d6F53a7DF"
+      address: "0xA927D245BB2943682a798C2b3999D4d1cDFFE245"
       abi: QiroFactory
-      startBlock: 32400646
+      startBlock: 32512075
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -62,19 +62,16 @@ dataSources:
           handler: handlePoolsUnpaused
         - event: PauserUpdated(indexed address,indexed address)
           handler: handlePauserUpdated
-      callHandlers:
-        - function: file(bytes32,address)
+        - event: ContractFiled(bytes32,address)
           handler: handleFactoryFile
-        - function: changePoolAdmin(uint256,address)
+        - event: PoolAdminChanged(uint256,address,address)
           handler: handleChangePoolAdmin
-        - function: updateWhitelistManager(address)
+        - event: WhitelistManagerUpdated(address,address)
           handler: handleUpdateWhitelistManager
-        - function: addMember(address)
-          handler: handleAddMember
-        - function: removeMember(address)
-          handler: handleRemoveMember
-        - function: setProtocolContract(address,bool)
-          handler: handleSetProtocolContract
+        - event: UserKycUpdated(address,bool)
+          handler: handleUserKycUpdated
+        - event: ProtocolContractUpdated(address,bool)
+          handler: handleProtocolContractUpdated
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
@@ -128,9 +125,9 @@ dataSources:
     name: "QiroNft"
     network: plume-mainnet
     source:
-      address: "0x9b838483eD44c34443ca5F990869F23BC9496277"
+      address: "0x4EcF1bf2cc3948A557B9a9EeF7eEd9Ff01D63C0C"
       abi: QiroNft
-      startBlock: 32400634
+      startBlock: 32512061
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -183,12 +180,11 @@ templates:
           file: ./abis/WhitelistOperator.json
         - name: InvestmentOperator
           file: ./abis/InvestmentOperator.json
-      callHandlers:
-        - function: depend(bytes32,address)
-          handler: handleWhitelistOperatorDepend
       eventHandlers:
         - event: UpdatedPoolState(uint256,uint8)
           handler: handleWhitelistOperatorUpdateState
+        - event: OperatorFiled(uint256,bytes32,address)
+          handler: handleWhitelistOperatorFiled
   - name: InvestmentOperator
     kind: ethereum/contract
     network: plume-mainnet
@@ -266,13 +262,12 @@ templates:
           handler: handleRecoveryPaid
         - event: PrepaymentApplied(uint256,uint256,uint256,uint256,uint256)
           handler: handlePrepaymentApplied
-      callHandlers:
-        - function: file(bytes32,uint256)
-          handler: handleShelfFile
-        - function: depend(bytes32,address)
-          handler: handleShelfDepend
-        - function: updateBorrowerAddress(address)
-          handler: handleShelfUpdateBorrowerAddress
+        - event: ShelfFiled(uint256,indexed bytes32,uint256)
+          handler: handleSecuritisationShelfFile
+        - event: ShelfDepend(uint256,bytes32,address)
+          handler: handleSecuritisationShelfDepend
+        - event: BorrowerAddressUpdated(uint256,address)
+          handler: handleSecuritisationShelfUpdateBorrowerAddress
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: plume-mainnet
@@ -314,13 +309,12 @@ templates:
           handler: handleOriginatorFeePaidSecuritisationShelf
         - event: PrepaymentAppliedSecuritisation(uint256,uint256)
           handler: handlePrepaymentAppliedSecuritisationShelf
-      callHandlers:
-        - function: file(bytes32,uint256)
-          handler: handleSecuritisationShelfFile
-        - function: depend(bytes32,address)
-          handler: handleSecuritisationShelfDepend
-        - function: updateBorrowerAddress(address)
+        - event: BorrowerAddressUpdated(uint256,address)
           handler: handleSecuritisationShelfUpdateBorrowerAddress
+        - event: SecuritisationShelfFiled(uint256,indexed bytes32,uint256)
+          handler: handleSecuritisationShelfFile
+        - event: SecuritisationShelfDepend(uint256,bytes32,address)
+          handler: handleSecuritisationShelfDepend
   - name: TimelockVault
     kind: ethereum/contract
     network: plume-mainnet
