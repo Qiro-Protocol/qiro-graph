@@ -375,7 +375,7 @@ function createRepayTransaction(
   entity.save();
 }
 
-export function handleShelfFile(event: SecuritisationShelfFiledEvent): void {
+export function handleSecuritisationShelfFile(event: SecuritisationShelfFiledEvent): void {
   let securitisationShelf = SecuritisationShelf.bind(event.address);
   let poolId = securitisationShelf.poolId();
 
