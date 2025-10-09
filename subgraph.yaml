@@ -263,11 +263,11 @@ templates:
         - event: PrepaymentApplied(uint256,uint256,uint256,uint256,uint256)
           handler: handlePrepaymentApplied
         - event: ShelfFiled(uint256,indexed bytes32,uint256)
-          handler: handleSecuritisationShelfFile
+          handler: handleShelfFile
         - event: ShelfDepend(uint256,bytes32,address)
-          handler: handleSecuritisationShelfDepend
+          handler: handleShelfDepend
         - event: BorrowerAddressUpdated(uint256,address)
-          handler: handleSecuritisationShelfUpdateBorrowerAddress
+          handler: handleShelfUpdateBorrowerAddress
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: polygon-amoy
