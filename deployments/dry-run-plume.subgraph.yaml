@@ -366,6 +366,8 @@ templates:
       abis:
         - name: SecuritisationReserve
           file: ./abis/SecuritisationReserve.json
+        - name: Reserve
+          file: ./abis/Reserve.json
       eventHandlers:
         - event: Withdraw(uint256,indexed address,uint256)
           handler: handleReserveWithdraw
