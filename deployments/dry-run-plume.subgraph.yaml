@@ -294,6 +294,8 @@ templates:
           file: ./abis/ERC20.json
         - name: SecuritisationReserve
           file: ./abis/SecuritisationReserve.json
+        - name: Reserve
+          file: ./abis/Reserve.json
         - name: WhitelistOperator
           file: ./abis/WhitelistOperator.json
       eventHandlers:
