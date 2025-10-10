@@ -4,10 +4,13 @@ import {
   LoanWithdrawn as LoanWithdrawnEvent,
   LoanRepayed as LoanRepayedEvent,
   OriginatorFeePaid,
-  FileCall,
-  DependCall,
+  ShelfFiled as ShelfFiledEvent,
+  ShelfDepend as ShelfDependEvent,
+  BorrowerAddressUpdated as BorrowerAddressUpdatedEvent,
+  Shelf,
+  RecoveryPaid,
+  PrepaymentApplied as PrepaymentAppliedEvent,
 } from "../../generated/templates/Shelf/Shelf";
-import { UpdateBorrowerAddressCall } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator";
 import {
   LoanStarted,
@@ -18,15 +21,13 @@ import {
   PoolAddresses,
   Transaction,
   Tranche as TrancheEntity,
+  PrepaymentApplied,
 } from "../../generated/schema";
 import { BigInt, log, Address } from "@graphprotocol/graph-ts";
 import { InvestmentOperator } from "../../generated/templates";
-import { Shelf } from "../../generated/templates/Shelf/Shelf";
 import {
   getPoolId,
   getPoolStatusString,
-  PoolStatus,
-  TrancheType,
   TrancheTypeWithPool,
   TransactionType,
 } from "../util";
@@ -34,6 +35,7 @@ import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Tranche } from "../../generated/QiroFactory/Tranche";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
+import { updateReserveBalance } from "./reserve";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -187,6 +189,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   entity.pool = getPoolId(event.params.poolId);
   entity.borrower = event.params.borrower;
   entity.amountRepayed = event.params.currencyAmount;
+  entity.prePaymentPrincipal = event.params.prepaymentAbsorbedAmountThisTx;
   entity.principalRepayed = event.params.principalRepaidThisTx;
   entity.interestRepayed = event.params.interestRepaidThisTx;
   entity.lateFeeRepayed = event.params.lateFeeRepaidThisTx;
@@ -220,6 +223,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     .totalDepositCurrencyJunior()
     .plus(operator.totalDepositCurrencySenior());
   pool!.prepaymentAbsorbedAmount = shelfContract.prepaymentAbsorbedAmount();
+  pool!.prepaymentPeriod = shelfContract.prePaymentPeriod();
+  pool!.postPrePaymentOSPrincipal = shelfContract.postPrePaymentOSPrincipal();
   // For regular Reserve, get balance from currency contract
   pool!.reserveBalance = currencyContract.balanceOf(
     Address.fromBytes(poolAddresses!.reserve)
@@ -230,6 +235,8 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   pool!.save();
 
   createRepayTransaction(event);
+
+  updateReserveBalance(event.params.poolId, Address.fromBytes(poolAddresses!.reserve));
 }
 
 export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
@@ -288,57 +295,64 @@ function createRepayTransaction(event: LoanRepayedEvent): void {
   entity.save();
 }
 
-export function handleShelfFile(call: FileCall): void {
-  let shelf = Shelf.bind(call.to);
+export function handleShelfFile(event: ShelfFiledEvent): void {
+  let shelf = Shelf.bind(event.address);
   let poolId = shelf.poolId();
 
   let pool = getPool(poolId);
 
-  if (call.inputs.what.toString() == "gracePeriod") { 
-    pool!.gracePeriod = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "writeOffTime") {
-    pool!.writeoffTime = BigInt.fromI32(call.inputs.data.toI32());
-  } else if (call.inputs.what.toString() == "lateFeeInterestRateInBps") {
-    pool!.lateFeeInterestRate = BigInt.fromI32(call.inputs.data.toI32());
+  if (event.params.what.toString() == "gracePeriod") { 
+    pool!.gracePeriod = BigInt.fromI32(event.params.data.toI32());
+  } else if (event.params.what.toString() == "writeOffTime") {
+    pool!.writeoffTime = BigInt.fromI32(event.params.data.toI32());
+  } else if (event.params.what.toString() == "lateFeeInterestRateInBps") {
+    pool!.lateFeeInterestRate = BigInt.fromI32(event.params.data.toI32());
   } else{
-    throw new Error("Invalid what attempted to file: " + call.inputs.what.toString());
+    throw new Error("Invalid what attempted to file: " + event.params.what.toString());
   }
 
   pool!.save();
 
   log.info("Updated pool {} with what: {}, data: {}", [
     poolId.toString(),
-    call.inputs.what.toString(),
-    call.inputs.data.toString(),
+    event.params.what.toString(),
+    event.params.data.toString(),
   ]);
 }
 
-export function handleShelfDepend(call: DependCall): void {
-  let shelf = Shelf.bind(call.to);
+export function handleRecoveryPaid(event: RecoveryPaid): void {
+  let shelf = Shelf.bind(event.address);
+  let pool = getPool(event.params.poolId);
+  pool!.recoveryAmountPaid = shelf.recoveryAmountPaid();
+  pool!.save();
+}
+
+export function handleShelfDepend(event: ShelfDependEvent): void {
+  let shelf = Shelf.bind(event.address);
   let poolId = shelf.poolId();
 
   let poolAddresses = getPoolAddresses(poolId);
 
-  if (call.inputs.contractName.toString() == "lender") {
+  if (event.params.contractName.toString() == "lender") {
     // whitelist operator
-    poolAddresses!.operator = call.inputs.addr;
+    poolAddresses!.operator = event.params.addr;
     // create listener for investment operator
     InvestmentOperator.create(
       WhitelistOperator.bind(
         Address.fromBytes(poolAddresses!.operator)
       ).investmentOperator()
     );
-  } else if (call.inputs.contractName.toString() == "token") {
+  } else if (event.params.contractName.toString() == "token") {
     // currency
     // create new currency entity
-    getOrCreateCurrency(call.inputs.addr);
-    poolAddresses!.currency = call.inputs.addr;
-  } else if (call.inputs.contractName.toString() == "reserve") {
+    getOrCreateCurrency(event.params.addr);
+    poolAddresses!.currency = event.params.addr;
+  } else if (event.params.contractName.toString() == "reserve") {
     // reserve
-    poolAddresses!.reserve = call.inputs.addr;
-  } else if (call.inputs.contractName.toString() == "nft") {
-    poolAddresses!.nftContractAddress = call.inputs.addr;
-  } else if (call.inputs.contractName.toString() == "distributor") {
+    poolAddresses!.reserve = event.params.addr;
+  } else if (event.params.contractName.toString() == "nft") {
+    poolAddresses!.nftContractAddress = event.params.addr;
+  } else if (event.params.contractName.toString() == "distributor") {
     // distributor
     // do nothing as distributor is not stored in the subgraph
   }
@@ -347,18 +361,35 @@ export function handleShelfDepend(call: DependCall): void {
 }
 
 export function handleShelfUpdateBorrowerAddress(
-  call: UpdateBorrowerAddressCall
+  event: BorrowerAddressUpdatedEvent
 ): void {
-  let shelf = Shelf.bind(call.to);
+  let shelf = Shelf.bind(event.address);
   let poolId = shelf.poolId();
 
   let pool = getPool(poolId);
   if (pool != null) {
     // Ensure Borrower entity exists
-    getOrCreateBorrower(call.inputs._borrower, call.block.timestamp);
-    pool.borrower = call.inputs._borrower;
+    getOrCreateBorrower(event.params.borrower, event.block.timestamp);
+    pool.borrower = event.params.borrower;
     pool.save();
   }
 }
 
+export function handlePrepaymentApplied(event: PrepaymentAppliedEvent): void {
+  createPrepaymentAppliedTransaction(event);
+}
 
+function createPrepaymentAppliedTransaction(event: PrepaymentAppliedEvent): void {
+  let entity = new PrepaymentApplied(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params._poolId);
+  entity.prepaymentPeriod = event.params._prepaymentPeriod;
+  entity.prepaymentAbsorbedAmount = event.params._prepaymentAbsorbedAmount;
+  entity.postPrePaymentOSPrincipal = event.params._postPrePaymentOSPrincipal;
+  entity.totalInterestForLoanTerm = event.params._totalInterestForLoanTerm;
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}

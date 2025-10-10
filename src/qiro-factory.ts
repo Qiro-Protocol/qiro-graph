@@ -10,13 +10,15 @@ import {
   KycUser,
   WhitelistedProtocol,
 } from "../generated/schema";
+import { Shelf } from "../generated/templates/Shelf/Shelf";
 import {
   InvestmentOperator,
-  Shelf,
+  Shelf as ShelfTemplate,
   WhitelistOperator as WhitelistOperatorTemplate,
-  SecuritisationShelf,
+  SecuritisationShelf as SecuritisationShelfTemplate,
   TimelockVault as TimelockVaultTemplate,
   ExitManager as ExitManagerTemplate,
+  Reserve as ReserveTemplate,
 } from "../generated/templates";
 import { WhitelistOperator } from "../generated/templates/WhitelistOperator/WhitelistOperator";
 import { Shelf as ShelfContract } from "../generated/templates/Shelf/Shelf";
@@ -37,7 +39,7 @@ import {
 import {
   FactoryCreated,
   QiroFactory as QiroFactoryContract,
-  FileCall,
+  ContractFiled as FactoryFileEvent,
   OwnershipTransferred,
   PoolDeployed as PoolDeployedEvent,
   ProtocolPaused,
@@ -45,11 +47,10 @@ import {
   PoolsPaused,
   PoolsUnpaused,
   PauserUpdated,
-  UpdateWhitelistManagerCall,
-  ChangePoolAdminCall,
-  AddMemberCall,
-  RemoveMemberCall,
-  SetProtocolContractCall,
+  WhitelistManagerUpdated as WhitelistManagerUpdatedEvent,
+  PoolAdminChanged as PoolAdminChangedEvent,
+  UserKycUpdated as UserKycUpdatedEvent,
+  ProtocolContractUpdated as ProtocolContractUpdatedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 
@@ -100,15 +101,15 @@ function setupRolesAddresses(entity: QiroFactory): void {
   ExitManagerTemplate.create(exitManagerAddress);
 }
 
-export function handleFactoryFile(call: FileCall): void {
-  let factory = QiroFactory.load(call.to);
+export function handleFactoryFile(event: FactoryFileEvent): void {
+  let factory = QiroFactory.load(event.address);
   if (factory == null) {
-    log.error("Factory not found for address: {}", [call.to.toHexString()]);
+    log.error("Factory not found for address: {}", [event.address.toHexString()]);
     return;
   }
 
-  let what = call.inputs.what.toString();
-  let value = call.inputs._value;
+  let what = event.params.param.toString();
+  let value = event.params.value;
 
   if (what == "qiroFeeCollector") {
     factory.qiroFeeCollector = value;
@@ -117,26 +118,26 @@ export function handleFactoryFile(call: FileCall): void {
   } else if (what == "currency") {
     factory.currency = value;
   } else {
-    log.warning("Unknown parameter in factory file call: {}", [what]);
+    log.warning("Unknown parameter in factory file event: {}", [what]);
   }
   factory.save();
 }
 
-export function handleUpdateWhitelistManager(call: UpdateWhitelistManagerCall): void {
-  let factory = QiroFactory.load(call.to);
+export function handleUpdateWhitelistManager(event: WhitelistManagerUpdatedEvent): void {
+  let factory = QiroFactory.load(event.address);
   if (factory != null) {
-    factory.whitelistManager = call.inputs._whitelistManager;
+    factory.whitelistManager = event.params.newManager;
     factory.save();
   }
 }
 
-export function handleChangePoolAdmin(call: ChangePoolAdminCall): void {
+export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
   // Update PoolAddresses.admin for the given poolId
-  let poolId = call.inputs.poolId;
+  let poolId = event.params.poolId;
   let poolEntityId = getPoolId(poolId);
   let poolAddresses = PoolAddresses.load(poolEntityId);
   if (poolAddresses != null) {
-    poolAddresses.admin = call.inputs.newAdmin;
+    poolAddresses.admin = event.params.newAdmin;
     poolAddresses.save();
   }
 }
@@ -157,36 +158,27 @@ function getOrCreateKycUser(
   return kyc as KycUser;
 }
 
-export function handleAddMember(call: AddMemberCall): void {
+export function handleUserKycUpdated(event: UserKycUpdatedEvent): void {
   // KYC user added
-  let userId = call.inputs.address_;
-  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
-  kyc.isKyc = true;
-  kyc.blockTimestamp = call.block.timestamp;
+  let userId = event.params.user;
+  let kyc = getOrCreateKycUser(userId, event.address, event.block.timestamp);
+  kyc.isKyc = event.params.isKycUser;
+  kyc.blockTimestamp = event.block.timestamp;
   kyc.save();
 }
 
-export function handleRemoveMember(call: RemoveMemberCall): void {
-  // KYC user removed
-  let userId = call.inputs.address_;
-  let kyc = getOrCreateKycUser(userId, call.to, call.block.timestamp);
-  kyc.isKyc = false;
-  kyc.blockTimestamp = call.block.timestamp;
-  kyc.save();
-}
-
-export function handleSetProtocolContract(
-  call: SetProtocolContractCall
+export function handleProtocolContractUpdated(
+  event: ProtocolContractUpdatedEvent
 ): void {
-  let contractAddr = call.inputs.contract_;
+  let contractAddr = event.params.contract_;
   let wl = WhitelistedProtocol.load(contractAddr);
   if (wl == null) {
     wl = new WhitelistedProtocol(contractAddr);
     wl.address = contractAddr;
-    wl.factory = call.to;
+    wl.factory = event.address;
   }
-  wl.isWhitelisted = call.inputs.isProtocolContract_;
-  wl.blockTimestamp = call.block.timestamp;
+  wl.isWhitelisted = event.params.isProtocolContract_;
+  wl.blockTimestamp = event.block.timestamp;
   wl.save();
 }
 
@@ -274,9 +266,9 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   updatePoolCountInFactory(event.address);
 
   if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.SECURITISATION) {
-    SecuritisationShelf.create(event.params.shelf);
+    SecuritisationShelfTemplate.create(event.params.shelf);
   } else if (getPoolTypeString(factoryPool.getPoolType()) == PoolType.LOAN) {
-    Shelf.create(event.params.shelf);
+    ShelfTemplate.create(event.params.shelf);
   } else {
     // revert if pool type is unknown
     log.error("Unknown pool type for pool ID: {}", [
@@ -289,6 +281,8 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
     WhitelistOperator.bind(event.params.operator).investmentOperator()
   );
   WhitelistOperatorTemplate.create(event.params.operator);
+  // Start listening to Reserve events, get reserve address from shelf contract
+  ReserveTemplate.create(Shelf.bind(event.params.shelf).reserve());
 }
 
 function handlePool(
@@ -396,6 +390,8 @@ function handlePool(
     Address.fromBytes(pool.shelf)
   );
   entity.shelfDebt = BigInt.fromI32(0);
+  entity.maxServicerFeeAmount = BigInt.fromI32(0);
+  entity.recoveryAmountPaid = BigInt.fromI32(0);
   entity.seniorTranche = seniorTranch;
   entity.juniorTranche = juniorTranch;
 
@@ -406,6 +402,8 @@ function handlePool(
     entity.pStartFrom = shelfContract!.pStartFrom();
     entity.pRepayFrequency = shelfContract!.pRepayFrequency();
     entity.prepaymentAbsorbedAmount = shelfContract!.prepaymentAbsorbedAmount();
+    entity.postPrePaymentOSPrincipal = shelfContract!.postPrePaymentOSPrincipal();
+    entity.prepaymentPeriod = shelfContract!.prePaymentPeriod();
     entity.lateFeeRepaid = shelfContract!.totalLateFeePaid();
     entity.nftTokenId = shelfContract!.token().value1;
     // SecuritisationShelf-specific fields - set to 0 for LOAN pools
@@ -420,6 +418,8 @@ function handlePool(
     entity.pRepayFrequency = securitisationShelfContract!.pRepayFrequency();
     entity.prepaymentAbsorbedAmount =
       securitisationShelfContract!.prepaymentAbsorbedAmount();
+    entity.prepaymentPeriod = BigInt.fromI32(0);
+    entity.postPrePaymentOSPrincipal = BigInt.fromI32(0);
     entity.lateFeeRepaid = securitisationShelfContract!.totalLateFeePaid();
     entity.nftTokenId = securitisationShelfContract!.token().value1;
 

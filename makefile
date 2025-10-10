@@ -9,7 +9,8 @@ SCHEMA_FILE = schema.graphql
 SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
-SUBGRAPH_NAME = qiro-protocol-v1-testnet/0.0.3
+# SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
+SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.0
 
 # Clean build directory
 clean:
@@ -24,6 +25,8 @@ build:
 
 # Deploy the subgraph
 deploy:
+	graph codegen
+	graph build
 	goldsky subgraph deploy $(SUBGRAPH_NAME) --path .
 
 # Build and deploy in one command
