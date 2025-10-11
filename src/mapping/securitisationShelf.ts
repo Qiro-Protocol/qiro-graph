@@ -78,9 +78,9 @@ export function handleLoanStartedSecuritisationShelf(
       )
     );
   poolObject!.outstandingPrincipal =
-    securitisationShelfContract.getOutstandingPrincipal();
+    securitisationShelfContract.try_getOutstandingPrincipal().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingPrincipal().value;
   poolObject!.outstandingInterest =
-    securitisationShelfContract.getOutstandingInterest();
+    securitisationShelfContract.try_getOutstandingInterest().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingInterest().value;
   poolObject!.principalAmount = securitisationShelfContract.principalAmount();
   poolObject!.interestAmount =
     securitisationShelfContract.totalInterestForLoanTerm();
@@ -144,9 +144,9 @@ export function handleLoanEndedSecuritisationShelf(
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal =
-    securitisationShelfContract.getOutstandingPrincipal();
+    securitisationShelfContract.try_getOutstandingPrincipal().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingPrincipal().value;
   pool!.outstandingInterest =
-    securitisationShelfContract.getOutstandingInterest();
+    securitisationShelfContract.try_getOutstandingInterest().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingInterest().value;
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = securitisationShelfContract.debt();
   pool!.shelfBalance = currencyContract.balanceOf(
@@ -185,9 +185,9 @@ export function handleLoanWithdrawnSecuritisationShelf(
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfBalance = securitisationShelfContract.balance();
   pool!.outstandingPrincipal =
-    securitisationShelfContract.getOutstandingPrincipal();
+    securitisationShelfContract.try_getOutstandingPrincipal().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingPrincipal().value;
   pool!.outstandingInterest =
-    securitisationShelfContract.getOutstandingInterest();
+    securitisationShelfContract.try_getOutstandingInterest().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingInterest().value;
   pool!.shelfDebt = securitisationShelfContract.debt();
   pool!.save();
 
@@ -238,9 +238,9 @@ export function handleLoanRepayedSecuritisationShelf(
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal =
-    securitisationShelfContract.getOutstandingPrincipal();
+    securitisationShelfContract.try_getOutstandingPrincipal().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingPrincipal().value;
   pool!.outstandingInterest =
-    securitisationShelfContract.getOutstandingInterest();
+    securitisationShelfContract.try_getOutstandingInterest().reverted ? BigInt.fromI32(0) : securitisationShelfContract.try_getOutstandingInterest().value;
   pool!.poolStatus = getPoolStatusString(operator.getState());
   pool!.shelfDebt = securitisationShelfContract.debt();
   pool!.shelfBalance = currencyContract.balanceOf(
@@ -383,6 +383,7 @@ export function handleSecuritisationShelfFile(event: SecuritisationShelfFiledEve
 
   if (event.params.what.toString() == "poolInterest") {
     pool!.shelfDebt = securitisationShelf.debt();
+    pool!.outstandingInterest = securitisationShelf.try_getOutstandingInterest().reverted ? BigInt.fromI32(0) : securitisationShelf.try_getOutstandingInterest().value;
   } else if (event.params.what.toString() == "maxServicerFeeAmount") {
     pool!.maxServicerFeeAmount = securitisationShelf.maxServicerFeeAmount();
   } else {
