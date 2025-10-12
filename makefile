@@ -10,7 +10,7 @@ SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
 # SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
-SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.0
+SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.1
 
 # Clean build directory
 clean:
