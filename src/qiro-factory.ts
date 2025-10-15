@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import {
   Pool,
   PoolDeployed,
@@ -53,6 +53,7 @@ import {
   ProtocolContractUpdated as ProtocolContractUpdatedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
+import { createWHInvestorWhitelisted, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -144,27 +145,44 @@ export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
 function getOrCreateKycUser(
   userAddress: Address,
   factoryAddress: Address,
-  blockTimestamp: BigInt
+  block: ethereum.Block
 ): KycUser {
   let kyc = KycUser.load(userAddress);
   if (kyc == null) {
     kyc = new KycUser(userAddress);
     kyc.address = userAddress;
     kyc.factory = factoryAddress;
-    kyc.blockTimestamp = blockTimestamp;
+    kyc.blockTimestamp = block.timestamp;
     kyc.isKyc = false;
     kyc.save();
   }
+  kyc.transactionHash = block.hash;
   return kyc as KycUser;
 }
 
 export function handleUserKycUpdated(event: UserKycUpdatedEvent): void {
   // KYC user added
   let userId = event.params.user;
-  let kyc = getOrCreateKycUser(userId, event.address, event.block.timestamp);
+  let kyc = getOrCreateKycUser(userId, event.address, event.block);
   kyc.isKyc = event.params.isKycUser;
   kyc.blockTimestamp = event.block.timestamp;
+  kyc.transactionHash = event.transaction.hash;
   kyc.save();
+
+  // Create webhook parameters
+  let params: WHInvestorWhitelistedParams = {
+    investor: userId, // address
+    trancheName: "NA",
+    level: "FACTORY_KYC",
+    whitelisted: event.params.isKycUser,
+    poolId: BigInt.fromI32(0), // 0 for factory KYC
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  };
+  createWHInvestorWhitelisted(params);
 }
 
 export function handleProtocolContractUpdated(
@@ -179,6 +197,7 @@ export function handleProtocolContractUpdated(
   }
   wl.isWhitelisted = event.params.isProtocolContract_;
   wl.blockTimestamp = event.block.timestamp;
+  wl.transactionHash = event.transaction.hash;
   wl.save();
 }
 

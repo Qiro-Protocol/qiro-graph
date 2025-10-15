@@ -10,7 +10,7 @@ SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
 # SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
-SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.1
+SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1
 
 # Clean build directory
 clean:
@@ -21,7 +21,6 @@ clean:
 build: 
 	graph codegen
 	graph build
-	cp $(SUBGRAPH_YAML) $(BUILD_DIR)/subgraph.yaml
 
 # Deploy the subgraph
 deploy:

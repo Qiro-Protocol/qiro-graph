@@ -92,6 +92,7 @@ type KycUser @entity(immutable: false) {
   address: Bytes! # address
   isKyc: Boolean!
   blockTimestamp: BigInt!
+  transactionHash: Bytes! #last updated transaction hash
 }
 
 # Factory-scoped whitelisted protocol
@@ -101,6 +102,7 @@ type WhitelistedProtocol @entity(immutable: false) {
   address: Bytes! # address
   isWhitelisted: Boolean!
   blockTimestamp: BigInt!
+  transactionHash: Bytes! #last updated transaction hash
 }
 # main Schema
 type Pool @entity(immutable: false) {
@@ -453,10 +455,27 @@ type UpdateNftData @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
-# todo: @rahul7668gupta add entity to index all other data
-
 type ConsumerCoordinatorPair @entity(immutable: false) {
   id: ID!
   consumer: Bytes!
   coordinator: Bytes!
+}
+
+# ______________________________________________________________
+# _______________ Webhooks Schema ______________________________
+# Note: Some entities mentioned above are also used for webhooks
+# ______________________________________________________________
+
+type WHInvestorWhitelisted @entity(immutable: false) {
+  id: Bytes!
+  investor: Bytes! # address
+  trancheName: String! # string
+  level: String! # string (pool, kycOnFactory)
+  whitelisted: Boolean! # bool
+  poolId: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }
