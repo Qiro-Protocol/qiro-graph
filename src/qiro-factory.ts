@@ -154,9 +154,9 @@ function getOrCreateKycUser(
     kyc.factory = factoryAddress;
     kyc.blockTimestamp = block.timestamp;
     kyc.isKyc = false;
+    kyc.transactionHash = block.hash;
     kyc.save();
   }
-  kyc.transactionHash = block.hash;
   return kyc as KycUser;
 }
 
