@@ -4,7 +4,7 @@ import {
 } from "../../generated/templates/WhitelistOperator/InvestmentOperator";
 import { Tranche as TrancheContract } from "../../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../../generated/QiroFactory/SecuritisationTranche";
-import { UpdatedPoolState, WhitelistOperator as WhitelistOperatorContract } from "../../generated/QiroFactory/WhitelistOperator";
+import { UpdatedPoolState, WhitelistOperator as WhitelistOperatorContract, WhitelistedInvestor as WhitelistedInvestorEvent, DeniedInvestor as DeniedInvestorEvent } from "../../generated/QiroFactory/WhitelistOperator";
 import { Shelf as ShelfContract } from "../../generated/QiroFactory/Shelf";
 import { SecuritisationShelf as SecuritisationShelfContract } from "../../generated/QiroFactory/SecuritisationShelf";
 import {
@@ -40,6 +40,7 @@ import {
 import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { getPool, getPoolAddresses } from "./shelf";
+import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "../webhooks/investorWhitelist";
 
 export function handleSupply(event: SupplyEvent): void {
   log.info("Handling supply event for pool: {}", [
@@ -426,4 +427,43 @@ export function handleWhitelistOperatorUpdateState(event: UpdatedPoolState): voi
   pool!.poolStatus = getPoolStatusString(BigInt.fromI32(event.params.state));
   pool!.save();
   log.info("Whitelist operator updated state for poolId: {}", [poolId.toString()]);
+}
+
+export function handleInvestorWhitelist(event: WhitelistedInvestorEvent): void {
+  let tranche = Tranche.load(event.params.tranche);
+  if (tranche == null) {
+    log.error("Tranche not found for address: {}", [event.params.tranche.toHexString()]);
+    return;
+  }
+  let poolId = BigInt.fromI64(tranche.pool.toI64()); // uint256
+
+  let params: WHInvestorWhitelistedParams = {
+    investor: event.params.investor,
+    trancheName: tranche.trancheType,
+    level: "POOL",
+    whitelisted: true,
+    poolId: poolId,
+    contractAddress: event.address,
+    contractName: "WhitelistOperator",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  };
+  createWHInvestorWhitelistedOrRevoked(params);
+}
+
+export function handleInvestorWhitelistRevoked(event: DeniedInvestorEvent): void {
+  let params: WHInvestorWhitelistedParams = {
+    investor: event.params.investor,
+    trancheName: "NA", // na since event does not have tranche address, can be debugged using call input data from txn hash
+    level: "POOL",
+    whitelisted: false,
+    poolId: event.params.poolId,
+    contractAddress: event.address,
+    contractName: "WhitelistOperator",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  };
+  createWHInvestorWhitelistedOrRevoked(params);
 }

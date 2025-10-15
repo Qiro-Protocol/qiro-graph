@@ -53,7 +53,7 @@ import {
   ProtocolContractUpdated as ProtocolContractUpdatedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
-import { createWHInvestorWhitelisted, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
+import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -152,9 +152,10 @@ function getOrCreateKycUser(
     kyc = new KycUser(userAddress);
     kyc.address = userAddress;
     kyc.factory = factoryAddress;
-    kyc.blockTimestamp = block.timestamp;
     kyc.isKyc = false;
+    kyc.blockTimestamp = block.timestamp;
     kyc.transactionHash = block.hash;
+    kyc.blockNumber = block.number;
     kyc.save();
   }
   return kyc as KycUser;
@@ -166,6 +167,7 @@ export function handleUserKycUpdated(event: UserKycUpdatedEvent): void {
   let kyc = getOrCreateKycUser(userId, event.address, event.block);
   kyc.isKyc = event.params.isKycUser;
   kyc.blockTimestamp = event.block.timestamp;
+  kyc.blockNumber = event.block.number;
   kyc.transactionHash = event.transaction.hash;
   kyc.save();
 
@@ -182,7 +184,7 @@ export function handleUserKycUpdated(event: UserKycUpdatedEvent): void {
     transactionHash: event.transaction.hash,
     logIndex: event.logIndex,
   };
-  createWHInvestorWhitelisted(params);
+  createWHInvestorWhitelistedOrRevoked(params);
 }
 
 export function handleProtocolContractUpdated(

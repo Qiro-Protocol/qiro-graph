@@ -92,6 +92,7 @@ type KycUser @entity(immutable: false) {
   address: Bytes! # address
   isKyc: Boolean!
   blockTimestamp: BigInt!
+  blockNumber: BigInt!
   transactionHash: Bytes! #last updated transaction hash
 }
 
