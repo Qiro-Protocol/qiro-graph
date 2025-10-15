@@ -185,9 +185,9 @@ templates:
           handler: handleWhitelistOperatorUpdateState
         - event: OperatorFiled(uint256,bytes32,address)
           handler: handleWhitelistOperatorFiled
-        - event: WhitelistedInvestor(indexed address,indexed address)
+        - event: WhitelistedInvestor(address,address)
           handler: handleInvestorWhitelist
-        - event: DeniedInvestor(indexed address,uint256)
+        - event: DeniedInvestor(uint256,address)
           handler: handleInvestorWhitelistRevoked
   - name: InvestmentOperator
     kind: ethereum/contract

@@ -23,7 +23,7 @@ import {
   PoolAddresses,
   Transaction,
 } from "../../generated/schema";
-import { BigInt, log, Address } from "@graphprotocol/graph-ts";
+import { BigInt, log, Address, Bytes } from "@graphprotocol/graph-ts";
 import { InvestmentOperator } from "../../generated/templates";
 import {
   getPoolId,
@@ -323,6 +323,15 @@ export function handleOriginatorFeePaidSecuritisationShelf(
 
 export function getPool(poolId: BigInt): Pool | null {
   let pool = Pool.load(getPoolId(poolId));
+  if (pool == null) {
+    log.error("Pool not found for ID: {}", [poolId.toString()]);
+    return null;
+  }
+  return pool;
+}
+
+export function getPoolById(poolId: Bytes): Pool | null {
+  let pool = Pool.load(poolId);
   if (pool == null) {
     log.error("Pool not found for ID: {}", [poolId.toString()]);
     return null;

@@ -41,6 +41,7 @@ import { ONE } from "../util";
 import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { getPool, getPoolAddresses } from "./shelf";
 import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "../webhooks/investorWhitelist";
+import { getPoolById } from "./securitisationShelf";
 
 export function handleSupply(event: SupplyEvent): void {
   log.info("Handling supply event for pool: {}", [
@@ -435,14 +436,18 @@ export function handleInvestorWhitelist(event: WhitelistedInvestorEvent): void {
     log.error("Tranche not found for address: {}", [event.params.tranche.toHexString()]);
     return;
   }
-  let poolId = BigInt.fromI64(tranche.pool.toI64()); // uint256
+  let pool = getPoolById(tranche.pool);
+  if (pool == null) {
+    log.error("Pool not found for address: {}", [tranche.pool.toHexString()]);
+    return;
+  }
 
   let params: WHInvestorWhitelistedParams = {
     investor: event.params.investor,
     trancheName: tranche.trancheType,
     level: "POOL",
     whitelisted: true,
-    poolId: poolId,
+    poolId: pool.poolId,
     contractAddress: event.address,
     contractName: "WhitelistOperator",
     block: event.block,
