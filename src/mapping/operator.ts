@@ -419,8 +419,6 @@ export function handleWhitelistOperatorFiled(event: OperatorFiledEvent): void {
   );
 }
 
-
-
 export function handleWhitelistOperatorUpdateState(event: UpdatedPoolState): void {
   let poolId = event.params.poolId;
   let pool = getPool(poolId);

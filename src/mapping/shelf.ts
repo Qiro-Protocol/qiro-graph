@@ -10,6 +10,7 @@ import {
   Shelf,
   RecoveryPaid,
   PrepaymentApplied as PrepaymentAppliedEvent,
+  WriteOff as WriteoffEvent
 } from "../../generated/templates/Shelf/Shelf";
 import { getCurrencyFromPoolId } from "./operator";
 import {
@@ -36,6 +37,7 @@ import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/W
 import { Tranche } from "../../generated/QiroFactory/Tranche";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 import { updateReserveBalance } from "./reserve";
+import { createWHWriteoff } from "../webhooks/writeoff";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let entity = new LoanStarted(
@@ -392,4 +394,19 @@ function createPrepaymentAppliedTransaction(event: PrepaymentAppliedEvent): void
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
+}
+
+export function handleShelfWriteoff(event: WriteoffEvent): void {
+  // pool is updated in handleLoanEnded
+  // using this event to create webhook trigger
+  createWHWriteoff({
+    poolId: event.params.poolId,
+    writeoffAmount: event.params.fromPrincipal,
+    writeoffTime: Shelf.bind(event.address).writeOffTime(),
+    contractAddress: event.address,
+    contractName: "Shelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }

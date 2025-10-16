@@ -272,6 +272,8 @@ templates:
           handler: handleShelfDepend
         - event: BorrowerAddressUpdated(uint256,address)
           handler: handleShelfUpdateBorrowerAddress
+        - event: WriteOff(uint256,uint256)
+          handler: handleShelfWriteoff
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: polygon-amoy

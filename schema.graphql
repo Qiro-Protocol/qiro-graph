@@ -480,3 +480,15 @@ type WHInvestorWhitelisted @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type WHWriteoff @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  writeoffAmount: BigInt! # uint256
+  writeoffTime: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

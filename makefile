@@ -10,10 +10,14 @@ SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
 # SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
-SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1
+SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.1
 
-WEHBHOOK_URL = https://eomex107jh13mhn.m.pipedream.net
-WEBHOOK_ENTITY = wh_investor_whitelisted
+WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
+WEBHOOK_ENTITY = supply_redeem
+
+# list of entities for webhooks
+# WEBHOOK_ENTITY_1 = wh_investor_whitelisted
+WEBHOOK_ENTITY_2 = supply_redeem
 
 # Clean build directory
 clean:
@@ -34,5 +38,13 @@ deploy:
 # Build and deploy in one command
 deploy-all: build deploy
 
-deploy-webhook:
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY)-webhook --entity $(WEBHOOK_ENTITY) --url $(WEHBHOOK_URL)
+deploy-webhooks:
+	# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_1)-webhook --entity $(WEBHOOK_ENTITY_1) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_2)-webhook --entity $(WEBHOOK_ENTITY_2) --url $(WEHBHOOK_URL)
+
+deploy-subgraph-and-webhooks: deploy deploy-webhooks
+
+delete-webhooks-and-subgraph:
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_1)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_2)-webhook
+	goldsky subgraph delete $(SUBGRAPH_NAME)
