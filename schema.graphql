@@ -9,6 +9,12 @@ type PoolDeployed @entity(immutable: false) {
   gracePeriod: BigInt! # uint256
   operator: Bytes! # address
   shelf: Bytes! # address
+  lateFeeInterestRate: BigInt! # uint256 - webhook trigger
+  performanceFeeRate: BigInt! # uint256 - webhook trigger
+  originatorFeeRate: BigInt! # uint256 - webhook trigger
+  loanTerm: BigInt! # uint256 - webhook trigger
+  currency: PoolCurrency! # address - webhook trigger
+  poolType: PoolType! # enum - webhook trigger
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -269,6 +275,7 @@ type Tranche @entity(immutable: false) {
 type LoanStarted @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
@@ -289,6 +296,7 @@ type LoanEnded @entity(immutable: false) {
 type LoanRepayed @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   borrower: Borrower! # address
   amountRepayed: BigInt!
   # includes principal repaid and prepayment principal repaid
@@ -305,9 +313,11 @@ type LoanRepayed @entity(immutable: false) {
 type LoanWithdrawn @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   borrower: Borrower! # address
   withdrawTo: Bytes! # address
-  amount: BigInt! # uint256
+  poolPrincipal: BigInt! # uint256
+  amount: BigInt! # uint256 - amount withdrawn from pool
   blockTimestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: Bytes!
@@ -492,6 +502,43 @@ type WHWriteoff @entity(immutable: false) {
   poolId: BigInt! # uint256
   writeoffAmount: BigInt! # uint256
   writeoffTime: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHOriginatorFeePaid @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  amount: BigInt! # uint256
+  feeRateBps: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHBorrowInitialised @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  borrower: Bytes! # address
+  nftTokenId: BigInt! # uint256
+  takeOriginatorFeeFromPrincipal: Boolean! # bool
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHSetCreatePoolAccess @entity(immutable: false) {
+  id: Bytes!
+  address: Bytes! # address - which can create pool
+  canCreatePool: Boolean! # bool
+  manager: Bytes! # address - address which gave access to create pool
   contractAddress: Bytes! # address
   contractName: String! # string
   blockNumber: BigInt!
