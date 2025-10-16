@@ -111,11 +111,6 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
   let entity = new LoanEnded(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
-  entity.pool = getPoolId(event.params.poolId);
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.blockNumber = event.block.number;
-  entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
   let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
@@ -123,6 +118,24 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
     Address.fromBytes(poolAddresses!.operator)
   );
   let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
+  let seniorContract = Tranche.bind(
+    Address.fromBytes(poolAddresses!.seniorTranche)
+  );
+  let juniorContract = Tranche.bind(
+    Address.fromBytes(poolAddresses!.juniorTranche)
+  );
+
+  entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.principalRepaid = shelfContract.totalPrincipalRepayed();
+  entity.interestRepaid = shelfContract.totalInterestRepayed();
+  entity.lateFeeRepaid = shelfContract.totalLateFeePaid();
+  entity.seniorTotalRepaid = seniorContract.totalRepayedAmount();
+  entity.juniorTotalRepaid = juniorContract.totalRepayedAmount();
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
+  entity.save();
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal = shelfContract.getOutstandingPrincipal();

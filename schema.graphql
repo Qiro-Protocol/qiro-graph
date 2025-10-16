@@ -276,6 +276,7 @@ type LoanStarted @entity(immutable: false) {
 type LoanEnded @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   principalRepaid: BigInt! # uint256
   interestRepaid: BigInt! # uint256
   lateFeeRepaid: BigInt! # uint256
