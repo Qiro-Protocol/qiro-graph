@@ -276,6 +276,11 @@ type LoanStarted @entity(immutable: false) {
 type LoanEnded @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  principalRepaid: BigInt! # uint256
+  interestRepaid: BigInt! # uint256
+  lateFeeRepaid: BigInt! # uint256
+  seniorTotalRepaid: BigInt! # uint256
+  juniorTotalRepaid: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
