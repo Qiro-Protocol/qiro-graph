@@ -280,6 +280,7 @@ type LoanStarted @entity(immutable: false) {
   nftContractAddress: Bytes! # address - for webhook trigger
   nftId: BigInt! # uint256 - for webhook trigger
   principalAmount: BigInt! # uint256 - for webhook trigger
+  takeOriginatorFeeFromPrincipal: Boolean! # bool
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
@@ -519,19 +520,6 @@ type WHOriginatorFeePaid @entity(immutable: false) {
   amount: BigInt! # uint256
   feeRateBps: BigInt! # uint256
   principalAmount: BigInt! # uint256
-  contractAddress: Bytes! # address
-  contractName: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type WHBorrowInitialised @entity(immutable: false) {
-  id: Bytes!
-  poolId: BigInt! # uint256
-  borrower: Bytes! # address
-  nftTokenId: BigInt! # uint256
-  takeOriginatorFeeFromPrincipal: Boolean! # bool
   contractAddress: Bytes! # address
   contractName: String! # string
   blockNumber: BigInt!

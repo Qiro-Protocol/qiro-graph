@@ -53,6 +53,7 @@ export function handleLoanStartedSecuritisationShelf(
   entity.nftContractAddress = securitisationShelfContract.token().getValue0();
   entity.nftId = securitisationShelfContract.token().getValue1();
   entity.principalAmount = event.params.principalAmount;
+  entity.takeOriginatorFeeFromPrincipal = securitisationShelfContract.takeFeeFromPrincipal();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.blockNumber = event.block.number;

@@ -55,6 +55,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   entity.nftContractAddress = shelfContract.token().getValue0();
   entity.nftId = shelfContract.token().getValue1();
   entity.principalAmount = event.params.principalAmount;
+  entity.takeOriginatorFeeFromPrincipal = shelfContract.takeFeeFromPrincipal();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.blockNumber = event.block.number;
