@@ -178,22 +178,25 @@ export function handleLoanEndedSecuritisationShelf(
 export function handleLoanWithdrawnSecuritisationShelf(
   event: LoanWithdrawnEventSecuritisationShelf
 ): void {
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let securitisationShelfContract = SecuritisationShelf.bind(
+    Address.fromBytes(poolAddresses!.shelf)
+  );
+
   let entity = new LoanWithdrawn(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.borrower = event.params.borrower;
   entity.withdrawTo = event.params.withdrawTo;
   entity.amount = event.params.currencyAmount;
+  entity.poolPrincipal = securitisationShelfContract.principalAmount();
   entity.blockTimestamp = event.block.timestamp;
   entity.blockNumber = event.block.number;
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  let poolAddresses = getPoolAddresses(event.params.poolId);
-  let securitisationShelfContract = SecuritisationShelf.bind(
-    Address.fromBytes(poolAddresses!.shelf)
-  );
   let operator = WhitelistOperator.bind(
     Address.fromBytes(poolAddresses!.operator)
   );

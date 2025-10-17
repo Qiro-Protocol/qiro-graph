@@ -160,23 +160,25 @@ export function handleLoanEnded(event: LoanEndedEvent): void {
 }
 
 export function handleLoanWithdrawn(event: LoanWithdrawnEvent): void {
-  let entity = new LoanWithdrawn(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.pool = getPoolId(event.params.poolId);
-  entity.borrower = event.params.borrower;
-  entity.withdrawTo = event.params.withdrawTo;
-  entity.amount = event.params.currencyAmount;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.blockNumber = event.block.number;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-
   let poolAddresses = getPoolAddresses(event.params.poolId);
   let shelfContract = Shelf.bind(Address.fromBytes(poolAddresses!.shelf));
   let operator = WhitelistOperator.bind(
     Address.fromBytes(poolAddresses!.operator)
   );
+
+  let entity = new LoanWithdrawn(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.borrower = event.params.borrower;
+  entity.withdrawTo = event.params.withdrawTo;
+  entity.amount = event.params.currencyAmount;
+  entity.poolPrincipal = shelfContract.principalAmount();
+  entity.blockTimestamp = event.block.timestamp;
+  entity.blockNumber = event.block.number;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
 
   let pool = getPool(event.params.poolId);
   pool!.totalBalance = shelfContract.balance();
