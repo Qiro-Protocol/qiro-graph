@@ -271,7 +271,7 @@ export function handleOriginatorFeePaid(event: OriginatorFeePaid): void {
   createWHOriginatorFeePaid({
     poolId: event.params.poolId,
     amount: event.params.amount,
-    feeRateBps: BigInt.fromI32(10000),
+    feeRateBps: pool!.originatorFeeRate,
     principalAmount: pool!.principalAmount || BigInt.fromI32(0),
     contractAddress: event.address,
     contractName: "Shelf",
