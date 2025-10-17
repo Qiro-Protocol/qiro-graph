@@ -72,6 +72,8 @@ dataSources:
           handler: handleUserKycUpdated
         - event: ProtocolContractUpdated(address,bool)
           handler: handleProtocolContractUpdated
+        - event: CreatePoolAccessUpdated(address,bool)
+          handler: handleSetCreatePoolAccess
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator

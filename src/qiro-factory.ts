@@ -51,9 +51,11 @@ import {
   PoolAdminChanged as PoolAdminChangedEvent,
   UserKycUpdated as UserKycUpdatedEvent,
   ProtocolContractUpdated as ProtocolContractUpdatedEvent,
+  CreatePoolAccessUpdated as CreatePoolAccessUpdatedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
 import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
+import { createWHSetCreatePoolAccess } from "./webhooks/setCreatePoolAccess";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -660,4 +662,18 @@ export function handlePauserUpdated(event: PauserUpdated): void {
     factory.pauserRole = event.params.newPauser;
     factory.save();
   }
+}
+
+export function handleSetCreatePoolAccess(event: CreatePoolAccessUpdatedEvent): void {
+  // create params for webhook trigger
+  createWHSetCreatePoolAccess({
+    address: event.params.user,
+    canCreatePool: event.params.access,
+    manager: event.transaction.from,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 }
