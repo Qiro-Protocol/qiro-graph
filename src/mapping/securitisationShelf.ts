@@ -36,23 +36,28 @@ import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { SecuritisationReserve } from "../../generated/QiroFactory/SecuritisationReserve";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
+import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
 
 export function handleLoanStartedSecuritisationShelf(
   event: LoanStartedEventSecuritisationShelf
 ): void {
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let securitisationShelfContract = SecuritisationShelf.bind(
+    Address.fromBytes(poolAddresses!.shelf)
+  );
   let entity = new LoanStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.nftContractAddress = securitisationShelfContract.token().getValue0();
+  entity.nftId = securitisationShelfContract.token().getValue1();
+  entity.principalAmount = event.params.principalAmount;
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.blockNumber = event.block.number;
   entity.save();
 
-  let poolAddresses = getPoolAddresses(event.params.poolId);
-  let securitisationShelfContract = SecuritisationShelf.bind(
-    Address.fromBytes(poolAddresses!.shelf)
-  );
   let operator = WhitelistOperator.bind(
     Address.fromBytes(poolAddresses!.operator)
   );
@@ -332,6 +337,18 @@ export function handleOriginatorFeePaidSecuritisationShelf(
   let pool = getPool(event.params.poolId);
   pool!.originatorFeePaid = event.params.amount;
   pool!.save();
+
+  createWHOriginatorFeePaid({
+    poolId: event.params.poolId,
+    amount: event.params.amount,
+    feeRateBps: BigInt.fromI32(10000),
+    principalAmount: pool!.principalAmount || BigInt.fromI32(0),
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function getPool(poolId: BigInt): Pool | null {

@@ -51,6 +51,7 @@ export function handleSupply(event: SupplyEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.tranche = event.params.tranche;
   entity.supplierOrReciever = event.params.supplier;
   entity.currencyAmount = event.params.amount;
@@ -165,6 +166,7 @@ export function handleRedeem(event: RedeemEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.tranche = event.params.tranche;
   entity.supplierOrReciever = event.params.receiver;
   entity.currencyAmount = event.params.currencyAmount;

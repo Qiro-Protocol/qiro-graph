@@ -254,6 +254,12 @@ function updatePoolCountInFactory(qiroFactory: Address): void {
 // POOL
 
 export function handlePoolDeployed(event: PoolDeployedEvent): void {
+  let factory = QiroFactoryContract.bind(event.address);
+  let factoryPool = factory.pools(event.params.poolId);
+
+  let poolType = getPoolTypeString(factoryPool.getPoolType());
+  let shelf = Shelf.bind(event.params.shelf);
+
   let entity = new PoolDeployed(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -267,15 +273,16 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   entity.operator = event.params.operator;
   entity.shelf = event.params.shelf;
 
+  entity.lateFeeInterestRate = shelf.lateFeeInterestRateInBps();
+  entity.performanceFeeRate = shelf.performanceFee();
+  entity.originatorFeeRate = BigInt.fromI32(shelf.allFees(BigInt.fromI32(1)).value1);
+  entity.loanTerm = shelf.loanTerm();
+  entity.currency = shelf.currency();
+  entity.poolType = poolType;
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
-
-  let factory = QiroFactoryContract.bind(event.address);
-  let factoryPool = factory.pools(event.params.poolId);
-
-  let poolType = getPoolTypeString(factoryPool.getPoolType());
 
   handlePool(
     entity as PoolDeployed,

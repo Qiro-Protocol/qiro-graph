@@ -1,6 +1,6 @@
 type PoolDeployed @entity(immutable: false) {
   id: Bytes!
-  poolId: BigInt! # uint256
+  poolId: BigInt! # uint256 - webhook trigger
   pool: Pool! # uint256
   seniorRate: BigInt! # uint256
   interestRate: BigInt! # uint256
@@ -22,6 +22,7 @@ type PoolDeployed @entity(immutable: false) {
 type SupplyRedeem @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - webhook trigger
   tranche: Tranche! # Tranche
   supplierOrReciever: Bytes! # address
   currencyAmount: BigInt!
@@ -276,6 +277,9 @@ type LoanStarted @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
   poolId: BigInt! # uint256 - for webhook trigger
+  nftContractAddress: Bytes! # address - for webhook trigger
+  nftId: BigInt! # uint256 - for webhook trigger
+  principalAmount: BigInt! # uint256 - for webhook trigger
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
@@ -514,6 +518,7 @@ type WHOriginatorFeePaid @entity(immutable: false) {
   poolId: BigInt! # uint256
   amount: BigInt! # uint256
   feeRateBps: BigInt! # uint256
+  principalAmount: BigInt! # uint256
   contractAddress: Bytes! # address
   contractName: String! # string
   blockNumber: BigInt!
