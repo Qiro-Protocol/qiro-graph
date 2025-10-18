@@ -7,7 +7,7 @@ SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
 # SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
-SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.1
+SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.2
 
 WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
 
@@ -16,6 +16,9 @@ WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
 # WEBHOOK_ENTITY_2 = supply_redeem
 # WEBHOOK_ENTITY_3 = pool_deployed
 WEBHOOK_ENTITY_4 = wh_originator_fee_paid
+WEBHOOK_ENTITY_5 = wh_set_create_pool_access
+WEBHOOK_ENTITY_6 = loan_started
+WEBHOOK_ENTITY_7 = loan_withdrawn
 
 # Clean build directory
 clean:
@@ -39,14 +42,20 @@ deploy-all: build deploy
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_1)-webhook --entity $(WEBHOOK_ENTITY_1) --url $(WEHBHOOK_URL)
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_2)-webhook --entity $(WEBHOOK_ENTITY_2) --url $(WEHBHOOK_URL)
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_3)-webhook --entity $(WEBHOOK_ENTITY_3) --url $(WEHBHOOK_URL)
+# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_4)-webhook --entity $(WEBHOOK_ENTITY_4) --url $(WEHBHOOK_URL)
 deploy-webhooks:
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_4)-webhook --entity $(WEBHOOK_ENTITY_4) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_5)-webhook --entity $(WEBHOOK_ENTITY_5) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_6)-webhook --entity $(WEBHOOK_ENTITY_6) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_7)-webhook --entity $(WEBHOOK_ENTITY_7) --url $(WEHBHOOK_URL)
 
 deploy-subgraph-and-webhooks: deploy deploy-webhooks
 
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_1)-webhook
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_2)-webhook
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_3)-webhook
+# goldsky subgraph webhook delete $(WEBHOOK_ENTITY_4)-webhook
 delete-webhooks-and-subgraph:
-	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_4)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_5)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_6)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_7)-webhook
 	goldsky subgraph delete $(SUBGRAPH_NAME)
