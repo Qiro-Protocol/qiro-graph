@@ -29,6 +29,7 @@ import { InvestmentOperator } from "../../generated/templates";
 import {
   getPoolId,
   getPoolStatusString,
+  PoolType,
   TrancheTypeWithPool,
   TransactionType,
 } from "../util";
@@ -39,6 +40,7 @@ import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 import { updateReserveBalance } from "./reserve";
 import { createWHWriteoff } from "../webhooks/writeoff";
 import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
+import { createWHValueFiledOnContract } from "../webhooks/fileOnContract";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let poolAddresses = getPoolAddresses(event.params.poolId);
@@ -348,6 +350,18 @@ export function handleShelfFile(event: ShelfFiledEvent): void {
   }
 
   pool!.save();
+
+  createWHValueFiledOnContract({
+    poolId: poolId,
+    poolType: PoolType.LOAN,
+    fieldName: event.params.what.toString(),
+    value: event.params.data,
+    contractAddress: event.address,
+    contractName: "Shelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 
   log.info("Updated pool {} with what: {}, data: {}", [
     poolId.toString(),

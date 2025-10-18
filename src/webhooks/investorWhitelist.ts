@@ -1,6 +1,5 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { WHInvestorWhitelisted } from "../../generated/schema";
-import { ethereum } from "@graphprotocol/graph-ts";
 
 export function createWHInvestorWhitelistedOrRevoked(params: WHInvestorWhitelistedParams): void {
   let whInvestorWhitelisted = new WHInvestorWhitelisted(params.transactionHash.concatI32(params.logIndex.toI32()));

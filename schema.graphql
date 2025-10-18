@@ -538,3 +538,16 @@ type WHSetCreatePoolAccess @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type WHValueFiledOnContract @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  poolType: String!
+  key: String! # string
+  value: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

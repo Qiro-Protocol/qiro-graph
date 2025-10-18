@@ -37,6 +37,7 @@ import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/W
 import { SecuritisationReserve } from "../../generated/QiroFactory/SecuritisationReserve";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
+import { createWHValueFiledOnContract } from "../webhooks/fileOnContract";
 
 export function handleLoanStartedSecuritisationShelf(
   event: LoanStartedEventSecuritisationShelf
@@ -433,6 +434,18 @@ export function handleSecuritisationShelfFile(event: SecuritisationShelfFiledEve
   }
 
   pool!.save();
+
+  createWHValueFiledOnContract({
+    poolId: poolId,
+    poolType: PoolType.SECURITISATION,
+    fieldName: event.params.what.toString(),
+    value: event.params.data,
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 
   log.info("Updated pool {} with what: {}, data: {}", [
     poolId.toString(),
