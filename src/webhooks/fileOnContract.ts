@@ -19,7 +19,7 @@ export class WHValueFiledOnContractParams {
   poolId: BigInt
   poolType: string
   fieldName: string
-  value: BigInt
+  value: string
   contractAddress: Address;
   contractName: string;
   block: ethereum.Block;

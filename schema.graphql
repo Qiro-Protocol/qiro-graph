@@ -104,6 +104,7 @@ type WhitelistedProtocol @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes! #last updated transaction hash
 }
+
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
@@ -536,7 +537,7 @@ type WHValueFiledOnContract @entity(immutable: false) {
   poolId: BigInt! # uint256
   poolType: String!
   key: String! # string
-  value: BigInt! # uint256
+  value: String! # uint256
   contractAddress: Bytes! # address
   contractName: String! # string
   blockNumber: BigInt!

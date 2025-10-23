@@ -27,6 +27,7 @@ import { SecuritisationTranche as SecuritisationTrancheContract } from "../gener
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
 import { ExitManager as ExitManagerContract, OwnershipTransferStarted } from "../generated/QiroFactory/ExitManager";
+import { createWHValueFiledOnContract } from "./webhooks/fileOnContract";
 import {
   getPoolId,
   TrancheType,
@@ -124,10 +125,24 @@ export function handleFactoryFile(event: FactoryFileEvent): void {
     factory.nftContractAddress = value;
   } else if (what == "currency") {
     factory.currency = value;
+  } else if (what == "qiroConsumer") {
+    // create webhook entity
   } else {
     log.warning("Unknown parameter in factory file event: {}", [what]);
   }
   factory.save();
+
+  createWHValueFiledOnContract({
+    poolId: BigInt.fromI32(0),
+    poolType: "NA/ FACTORY LEVEL",
+    fieldName: what,
+    value: value.toHexString(),
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 }
 
 export function handleUpdateWhitelistManager(event: WhitelistManagerUpdatedEvent): void {

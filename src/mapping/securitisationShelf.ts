@@ -440,7 +440,7 @@ export function handleSecuritisationShelfFile(event: SecuritisationShelfFiledEve
     poolId: poolId,
     poolType: PoolType.SECURITISATION,
     fieldName: event.params.what.toString(),
-    value: event.params.data,
+    value: event.params.data.toString(),
     contractAddress: event.address,
     contractName: "SecuritisationShelf",
     block: event.block,

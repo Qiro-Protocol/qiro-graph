@@ -356,7 +356,7 @@ export function handleShelfFile(event: ShelfFiledEvent): void {
     poolId: poolId,
     poolType: PoolType.LOAN,
     fieldName: event.params.what.toString(),
-    value: event.params.data,
+    value: event.params.data.toString(),
     contractAddress: event.address,
     contractName: "Shelf",
     block: event.block,
