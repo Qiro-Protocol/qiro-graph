@@ -568,3 +568,37 @@ type WHOwnershipTransferComplete @entity(immutable: false) { #tranfer ownership 
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type WHPoolAdminChanged @entity(immutable: false) { # pool admin changed, triggered by changePoolAdmin call in factory contract
+  id: Bytes!
+  poolId: BigInt! # uint256
+  oldAdmin: Bytes! # address
+  newAdmin: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (shelf/securitisation shelf)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockVaultManagerChanged @entity(immutable: false) { # timelock vault manager changed, triggered by setTimelockManager call in timelock vault contract
+  id: Bytes!
+  oldManager: Bytes! # address
+  newManager: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockVaultDelayChanged @entity(immutable: false) { # timelock delay changed, triggered by setTimelockDelay call in timelock vault contract
+  id: Bytes!
+  oldDelay: BigInt! # uint256
+  newDelay: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

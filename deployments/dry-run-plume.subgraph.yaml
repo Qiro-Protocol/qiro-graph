@@ -345,6 +345,8 @@ templates:
       eventHandlers:
         - event: TimelockManagerUpdated(indexed address,indexed address)
           handler: handleTimelockManagerUpdated
+        - event: TimelockDelayUpdated(uint256,uint256)
+          handler: handleTimelockDelayUpdated
   - name: ExitManager
     kind: ethereum/contract
     network: plume-mainnet

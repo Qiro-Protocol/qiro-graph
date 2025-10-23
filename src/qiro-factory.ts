@@ -57,6 +57,7 @@ import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } fro
 import { createWHSetCreatePoolAccess } from "./webhooks/setCreatePoolAccess";
 import { createWHOwnershipTransferStarted } from "./webhooks/ownershipTransfer.started";
 import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.complete";
+import { createWHPoolAdminChanged } from "./webhooks/poolAdminChanged";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -144,6 +145,18 @@ export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
     poolAddresses.admin = event.params.newAdmin;
     poolAddresses.save();
   }
+
+  // create webhook entity
+  createWHPoolAdminChanged({
+    poolId: poolId,
+    oldAdmin: event.params.oldAdmin,
+    newAdmin: event.params.newAdmin,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 function getOrCreateKycUser(
   userAddress: Address,
