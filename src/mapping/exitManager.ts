@@ -3,9 +3,13 @@ import {
   OwnershipTransferred,
   ExitManager as ExitManagerContract,
   OwnershipTransferStarted,
+  EmergencyExitExecuted,
+  BatchSizeUpdated,
 } from "../../generated/templates/ExitManager/ExitManager";
 import { createWHOwnershipTransferStarted } from "../webhooks/ownershipTransfer.started";
 import { createWHOwnershipTransferComplete } from "../webhooks/ownershipTransfer.complete";
+import { createWHEmergencyExitExecuted } from "../webhooks/emergencyExitExecuted";
+import { createWHEmergencyExitBatchSizeChanged } from "../webhooks/emergencyExitBatchSizeChanged";
 
 export function handleExitManagerOwnershipTransferred(
   event: OwnershipTransferred
@@ -44,6 +48,35 @@ export function handleExitManagerOwnershipTransferStarted(
     proposedOwner: event.params.newOwner, // proposed owner
     roleName: "Exit manager owner",
     contractAddress: event.address, // exit manager address
+    contractName: "ExitManager",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleEmergencyExitExecuted(
+  event: EmergencyExitExecuted
+): void {
+  // create webhook entity
+  createWHEmergencyExitExecuted({
+    poolIds: event.params.poolIds,
+    contractAddress: event.address,
+    contractName: "ExitManager",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleBatchSizeUpdated(
+  event: BatchSizeUpdated
+): void {
+  // create webhook entity
+  createWHEmergencyExitBatchSizeChanged({
+    oldBatchSize: event.params.oldBatchSize,
+    newBatchSize: event.params.newBatchSize,
+    contractAddress: event.address,
     contractName: "ExitManager",
     block: event.block,
     transactionHash: event.transaction.hash,

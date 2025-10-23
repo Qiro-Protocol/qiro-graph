@@ -61,6 +61,8 @@ import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.
 import { createWHPoolAdminChanged } from "./webhooks/poolAdminChanged";
 import { createWHPauserChanged } from "./webhooks/pauserChanged";
 import { createWHWhitelistManagerChanged } from "./webhooks/whitelistManagerChanged";
+import { createWHProtocolPausedUnpaused } from "./webhooks/protocolPaused";
+import { createWHPoolPausedUnpaused } from "./webhooks/poolPaused";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -690,6 +692,16 @@ export function handleProtocolPaused(event: ProtocolPaused): void {
     factory.protocolPaused = true;
     factory.save();
   }
+
+  createWHProtocolPausedUnpaused({
+    protocolPaused: true,
+    pausedBy: event.params.by,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
@@ -698,6 +710,16 @@ export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
     factory.protocolPaused = false;
     factory.save();
   }
+
+  createWHProtocolPausedUnpaused({
+    protocolPaused: false,
+    pausedBy: event.params.by,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePoolsPaused(event: PoolsPaused): void {
@@ -706,6 +728,17 @@ export function handlePoolsPaused(event: PoolsPaused): void {
     pool.isPaused = true;
     pool.save();
   }
+
+  createWHPoolPausedUnpaused({
+    poolId: event.params.poolId,
+    pausedBy: event.params.by,
+    isPaused: true,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePoolsUnpaused(event: PoolsUnpaused): void {
@@ -714,6 +747,17 @@ export function handlePoolsUnpaused(event: PoolsUnpaused): void {
     pool.isPaused = false;
     pool.save();
   }
+
+  createWHPoolPausedUnpaused({
+    poolId: event.params.poolId,
+    pausedBy: event.params.by,
+    isPaused: false,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePauserUpdated(event: PauserUpdated): void {

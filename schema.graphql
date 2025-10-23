@@ -637,3 +637,88 @@ type WHWhitelistManagerChanged @entity(immutable: false) { # whitelist manager c
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+# EMERGENCY_MECHANISM
+type WHProtocolPausedUnpaused @entity(immutable: false) {
+  id: Bytes!
+  protocolPaused: Boolean! # bool
+  pausedBy: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHPoolPausedUnpaused @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  pool: Pool! # uint256
+  pausedBy: Bytes! # address
+  isPaused: Boolean!
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHEmergencyExitExecuted @entity(immutable: false) {
+  id: Bytes!
+  poolIds: [BigInt!]! # uint256[]
+  contractAddress: Bytes! # address
+  contractName: String! # string (exit manager)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHEmergencyExitBatchSizeChanged @entity(immutable: false) {
+  id: Bytes!
+  oldBatchSize: BigInt! # uint256
+  newBatchSize: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (exit manager)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockDepositCreated @entity(immutable: false) {
+  id: Bytes!
+  currency: Bytes! # address
+  amount: BigInt! # uint256
+  poolId: BigInt! # uint256
+  unlockAt: BigInt! # uint256
+  depositId: BigInt! # uint256
+  depositor: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockDepositWithdrawn @entity(immutable: false) {
+  id: Bytes!
+  depositId: BigInt! # uint256
+  amount: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHFundsWithdrawn @entity(immutable: false) {
+  id: Bytes!
+  currency: Bytes! # address
+  amount: BigInt! # uint256
+  recipient: Bytes! # address
+  withdrawnBy: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

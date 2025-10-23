@@ -347,6 +347,12 @@ templates:
           handler: handleTimelockManagerUpdated
         - event: TimelockDelayUpdated(uint256,uint256)
           handler: handleTimelockDelayUpdated
+        - event: DepositCreated(indexed address,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleTimelockDepositCreated
+        - event: DepositWithdrawn(indexed uint256)
+          handler: handleTimelockDepositWithdrawn
+        - event: FundsWithdrawn(indexed address,uint256,indexed address)
+          handler: handleTimelockFundsWithdrawn
   - name: ExitManager
     kind: ethereum/contract
     network: plume-mainnet
@@ -367,6 +373,10 @@ templates:
           handler: handleExitManagerOwnershipTransferStarted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleExitManagerOwnershipTransferred
+        - event: EmergencyExitExecuted(uint256[])
+          handler: handleEmergencyExitExecuted
+        - event: BatchSizeUpdated(uint256,uint256)
+          handler: handleBatchSizeUpdated
   - name: Reserve
     kind: ethereum/contract
     network: plume-mainnet
