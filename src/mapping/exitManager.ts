@@ -2,7 +2,10 @@ import { QiroFactory } from "../../generated/schema";
 import {
   OwnershipTransferred,
   ExitManager as ExitManagerContract,
+  OwnershipTransferStarted,
 } from "../../generated/templates/ExitManager/ExitManager";
+import { createWHOwnershipTransferStarted } from "../webhooks/ownershipTransfer.started";
+import { createWHOwnershipTransferComplete } from "../webhooks/ownershipTransfer.complete";
 
 export function handleExitManagerOwnershipTransferred(
   event: OwnershipTransferred
@@ -18,4 +21,32 @@ export function handleExitManagerOwnershipTransferred(
 
   factory.exitManagerOwnerRole = event.params.newOwner;
   factory.save();
+
+  // create webhook entity
+  createWHOwnershipTransferComplete({
+    previousOwner: event.params.previousOwner, // previous owner
+    newOwner: event.params.newOwner, // new owner
+    roleName: "Exit manager owner",
+    contractAddress: event.address, // exit manager address
+    contractName: "ExitManager",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleExitManagerOwnershipTransferStarted(
+  event: OwnershipTransferStarted
+): void {
+  // create webhook entity
+  createWHOwnershipTransferStarted({
+    currentOwner: event.params.previousOwner, // current owner
+    proposedOwner: event.params.newOwner, // proposed owner
+    roleName: "Exit manager owner",
+    contractAddress: event.address, // exit manager address
+    contractName: "ExitManager",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }

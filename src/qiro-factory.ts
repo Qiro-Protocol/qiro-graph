@@ -6,7 +6,6 @@ import {
   PoolAddresses,
   PoolCurrency,
   Borrower,
-  FactoryOwnershipTransferred,
   KycUser,
   WhitelistedProtocol,
 } from "../generated/schema";
@@ -27,7 +26,7 @@ import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
-import { ExitManager as ExitManagerContract } from "../generated/QiroFactory/ExitManager";
+import { ExitManager as ExitManagerContract, OwnershipTransferStarted } from "../generated/QiroFactory/ExitManager";
 import {
   getPoolId,
   TrancheType,
@@ -56,6 +55,8 @@ import {
 import { QiroFactory } from "../generated/schema";
 import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
 import { createWHSetCreatePoolAccess } from "./webhooks/setCreatePoolAccess";
+import { createWHOwnershipTransferStarted } from "./webhooks/ownershipTransfer.started";
+import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.complete";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -208,16 +209,6 @@ export function handleProtocolContractUpdated(
 export function handleFactoryOwnershipTransferred(
   event: OwnershipTransferred
 ): void {
-  let entity = new FactoryOwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.previousOwner = event.params.previousOwner;
-  entity.newOwner = event.params.newOwner;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-
   // update factory owner
   let factory = QiroFactory.load(event.address);
   if (factory != null) {
@@ -227,6 +218,34 @@ export function handleFactoryOwnershipTransferred(
   log.info("Factory ownership transferred to: {}", [
     event.params.newOwner.toHexString(),
   ]);
+
+  // create webhook entity
+  createWHOwnershipTransferComplete({
+    previousOwner: event.params.previousOwner, // previous owner
+    newOwner: event.params.newOwner, // new owner
+    roleName: "Factory owner aka SuperAdmin",
+    contractAddress: event.address, // factory address
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleFactoryOwnershipTransferStarted(
+  event: OwnershipTransferStarted
+): void {
+  // create webhook entity
+  createWHOwnershipTransferStarted({
+    currentOwner: event.params.previousOwner, // current owner
+    proposedOwner: event.params.newOwner, // proposed owner
+    roleName: "Factory owner aka SuperAdmin",
+    contractAddress: event.address, // factory address
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function getOrCreateCurrency(

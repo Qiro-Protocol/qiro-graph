@@ -50,6 +50,8 @@ dataSources:
           handler: handlePoolDeployed
         - event: FactoryCreated(address)
           handler: handleFactoryCreated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleFactoryOwnershipTransferStarted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleFactoryOwnershipTransferred
         - event: ProtocolPaused(indexed address)
@@ -359,6 +361,8 @@ templates:
         - name: ExitManager
           file: ./abis/ExitManager.json
       eventHandlers:
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleExitManagerOwnershipTransferStarted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleExitManagerOwnershipTransferred
   - name: Reserve

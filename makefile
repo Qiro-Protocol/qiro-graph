@@ -7,19 +7,21 @@ SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
 # SUBGRAPH_NAME = qiro-v1-plume-mainnet/v1.0.0
-SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.2
+SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.3
 
 WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
 
 # list of entities for webhooks
-# WEBHOOK_ENTITY_1 = wh_investor_whitelisted
-# WEBHOOK_ENTITY_2 = supply_redeem
-# WEBHOOK_ENTITY_3 = pool_deployed
-# WEBHOOK_ENTITY_4 = wh_originator_fee_paid
-# WEBHOOK_ENTITY_5 = wh_set_create_pool_access
-# WEBHOOK_ENTITY_6 = loan_started
-# WEBHOOK_ENTITY_7 = loan_withdrawn
+WEBHOOK_ENTITY_1 = wh_investor_whitelisted
+WEBHOOK_ENTITY_2 = supply_redeem
+WEBHOOK_ENTITY_3 = pool_deployed
+WEBHOOK_ENTITY_4 = wh_originator_fee_paid
+WEBHOOK_ENTITY_5 = wh_set_create_pool_access
+WEBHOOK_ENTITY_6 = loan_started
+WEBHOOK_ENTITY_7 = loan_withdrawn
 WEBHOOK_ENTITY_8 = wh_value_filed_on_contract
+WEBHOOK_ENTITY_9 = wh_ownership_transfer_started
+WEBHOOK_ENTITY_10 = wh_ownership_transfer_complete
 
 # Clean build directory
 clean:
@@ -47,8 +49,10 @@ deploy-all: build deploy
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_5)-webhook --entity $(WEBHOOK_ENTITY_5) --url $(WEHBHOOK_URL)
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_6)-webhook --entity $(WEBHOOK_ENTITY_6) --url $(WEHBHOOK_URL)
 # goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_7)-webhook --entity $(WEBHOOK_ENTITY_7) --url $(WEHBHOOK_URL)
+# goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_8)-webhook --entity $(WEBHOOK_ENTITY_8) --url $(WEHBHOOK_URL)
 deploy-webhooks:
-	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_8)-webhook --entity $(WEBHOOK_ENTITY_8) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_9)-webhook --entity $(WEBHOOK_ENTITY_9) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_10)-webhook --entity $(WEBHOOK_ENTITY_10) --url $(WEHBHOOK_URL)
 
 deploy-subgraph-and-webhooks: deploy deploy-webhooks
 
@@ -59,6 +63,12 @@ deploy-subgraph-and-webhooks: deploy deploy-webhooks
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_5)-webhook
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_6)-webhook
 # goldsky subgraph webhook delete $(WEBHOOK_ENTITY_7)-webhook
+# goldsky subgraph webhook delete $(WEBHOOK_ENTITY_8)-webhook
 delete-webhooks-and-subgraph:
-	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_8)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_9)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_10)-webhook
 	goldsky subgraph delete $(SUBGRAPH_NAME)
+
+# sample flow for slack messages using piepdream and webhooks
+# deploy subgraph -> deploy WH 1 -> test using pipedream flow -> change pipedream code as needed -> delete WH 1 and subgraph
+# -> deploy subgraph with WH 2 -> test using pipedream flow -> change pipedream code as needed -> delete WH 2 and subgraph

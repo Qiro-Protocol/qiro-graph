@@ -57,14 +57,6 @@ enum PoolType {
   SECURITISATION
 }
 
-type FactoryOwnershipTransferred @entity(immutable: false) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-} # done
 type QiroFactory @entity(immutable: false) {
   id: Bytes!
   shelfFab: Bytes! # address
@@ -546,6 +538,31 @@ type WHValueFiledOnContract @entity(immutable: false) {
   key: String! # string
   value: BigInt! # uint256
   contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# CRITICAL
+type WHOwnershipTransferStarted @entity(immutable: false) {
+  id: Bytes!
+  currentOwner: Bytes! # address
+  proposedOwner: Bytes! # address (pending owner)
+  roleName: String! # string (factory owner aka superadmin, exit manager owner)
+  contractAddress: Bytes! # address (factory, exit manager)
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHOwnershipTransferComplete @entity(immutable: false) { #tranfer ownership complete, triggered by accept ownership call in ownable 2 step
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  roleName: String! # string (factory owner aka superadmin, exit manager owner)
+  contractAddress: Bytes! # address (factory, exit manager)
   contractName: String! # string
   blockNumber: BigInt!
   blockTimestamp: BigInt!
