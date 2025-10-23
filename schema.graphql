@@ -602,3 +602,37 @@ type WHTimelockVaultDelayChanged @entity(immutable: false) { # timelock delay ch
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type WHPauserChanged @entity(immutable: false) { # pauser changed, triggered by setPauser call in factory contract
+  id: Bytes!
+  oldPauser: Bytes! # address
+  newPauser: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHBorrowerChanged @entity(immutable: false) { # borrower changed, triggered by updateBorrowerAddress call in shelf/securitisation shelf contract
+  id: Bytes!
+  poolId: BigInt! # uint256
+  oldBorrower: Bytes! # address
+  newBorrower: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (shelf/securitisation shelf)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHWhitelistManagerChanged @entity(immutable: false) { # whitelist manager changed, triggered by updateWhitelistManager call in factory contract
+  id: Bytes!
+  oldWhitelistManager: Bytes! # address
+  newWhitelistManager: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

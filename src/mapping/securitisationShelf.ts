@@ -38,6 +38,7 @@ import { SecuritisationReserve } from "../../generated/QiroFactory/Securitisatio
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
 import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
 import { createWHValueFiledOnContract } from "../webhooks/fileOnContract";
+import { createWHBorrowerChanged } from "../webhooks/borrowerChanged";
 
 export function handleLoanStartedSecuritisationShelf(
   event: LoanStartedEventSecuritisationShelf
@@ -494,12 +495,25 @@ export function handleSecuritisationShelfUpdateBorrowerAddress(
   let poolId = shelf.poolId();
 
   let pool = getPool(poolId);
+  let oldBorrower = pool!.borrower;
   if (pool != null) {
     // Ensure Borrower entity exists
     getOrCreateBorrower(event.params.borrower, event.block.timestamp);
     pool.borrower = event.params.borrower;
     pool.save();
   }
+
+  // create webhook entity
+  createWHBorrowerChanged({
+    poolId: poolId,
+    oldBorrower: Address.fromBytes(oldBorrower),
+    newBorrower: event.params.borrower,
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePrepaymentAppliedSecuritisationShelf(event: PrepaymentAppliedEventSecuritisationEvent): void {

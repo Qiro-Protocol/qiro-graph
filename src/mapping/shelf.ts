@@ -41,6 +41,7 @@ import { updateReserveBalance } from "./reserve";
 import { createWHWriteoff } from "../webhooks/writeoff";
 import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
 import { createWHValueFiledOnContract } from "../webhooks/fileOnContract";
+import { createWHBorrowerChanged } from "../webhooks/borrowerChanged";
 
 export function handleLoanStarted(event: LoanStartedEvent): void {
   let poolAddresses = getPoolAddresses(event.params.poolId);
@@ -417,12 +418,25 @@ export function handleShelfUpdateBorrowerAddress(
   let poolId = shelf.poolId();
 
   let pool = getPool(poolId);
+  let oldBorrower = pool!.borrower;
   if (pool != null) {
     // Ensure Borrower entity exists
     getOrCreateBorrower(event.params.borrower, event.block.timestamp);
     pool.borrower = event.params.borrower;
     pool.save();
   }
+
+  // create webhook entity
+  createWHBorrowerChanged({
+    poolId: poolId,
+    oldBorrower: Address.fromBytes(oldBorrower),
+    newBorrower: event.params.borrower,
+    contractAddress: event.address,
+    contractName: "Shelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePrepaymentApplied(event: PrepaymentAppliedEvent): void {

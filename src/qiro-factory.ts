@@ -58,6 +58,8 @@ import { createWHSetCreatePoolAccess } from "./webhooks/setCreatePoolAccess";
 import { createWHOwnershipTransferStarted } from "./webhooks/ownershipTransfer.started";
 import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.complete";
 import { createWHPoolAdminChanged } from "./webhooks/poolAdminChanged";
+import { createWHPauserChanged } from "./webhooks/pauserChanged";
+import { createWHWhitelistManagerChanged } from "./webhooks/whitelistManagerChanged";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -134,6 +136,17 @@ export function handleUpdateWhitelistManager(event: WhitelistManagerUpdatedEvent
     factory.whitelistManager = event.params.newManager;
     factory.save();
   }
+
+  // create webhook entity
+  createWHWhitelistManagerChanged({
+    oldWhitelistManager: event.params.oldManager,
+    newWhitelistManager: event.params.newManager,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
@@ -694,6 +707,17 @@ export function handlePauserUpdated(event: PauserUpdated): void {
     factory.pauserRole = event.params.newPauser;
     factory.save();
   }
+
+  // create webhook entity
+  createWHPauserChanged({
+    oldPauser: event.params.previousPauser,
+    newPauser: event.params.newPauser,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleSetCreatePoolAccess(event: CreatePoolAccessUpdatedEvent): void {
