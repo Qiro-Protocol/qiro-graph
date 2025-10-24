@@ -37,11 +37,11 @@ WEBHOOK_ENTITY_21 = whitelisted_protocol
 # EMERGENCY_MECHANISM
 WEBHOOK_ENTITY_22 = wh_protocol_paused_unpaused
 WEBHOOK_ENTITY_23 = wh_pool_paused_unpaused
-WEBHOOK_ENTITY_24 = wh_emergency_exit_executed
-WEBHOOK_ENTITY_25 = wh_emergency_exit_batch_size_changed
-WEBHOOK_ENTITY_26 = wh_timelock_deposit_created
-WEBHOOK_ENTITY_27 = wh_timelock_deposit_withdrawn
-WEBHOOK_ENTITY_28 = wh_funds_withdrawn
+WEBHOOK_ENTITY_24 = wh_timelock_deposit_created
+WEBHOOK_ENTITY_25 = wh_timelock_deposit_withdrawn
+WEBHOOK_ENTITY_26 = wh_funds_withdrawn
+WEBHOOK_ENTITY_27 = wh_emergency_exit_executed
+WEBHOOK_ENTITY_28 = wh_emergency_exit_batch_size_changed
 
 # Clean build directory
 clean:
@@ -75,10 +75,22 @@ deploy-webhooks:
 	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_10)-webhook --entity $(WEBHOOK_ENTITY_10) --url $(WEHBHOOK_URL)
 	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_11)-webhook --entity $(WEBHOOK_ENTITY_11) --url $(WEHBHOOK_URL)
 	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_12)-webhook --entity $(WEBHOOK_ENTITY_12) --url $(WEHBHOOK_URL)
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_13)-webhook --entity $(WEBHOOK_ENTITY_13) --url $(WEHBHOOK_URL)
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_14)-webhook --entity $(WEBHOOK_ENTITY_14) --url $(WEHBHOOK_URL)
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_15)-webhook --entity $(WEBHOOK_ENTITY_15) --url $(WEHBHOOK_URL)
-	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_16)-webhook --entity $(WEBHOOK_ENTITY_16) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_13)-webhook --entity $(WEBHOOK_ENTITY_13) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_14)-webhook --entity $(WEBHOOK_ENTITY_14) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_15)-webhook --entity $(WEBHOOK_ENTITY_15) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_16)-webhook --entity $(WEBHOOK_ENTITY_16) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_17)-webhook --entity $(WEBHOOK_ENTITY_17) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_18)-webhook --entity $(WEBHOOK_ENTITY_18) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_19)-webhook --entity $(WEBHOOK_ENTITY_19) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_20)-webhook --entity $(WEBHOOK_ENTITY_20) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_21)-webhook --entity $(WEBHOOK_ENTITY_21) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_22)-webhook --entity $(WEBHOOK_ENTITY_22) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_23)-webhook --entity $(WEBHOOK_ENTITY_23) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_24)-webhook --entity $(WEBHOOK_ENTITY_24) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_25)-webhook --entity $(WEBHOOK_ENTITY_25) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_26)-webhook --entity $(WEBHOOK_ENTITY_26) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_27)-wh --entity $(WEBHOOK_ENTITY_27) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_28)-wh --entity $(WEBHOOK_ENTITY_28) --url $(WEHBHOOK_URL)
 
 deploy-subgraph-and-webhooks: deploy deploy-webhooks
 
@@ -99,6 +111,18 @@ delete-webhooks-and-subgraph:
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_14)-webhook
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_15)-webhook
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_16)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_17)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_18)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_19)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_20)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_21)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_22)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_23)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_24)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_25)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_26)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_27)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_28)-webhook
 	goldsky subgraph delete $(SUBGRAPH_NAME)
 
 # sample flow for slack messages using piepdream and webhooks
