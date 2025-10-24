@@ -121,8 +121,8 @@ delete-webhooks-and-subgraph:
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_24)-webhook
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_25)-webhook
 	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_26)-webhook
-	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_27)-webhook
-	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_28)-webhook
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_27)-wh
+	goldsky subgraph webhook delete $(WEBHOOK_ENTITY_28)-wh
 	goldsky subgraph delete $(SUBGRAPH_NAME)
 
 # sample flow for slack messages using piepdream and webhooks
