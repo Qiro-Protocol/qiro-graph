@@ -214,6 +214,7 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.borrower = event.params.borrower;
   entity.amountRepayed = event.params.currencyAmount;
   entity.prePaymentPrincipal = event.params.prepaymentAbsorbedAmountThisTx;
@@ -448,6 +449,7 @@ function createPrepaymentAppliedTransaction(event: PrepaymentAppliedEvent): void
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params._poolId);
+  entity.poolId = event.params._poolId;
   entity.prepaymentPeriod = event.params._prepaymentPeriod;
   entity.prepaymentAbsorbedAmount = event.params._prepaymentAbsorbedAmount;
   entity.postPrePaymentOSPrincipal = event.params._postPrePaymentOSPrincipal;

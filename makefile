@@ -20,15 +20,28 @@ WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
 # WEBHOOK_ENTITY_6 = loan_started
 # WEBHOOK_ENTITY_7 = loan_withdrawn
 # WEBHOOK_ENTITY_8 = wh_value_filed_on_contract
+WEBHOOK_ENTITY_9 = wh_writeoff
+WEBHOOK_ENTITY_10 = prepayment_applied
+WEBHOOK_ENTITY_11 = loan_repayed
+WEBHOOK_ENTITY_12 = loan_ended
 # # CRITICAL WEBHOOKS
-WEBHOOK_ENTITY_9 = wh_ownership_transfer_started
-WEBHOOK_ENTITY_10 = wh_ownership_transfer_complete
-WEBHOOK_ENTITY_11 = wh_pool_admin_changed
-WEBHOOK_ENTITY_12 = wh_timelock_vault_manager_changed
-WEBHOOK_ENTITY_13 = wh_timelock_vault_delay_changed
-WEBHOOK_ENTITY_14 = wh_pauser_changed
-WEBHOOK_ENTITY_15 = wh_borrower_changed
-WEBHOOK_ENTITY_16 = wh_whitelist_manager_changed
+WEBHOOK_ENTITY_13 = wh_ownership_transfer_started
+WEBHOOK_ENTITY_14 = wh_ownership_transfer_complete
+WEBHOOK_ENTITY_15 = wh_pool_admin_changed
+WEBHOOK_ENTITY_16 = wh_timelock_vault_manager_changed
+WEBHOOK_ENTITY_17 = wh_timelock_vault_delay_changed
+WEBHOOK_ENTITY_18 = wh_pauser_changed
+WEBHOOK_ENTITY_19 = wh_borrower_changed
+WEBHOOK_ENTITY_20 = wh_whitelist_manager_changed
+WEBHOOK_ENTITY_21 = whitelisted_protocol
+# EMERGENCY_MECHANISM
+WEBHOOK_ENTITY_22 = wh_protocol_paused_unpaused
+WEBHOOK_ENTITY_23 = wh_pool_paused_unpaused
+WEBHOOK_ENTITY_24 = wh_emergency_exit_executed
+WEBHOOK_ENTITY_25 = wh_emergency_exit_batch_size_changed
+WEBHOOK_ENTITY_26 = wh_timelock_deposit_created
+WEBHOOK_ENTITY_27 = wh_timelock_deposit_withdrawn
+WEBHOOK_ENTITY_28 = wh_funds_withdrawn
 
 # Clean build directory
 clean:

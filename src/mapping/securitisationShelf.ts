@@ -12,7 +12,7 @@ import { BorrowerAddressUpdated as BorrowerAddressUpdatedEvent } from "../../gen
 import { updateEisAndReserveBalance } from "./reserve";
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { SecuritisationTranche } from "../../generated/QiroFactory/SecuritisationTranche";
-import { Tranche as TrancheEntity } from "../../generated/schema";
+import { PrepaymentApplied, Tranche as TrancheEntity } from "../../generated/schema";
 import { getCurrencyFromPoolId } from "./operator";
 import {
   LoanStarted,
@@ -242,6 +242,7 @@ export function handleLoanRepayedSecuritisationShelf(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.borrower = event.params.borrower;
   entity.amountRepayed = event.params.currencyAmount;
   entity.prePaymentPrincipal = event.params.prepaymentAbsorbedAmountThisTx;
@@ -520,4 +521,18 @@ export function handlePrepaymentAppliedSecuritisationShelf(event: PrepaymentAppl
   let pool = getPool(event.params.poolId);
   pool!.prepaymentAbsorbedAmount = event.params.prepaymentAbsorbedAmount;
   pool!.save();
+
+  let entity = new PrepaymentApplied(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.prepaymentPeriod = BigInt.fromI32(0);
+  entity.prepaymentAbsorbedAmount = event.params.prepaymentAbsorbedAmount;
+  entity.postPrePaymentOSPrincipal = BigInt.fromI32(0);
+  entity.totalInterestForLoanTerm = BigInt.fromI32(0);
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
 }
