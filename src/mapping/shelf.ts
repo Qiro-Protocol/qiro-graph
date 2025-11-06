@@ -89,6 +89,7 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.principalAmount = shelfContract.principalAmount();
   poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
   poolObject!.nftTokenId = shelfContract.token().value1;
+  poolObject!.startTimestamp = shelfContract.LOAN_START_TIMESTAMP();
   poolObject!.save();
 
   let seniorTranche = TrancheEntity.load(poolAddresses!.seniorTranche);

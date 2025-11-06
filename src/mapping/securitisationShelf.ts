@@ -93,6 +93,7 @@ export function handleLoanStartedSecuritisationShelf(
   poolObject!.interestAmount =
     securitisationShelfContract.totalInterestForLoanTerm();
   poolObject!.nftTokenId = securitisationShelfContract.token().value1;
+  poolObject!.startTimestamp = securitisationShelfContract.LOAN_START_TIMESTAMP();
 
   // SecuritisationShelf-specific fields
   poolObject!.outstandingShortfallInterestAmount =
