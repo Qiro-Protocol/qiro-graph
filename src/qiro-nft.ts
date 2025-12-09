@@ -166,10 +166,10 @@ export function handleIdentityDealAssetLayerMetadataSet(
   nftMinted.governingLaw = metadataStruct.getGoverningLaw();
   nftMinted.enforcementJurisdiction = metadataStruct.getEnforcementJurisdiction();
   nftMinted.dateOfIssuance = metadataStruct.getDateOfIssuance();
-  nftMinted.metadataPrincipalAmount = metadataStruct.getPrincipalAmount();
+  nftMinted.principalAmount = metadataStruct.getPrincipalAmount();
   nftMinted.yieldOrRate = metadataStruct.getYieldOrRate();
   nftMinted.assetClass = metadataStruct.getAssetClass();
-  nftMinted.metadataMaturityDate = metadataStruct.getMaturityDate();
+  nftMinted.maturityDate = metadataStruct.getMaturityDate();
   nftMinted.lienStatus = metadataStruct.getLienStatus();
   nftMinted.collateralDescription = metadataStruct.getCollateralDescription();
   nftMinted.underlyingAssetIdentifier = metadataStruct.getUnderlyingAssetIdentifier();

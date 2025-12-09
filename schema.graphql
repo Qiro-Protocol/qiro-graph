@@ -377,9 +377,6 @@ type NFTMinted @entity(immutable: false) {
   name: String! # string
   desc: String! # string
   imageURI: String! # string
-  portfolioID: String! # string
-  totalPrincipalAmount: BigInt! # uint256
-  maturityDate: String! # string
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -392,10 +389,10 @@ type NFTMinted @entity(immutable: false) {
   governingLaw: String
   enforcementJurisdiction: String
   dateOfIssuance: BigInt
-  metadataPrincipalAmount: BigInt
+  principalAmount: BigInt
   yieldOrRate: BigInt
   assetClass: String
-  metadataMaturityDate: String
+  maturityDate: String
   lienStatus: String
   collateralDescription: String
   underlyingAssetIdentifier: String
