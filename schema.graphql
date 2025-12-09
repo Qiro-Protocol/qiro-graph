@@ -385,6 +385,38 @@ type NFTMinted @entity(immutable: false) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
+  # Identity Deal Asset Layer Metadata
+  issuerName: String
+  issuerRegistrationNumber: String
+  issuerJurisdiction: String
+  governingLaw: String
+  enforcementJurisdiction: String
+  dateOfIssuance: BigInt
+  metadataPrincipalAmount: BigInt
+  yieldOrRate: BigInt
+  assetClass: String
+  metadataMaturityDate: String
+  lienStatus: String
+  collateralDescription: String
+  underlyingAssetIdentifier: String
+  rightsEntitlementDescription: String
+  lifecycleEventLogic: String
+  # Control Layer Metadata
+  controlMechanismDescription: String
+  controlLogicHash: Bytes
+  governanceKeysOrRoleMap: String
+  transferRestrictions: String
+  # Legal Link Layer Metadata
+  legalAgreementRefHash: Bytes
+  agreementType: String
+  securedPartyName: String
+  securedPartyWalletAddress: Bytes
+  controlAgreementRefHash: Bytes
+  # Perfection and Registry Metadata
+  uccFilingReferenceNumber: String
+  filingJurisdiction: String
+  perfectionMethod: String
+  perfectionStatus: String
 }
 
 # ___________________________________________________________

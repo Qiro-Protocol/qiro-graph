@@ -1,6 +1,4 @@
 import {
-  Approval as ApprovalEvent,
-  ApprovalForAll as ApprovalForAllEvent,
   ConsumerContractUpdated as ConsumerContractUpdatedEvent,
   Deny as DenyEvent,
   File as FileEvent,
@@ -8,8 +6,12 @@ import {
   Rely as RelyEvent,
   Transfer as TransferEvent,
   UpdateNftData as UpdateNftDataEvent,
+  IdentityDealAssetLayerMetadataSet as IdentityDealAssetLayerMetadataSetEvent,
+  ControlLayerMetadataSet as ControlLayerMetadataSetEvent,
+  LegalLinkLayerMetadataSet as LegalLinkLayerMetadataSetEvent,
+  PerfectionAndRegistryMetadataSet as PerfectionAndRegistryMetadataSetEvent,
   QiroNft,
-} from "../generated/QiroNft/QiroNft"
+} from "../generated/QiroNft/QiroNft";
 import {
   ConsumerContractUpdated,
   Deny,
@@ -18,7 +20,12 @@ import {
   Rely,
   Transfer,
   UpdateNftData,
-} from "../generated/schema"
+} from "../generated/schema";
+import {
+  ByteArray,
+  Bytes,
+  log,
+} from "@graphprotocol/graph-ts";
 
 export function handleConsumerContractUpdated(
   event: ConsumerContractUpdatedEvent,
@@ -66,16 +73,13 @@ export function handleFile(event: FileEvent): void {
 
 export function handleNFTMinted(event: NFTMintedEvent): void {
   let entity = new NFTMinted(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
+    Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId))
   )
   entity.to = event.params.to
   entity.tokenId = event.params.tokenId
   entity.name = event.params.name
   entity.desc = event.params.desc
   entity.imageURI = event.params.imageURI
-  entity.portfolioID = event.params.portfolioID
-  entity.totalPrincipalAmount = event.params.totalPrincipalAmount
-  entity.maturityDate = event.params.maturityDate
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -137,5 +141,113 @@ export function handleUpdateNftData(event: UpdateNftDataEvent): void {
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
 
-  entity.save()
+  entity.save();
+}
+
+export function handleIdentityDealAssetLayerMetadataSet(
+  event: IdentityDealAssetLayerMetadataSetEvent
+): void {
+  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
+  if (nftMinted == null) {
+    log.error("NFTMinted entity not found for tokenId {}", [
+      event.params.tokenId.toString()
+    ]);
+    return;
+  }
+
+  let contract = QiroNft.bind(event.address);
+  let metadataStruct = contract.tokenIdToIdentityDealAssetLayerMetadata(
+    event.params.tokenId
+  );
+
+  nftMinted.issuerName = metadataStruct.getIssuerName();
+  nftMinted.issuerRegistrationNumber = metadataStruct.getIssuerRegistrationNumber();
+  nftMinted.issuerJurisdiction = metadataStruct.getIssuerJurisdiction();
+  nftMinted.governingLaw = metadataStruct.getGoverningLaw();
+  nftMinted.enforcementJurisdiction = metadataStruct.getEnforcementJurisdiction();
+  nftMinted.dateOfIssuance = metadataStruct.getDateOfIssuance();
+  nftMinted.metadataPrincipalAmount = metadataStruct.getPrincipalAmount();
+  nftMinted.yieldOrRate = metadataStruct.getYieldOrRate();
+  nftMinted.assetClass = metadataStruct.getAssetClass();
+  nftMinted.metadataMaturityDate = metadataStruct.getMaturityDate();
+  nftMinted.lienStatus = metadataStruct.getLienStatus();
+  nftMinted.collateralDescription = metadataStruct.getCollateralDescription();
+  nftMinted.underlyingAssetIdentifier = metadataStruct.getUnderlyingAssetIdentifier();
+  nftMinted.rightsEntitlementDescription = metadataStruct.getRightsEntitlementDescription();
+  nftMinted.lifecycleEventLogic = metadataStruct.getLifecycleEventLogic();
+
+  nftMinted.save();
+}
+
+export function handleControlLayerMetadataSet(
+  event: ControlLayerMetadataSetEvent
+): void {
+  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
+  if (nftMinted == null) {
+    log.error("NFTMinted entity not found for tokenId {}", [
+      event.params.tokenId.toString()
+    ]);
+    return;
+  }
+
+  let contract = QiroNft.bind(event.address);
+  let metadataStruct = contract.tokenIdToControlLayerMetadata(
+    event.params.tokenId
+  );
+
+  nftMinted.controlMechanismDescription = metadataStruct.getControlMechanismDescription();
+  nftMinted.controlLogicHash = metadataStruct.getControlLogicHash();
+  nftMinted.governanceKeysOrRoleMap = metadataStruct.getGovernanceKeysOrRoleMap();
+  nftMinted.transferRestrictions = metadataStruct.getTransferRestrictions();
+
+  nftMinted.save();
+}
+
+export function handleLegalLinkLayerMetadataSet(
+  event: LegalLinkLayerMetadataSetEvent
+): void {
+  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
+  if (nftMinted == null) {
+    log.error("NFTMinted entity not found for tokenId {}", [
+      event.params.tokenId.toString()
+    ]);
+    return;
+  }
+
+  let contract = QiroNft.bind(event.address);
+  let metadataStruct = contract.tokenIdToLegalLinkLayerMetadata(
+    event.params.tokenId
+  );
+
+  nftMinted.legalAgreementRefHash = metadataStruct.getLegalAgreementRefHash();
+  nftMinted.agreementType = metadataStruct.getAgreementType();
+  nftMinted.securedPartyName = metadataStruct.getSecuredPartyName();
+  nftMinted.securedPartyWalletAddress = metadataStruct.getSecuredPartyWalletAddress();
+  nftMinted.controlAgreementRefHash = metadataStruct.getControlAgreementRefHash();
+
+  nftMinted.save();
+}
+
+export function handlePerfectionAndRegistryMetadataSet(
+  event: PerfectionAndRegistryMetadataSetEvent
+): void {
+  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
+  if (nftMinted == null) {
+    log.error("NFTMinted entity not found for tokenId {}", [
+      event.params.tokenId.toString()
+    ]);
+    return;
+  }
+
+  let contract = QiroNft.bind(event.address);
+  let metadataStruct = contract.tokenIdToPerfectionAndRegistryMetadata(
+    event.params.tokenId
+  );
+
+  nftMinted.uccFilingReferenceNumber = metadataStruct.getUccFilingReferenceNumber();
+  nftMinted.filingJurisdiction = metadataStruct.getFilingJurisdiction();
+  nftMinted.perfectionMethod = metadataStruct.getPerfectionMethod();
+  nftMinted.perfectionStatus = metadataStruct.getPerfectionStatus();
+
+  nftMinted.save();
 }
