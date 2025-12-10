@@ -17,15 +17,16 @@ import {
   Deny,
   File,
   NFTMinted,
+  NftMetadata,
   Rely,
   Transfer,
   UpdateNftData,
 } from "../generated/schema";
-import {
-  ByteArray,
-  Bytes,
-  log,
-} from "@graphprotocol/graph-ts";
+import { ByteArray, Bytes, BigInt, log } from "@graphprotocol/graph-ts";
+
+function _getNftId(tokenId: BigInt): Bytes {
+  return Bytes.fromByteArray(ByteArray.fromBigInt(tokenId));
+}
 
 export function handleConsumerContractUpdated(
   event: ConsumerContractUpdatedEvent,
@@ -72,9 +73,8 @@ export function handleFile(event: FileEvent): void {
 }
 
 export function handleNFTMinted(event: NFTMintedEvent): void {
-  let entity = new NFTMinted(
-    Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId))
-  )
+  let id = _getNftId(event.params.tokenId);
+  let entity = new NFTMinted(id);
   entity.to = event.params.to
   entity.tokenId = event.params.tokenId
   entity.name = event.params.name
@@ -91,7 +91,12 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   entity.arweaveId = arweaveData;
   entity.nftContractAddress = event.address;
 
-  entity.save()
+  entity.save();
+
+  // initialize metadata placeholder linked to this NFT
+  let metadata = new NftMetadata(id);
+  metadata.nft = id;
+  metadata.save();
 }
 
 export function handleRely(event: RelyEvent): void {
@@ -147,10 +152,11 @@ export function handleUpdateNftData(event: UpdateNftDataEvent): void {
 export function handleIdentityDealAssetLayerMetadataSet(
   event: IdentityDealAssetLayerMetadataSetEvent
 ): void {
-  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
-  if (nftMinted == null) {
-    log.error("NFTMinted entity not found for tokenId {}", [
-      event.params.tokenId.toString()
+  let metadataId = _getNftId(event.params.tokenId);
+  let metadata = NftMetadata.load(metadataId);
+  if (metadata == null) {
+    log.error("NftMetadata entity not found for tokenId {}", [
+      event.params.tokenId.toString(),
     ]);
     return;
   }
@@ -160,32 +166,37 @@ export function handleIdentityDealAssetLayerMetadataSet(
     event.params.tokenId
   );
 
-  nftMinted.issuerName = metadataStruct.getIssuerName();
-  nftMinted.issuerRegistrationNumber = metadataStruct.getIssuerRegistrationNumber();
-  nftMinted.issuerJurisdiction = metadataStruct.getIssuerJurisdiction();
-  nftMinted.governingLaw = metadataStruct.getGoverningLaw();
-  nftMinted.enforcementJurisdiction = metadataStruct.getEnforcementJurisdiction();
-  nftMinted.dateOfIssuance = metadataStruct.getDateOfIssuance();
-  nftMinted.principalAmount = metadataStruct.getPrincipalAmount();
-  nftMinted.yieldOrRate = metadataStruct.getYieldOrRate();
-  nftMinted.assetClass = metadataStruct.getAssetClass();
-  nftMinted.maturityDate = metadataStruct.getMaturityDate();
-  nftMinted.lienStatus = metadataStruct.getLienStatus();
-  nftMinted.collateralDescription = metadataStruct.getCollateralDescription();
-  nftMinted.underlyingAssetIdentifier = metadataStruct.getUnderlyingAssetIdentifier();
-  nftMinted.rightsEntitlementDescription = metadataStruct.getRightsEntitlementDescription();
-  nftMinted.lifecycleEventLogic = metadataStruct.getLifecycleEventLogic();
+  metadata.issuerName = metadataStruct.getIssuerName();
+  metadata.issuerRegistrationNumber =
+    metadataStruct.getIssuerRegistrationNumber();
+  metadata.issuerJurisdiction = metadataStruct.getIssuerJurisdiction();
+  metadata.governingLaw = metadataStruct.getGoverningLaw();
+  metadata.enforcementJurisdiction =
+    metadataStruct.getEnforcementJurisdiction();
+  metadata.dateOfIssuance = metadataStruct.getDateOfIssuance();
+  metadata.principalAmount = metadataStruct.getPrincipalAmount();
+  metadata.yieldOrRate = metadataStruct.getYieldOrRate();
+  metadata.assetClass = metadataStruct.getAssetClass();
+  metadata.maturityDate = metadataStruct.getMaturityDate();
+  metadata.lienStatus = metadataStruct.getLienStatus();
+  metadata.collateralDescription = metadataStruct.getCollateralDescription();
+  metadata.underlyingAssetIdentifier =
+    metadataStruct.getUnderlyingAssetIdentifier();
+  metadata.rightsEntitlementDescription =
+    metadataStruct.getRightsEntitlementDescription();
+  metadata.lifecycleEventLogic = metadataStruct.getLifecycleEventLogic();
 
-  nftMinted.save();
+  metadata.save();
 }
 
 export function handleControlLayerMetadataSet(
   event: ControlLayerMetadataSetEvent
 ): void {
-  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
-  if (nftMinted == null) {
-    log.error("NFTMinted entity not found for tokenId {}", [
-      event.params.tokenId.toString()
+  let metadataId = _getNftId(event.params.tokenId);
+  let metadata = NftMetadata.load(metadataId);
+  if (metadata == null) {
+    log.error("NftMetadata entity not found for tokenId {}", [
+      event.params.tokenId.toString(),
     ]);
     return;
   }
@@ -195,21 +206,22 @@ export function handleControlLayerMetadataSet(
     event.params.tokenId
   );
 
-  nftMinted.controlMechanismDescription = metadataStruct.getControlMechanismDescription();
-  nftMinted.controlLogicHash = metadataStruct.getControlLogicHash();
-  nftMinted.governanceKeysOrRoleMap = metadataStruct.getGovernanceKeysOrRoleMap();
-  nftMinted.transferRestrictions = metadataStruct.getTransferRestrictions();
-
-  nftMinted.save();
+  metadata.controlMechanismDescription =
+    metadataStruct.getControlMechanismDescription();
+  metadata.controlLogicHash = metadataStruct.getControlLogicHash();
+  metadata.governanceKeysOrRoleMap =
+    metadataStruct.getGovernanceKeysOrRoleMap();
+  metadata.save();
 }
 
 export function handleLegalLinkLayerMetadataSet(
   event: LegalLinkLayerMetadataSetEvent
 ): void {
-  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
-  if (nftMinted == null) {
-    log.error("NFTMinted entity not found for tokenId {}", [
-      event.params.tokenId.toString()
+  let metadataId = _getNftId(event.params.tokenId);
+  let metadata = NftMetadata.load(metadataId);
+  if (metadata == null) {
+    log.error("NftMetadata entity not found for tokenId {}", [
+      event.params.tokenId.toString(),
     ]);
     return;
   }
@@ -219,22 +231,25 @@ export function handleLegalLinkLayerMetadataSet(
     event.params.tokenId
   );
 
-  nftMinted.legalAgreementRefHash = metadataStruct.getLegalAgreementRefHash();
-  nftMinted.agreementType = metadataStruct.getAgreementType();
-  nftMinted.securedPartyName = metadataStruct.getSecuredPartyName();
-  nftMinted.securedPartyWalletAddress = metadataStruct.getSecuredPartyWalletAddress();
-  nftMinted.controlAgreementRefHash = metadataStruct.getControlAgreementRefHash();
+  metadata.legalAgreementRefHash = metadataStruct.getLegalAgreementRefHash();
+  metadata.agreementType = metadataStruct.getAgreementType();
+  metadata.securedPartyName = metadataStruct.getSecuredPartyName();
+  metadata.securedPartyWalletAddress =
+    metadataStruct.getSecuredPartyWalletAddress();
+  metadata.controlAgreementRefHash =
+    metadataStruct.getControlAgreementRefHash();
 
-  nftMinted.save();
+  metadata.save();
 }
 
 export function handlePerfectionAndRegistryMetadataSet(
   event: PerfectionAndRegistryMetadataSetEvent
 ): void {
-  let nftMinted = NFTMinted.load(Bytes.fromByteArray(ByteArray.fromBigInt(event.params.tokenId)));
-  if (nftMinted == null) {
-    log.error("NFTMinted entity not found for tokenId {}", [
-      event.params.tokenId.toString()
+  let metadataId = _getNftId(event.params.tokenId);
+  let metadata = NftMetadata.load(metadataId);
+  if (metadata == null) {
+    log.error("NftMetadata entity not found for tokenId {}", [
+      event.params.tokenId.toString(),
     ]);
     return;
   }
@@ -244,10 +259,11 @@ export function handlePerfectionAndRegistryMetadataSet(
     event.params.tokenId
   );
 
-  nftMinted.uccFilingReferenceNumber = metadataStruct.getUccFilingReferenceNumber();
-  nftMinted.filingJurisdiction = metadataStruct.getFilingJurisdiction();
-  nftMinted.perfectionMethod = metadataStruct.getPerfectionMethod();
-  nftMinted.perfectionStatus = metadataStruct.getPerfectionStatus();
+  metadata.uccFilingReferenceNumber =
+    metadataStruct.getUccFilingReferenceNumber();
+  metadata.filingJurisdiction = metadataStruct.getFilingJurisdiction();
+  metadata.perfectionMethod = metadataStruct.getPerfectionMethod();
+  metadata.perfectionStatus = metadataStruct.getPerfectionStatus();
 
-  nftMinted.save();
+  metadata.save();
 }

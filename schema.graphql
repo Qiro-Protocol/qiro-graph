@@ -382,6 +382,13 @@ type NFTMinted @entity(immutable: false) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
+  metadata: NftMetadata @derivedFrom(field: "nft")
+}
+
+# NFT metadata
+type NftMetadata @entity(immutable: false) {
+  id: Bytes!
+  nft: NFTMinted!
   # Identity Deal Asset Layer Metadata
   issuerName: String
   issuerRegistrationNumber: String
