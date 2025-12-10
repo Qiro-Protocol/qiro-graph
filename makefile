@@ -6,19 +6,19 @@ SCHEMA_FILE = schema.graphql
 SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
-SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.2
+SUBGRAPH_NAME = qiro-v1-amoy-testnet/v1.0.3
 # SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.3
 
 WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
 
 # list of entities for webhooks
-# WEBHOOK_ENTITY_1 = wh_investor_whitelisted
-# WEBHOOK_ENTITY_2 = supply_redeem
-# WEBHOOK_ENTITY_3 = pool_deployed
-# WEBHOOK_ENTITY_4 = wh_originator_fee_paid
-# WEBHOOK_ENTITY_5 = wh_set_create_pool_access
-# WEBHOOK_ENTITY_6 = loan_started
-# WEBHOOK_ENTITY_7 = loan_withdrawn
+WEBHOOK_ENTITY_1 = wh_investor_whitelisted
+WEBHOOK_ENTITY_2 = supply_redeem
+WEBHOOK_ENTITY_3 = pool_deployed
+WEBHOOK_ENTITY_4 = wh_originator_fee_paid
+WEBHOOK_ENTITY_5 = wh_set_create_pool_access
+WEBHOOK_ENTITY_6 = loan_started
+WEBHOOK_ENTITY_7 = loan_withdrawn
 WEBHOOK_ENTITY_8 = wh_value_filed_on_contract
 WEBHOOK_ENTITY_9 = wh_writeoff
 WEBHOOK_ENTITY_10 = prepayment_applied
@@ -62,14 +62,14 @@ deploy:
 # Build and deploy in one command
 deploy-all: build deploy
 
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_1)-webhook --entity $(WEBHOOK_ENTITY_1) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_2)-webhook --entity $(WEBHOOK_ENTITY_2) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_3)-webhook --entity $(WEBHOOK_ENTITY_3) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_4)-webhook --entity $(WEBHOOK_ENTITY_4) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_5)-webhook --entity $(WEBHOOK_ENTITY_5) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_6)-webhook --entity $(WEBHOOK_ENTITY_6) --url $(WEHBHOOK_URL)
-# goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_7)-webhook --entity $(WEBHOOK_ENTITY_7) --url $(WEHBHOOK_URL)
 deploy-webhooks:
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_1)-webhook --entity $(WEBHOOK_ENTITY_1) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_2)-webhook --entity $(WEBHOOK_ENTITY_2) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_3)-webhook --entity $(WEBHOOK_ENTITY_3) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_4)-webhook --entity $(WEBHOOK_ENTITY_4) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_5)-webhook --entity $(WEBHOOK_ENTITY_5) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_6)-webhook --entity $(WEBHOOK_ENTITY_6) --url $(WEHBHOOK_URL)
+	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_7)-webhook --entity $(WEBHOOK_ENTITY_7) --url $(WEHBHOOK_URL)
 	goldsky subgraph webhook create	$(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_8)-webhook --entity $(WEBHOOK_ENTITY_8) --url $(WEHBHOOK_URL)
 	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_9)-webhook --entity $(WEBHOOK_ENTITY_9) --url $(WEHBHOOK_URL)
 	goldsky subgraph webhook create $(SUBGRAPH_NAME) --name $(WEBHOOK_ENTITY_10)-webhook --entity $(WEBHOOK_ENTITY_10) --url $(WEHBHOOK_URL)

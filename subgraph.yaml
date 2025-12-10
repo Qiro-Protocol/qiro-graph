@@ -156,7 +156,7 @@ dataSources:
           handler: handleDeny
         - event: File(bytes32,uint256,uint256)
           handler: handleFile
-        - event: NFTMinted(indexed address,uint256,string,string,string,string,uint256,string)
+        - event: NFTMinted(indexed address,uint256,string,string,string)
           handler: handleNFTMinted
         - event: Rely(indexed address)
           handler: handleRely
@@ -164,6 +164,14 @@ dataSources:
           handler: handleTransfer
         - event: UpdateNftData(uint256,uint256,uint256,uint256,uint256)
           handler: handleUpdateNftData
+        - event: IdentityDealAssetLayerMetadataSet(uint256)
+          handler: handleIdentityDealAssetLayerMetadataSet
+        - event: ControlLayerMetadataSet(uint256)
+          handler: handleControlLayerMetadataSet
+        - event: LegalLinkLayerMetadataSet(uint256)
+          handler: handleLegalLinkLayerMetadataSet
+        - event: PerfectionAndRegistryMetadataSet(uint256)
+          handler: handlePerfectionAndRegistryMetadataSet
       file: ./src/qiro-nft.ts
 templates:
   - name: WhitelistOperator
