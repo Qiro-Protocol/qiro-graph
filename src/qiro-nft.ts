@@ -211,6 +211,7 @@ export function handleControlLayerMetadataSet(
   metadata.controlLogicHash = metadataStruct.getControlLogicHash();
   metadata.governanceKeysOrRoleMap =
     metadataStruct.getGovernanceKeysOrRoleMap();
+  metadata.transferRestrictions = metadataStruct.getTransferRestrictions();
   metadata.save();
 }
 
