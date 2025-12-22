@@ -511,6 +511,33 @@ type UpdateNftData @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
+type PoolAdminUpdated @entity(immutable: false) {
+  id: Bytes!
+  admin: Bytes! # address
+  access: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MetadataManagerUpdated @entity(immutable: false) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  manager: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MinterUpdated @entity(immutable: false) {
+  id: Bytes!
+  minter: Bytes! # address
+  isMinter: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type ConsumerCoordinatorPair @entity(immutable: false) {
   id: ID!
   consumer: Bytes!
