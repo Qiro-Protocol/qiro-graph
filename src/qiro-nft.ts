@@ -21,13 +21,13 @@ import {
   NftMetadata,
   Transfer,
   UpdateNftData,
-  PoolAdminUpdated,
-  MetadataManagerUpdated,
-  MinterUpdated,
 } from "../generated/schema";
 import { OwnershipTransferred as OwnershipTransferredEvent } from "../generated/QiroNft/QiroNft";
 import { createWHOwnershipTransferStarted } from "./webhooks/ownershipTransfer.started";
 import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.complete";
+import { createWHPoolAdminUpdated } from "./webhooks/poolAdminUpdated";
+import { createWHMetadataManagerUpdated } from "./webhooks/metadataManagerUpdated";
+import { createWHMinterUpdated } from "./webhooks/minterUpdated";
 import { ByteArray, Bytes, BigInt, log } from "@graphprotocol/graph-ts";
 
 function _getNftId(tokenId: BigInt): Bytes {
@@ -68,7 +68,7 @@ export function handleFile(event: FileEvent): void {
 export function handleNFTMinted(event: NFTMintedEvent): void {
   let id = _getNftId(event.params.tokenId);
   let entity = new NFTMinted(id);
-  entity.to = event.params.to
+  entity.to = event.params.to // recipient of the NFT
   entity.tokenId = event.params.tokenId
   entity.name = event.params.name
   entity.desc = event.params.desc
@@ -89,6 +89,7 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   // initialize metadata placeholder linked to this NFT
   let metadata = new NftMetadata(id);
   metadata.nft = id;
+  metadata.minter = event.transaction.from; // minter of the NFT
   metadata.save();
 }
 
@@ -250,47 +251,57 @@ export function handlePerfectionAndRegistryMetadataSet(
 }
 
 export function handlePoolAdminUpdated(event: PoolAdminUpdatedEvent): void {
-  let entity = new PoolAdminUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.admin = event.params.admin;
-  entity.access = event.params.access;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
+  // create webhook entity
+  createWHPoolAdminUpdated({
+    admin: event.params.admin,
+    access: event.params.access,
+    contractAddress: event.address,
+    contractName: "QiroNFT",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleMetadataManagerUpdated(
   event: MetadataManagerUpdatedEvent
 ): void {
-  let entity = new MetadataManagerUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.tokenId = event.params.tokenId;
-  entity.manager = event.params.manager;
+  // Link tokenId to metadataManager
+  let metadataId = _getNftId(event.params.tokenId);
+  let metadata = NftMetadata.load(metadataId);
+  if (metadata != null) {
+    metadata.metadataManager = event.params.manager;
+    metadata.save();
+  } else {
+    log.warning(
+      "NftMetadata entity not found for tokenId {} in handleMetadataManagerUpdated",
+      [event.params.tokenId.toString()]
+    );
+  }
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
+  // create webhook entity
+  createWHMetadataManagerUpdated({
+    tokenId: event.params.tokenId,
+    manager: event.params.manager,
+    contractAddress: event.address,
+    contractName: "QiroNFT",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleMinterUpdated(event: MinterUpdatedEvent): void {
-  let entity = new MinterUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.minter = event.params.minter;
-  entity.isMinter = event.params.isMinter;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
+  // create webhook entity
+  createWHMinterUpdated({
+    minter: event.params.minter,
+    isMinter: event.params.isMinter,
+    contractAddress: event.address,
+    contractName: "QiroNFT",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleQiroNftOwnershipTransferStarted(

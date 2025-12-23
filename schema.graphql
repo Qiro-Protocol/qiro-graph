@@ -421,6 +421,10 @@ type NftMetadata @entity(immutable: false) {
   filingJurisdiction: String
   perfectionMethod: String
   perfectionStatus: String
+  # metadata manager of this NFT
+  metadataManager: Bytes
+  # address that minted this NFT
+  minter: Bytes
 }
 
 # ___________________________________________________________
@@ -506,33 +510,6 @@ type UpdateNftData @entity(immutable: false) {
   interest_rate: BigInt! # uint256
   nav: BigInt! # uint256
   isUnderwritten: Boolean! # bool
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type PoolAdminUpdated @entity(immutable: false) {
-  id: Bytes!
-  admin: Bytes! # address
-  access: Boolean! # bool
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type MetadataManagerUpdated @entity(immutable: false) {
-  id: Bytes!
-  tokenId: BigInt! # uint256
-  manager: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type MinterUpdated @entity(immutable: false) {
-  id: Bytes!
-  minter: Bytes! # address
-  isMinter: Boolean! # bool
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -786,6 +763,40 @@ type WHFundsWithdrawn @entity(immutable: false) {
   withdrawnBy: Bytes! # address
   contractAddress: Bytes! # address
   contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# QiroNFT Webhooks
+type WHPoolAdminUpdated @entity(immutable: false) {
+  id: Bytes!
+  admin: Bytes! # address
+  access: Boolean! # bool 
+  contractAddress: Bytes! 
+  contractName: String! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMetadataManagerUpdated @entity(immutable: false) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  manager: Bytes! # address 
+  contractAddress: Bytes! 
+  contractName: String! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMinterUpdated @entity(immutable: false) {
+  id: Bytes!
+  minter: Bytes! # address
+  isMinter: Boolean! # bool 
+  contractAddress: Bytes! 
+  contractName: String! 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
