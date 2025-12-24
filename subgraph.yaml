@@ -146,20 +146,19 @@ dataSources:
         - Rely
         - Transfer
         - UpdateNftData
+        - PoolAdminUpdated
+        - MetadataManagerUpdated
+        - MinterUpdated
       abis:
         - name: QiroNft
           file: ./abis/QiroNft.json
       eventHandlers:
         - event: ConsumerContractUpdated(address,address)
           handler: handleConsumerContractUpdated
-        - event: Deny(indexed address)
-          handler: handleDeny
         - event: File(bytes32,uint256,uint256)
           handler: handleFile
         - event: NFTMinted(indexed address,uint256,string,string,string)
           handler: handleNFTMinted
-        - event: Rely(indexed address)
-          handler: handleRely
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
         - event: UpdateNftData(uint256,uint256,uint256,uint256,uint256)
@@ -172,6 +171,16 @@ dataSources:
           handler: handleLegalLinkLayerMetadataSet
         - event: PerfectionAndRegistryMetadataSet(uint256)
           handler: handlePerfectionAndRegistryMetadataSet
+        - event: PoolAdminUpdated(address,bool)
+          handler: handlePoolAdminUpdated
+        - event: MetadataManagerUpdated(uint256,address)
+          handler: handleMetadataManagerUpdated
+        - event: MinterUpdated(address,bool)
+          handler: handleMinterUpdated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleQiroNftOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleQiroNftOwnershipTransferred
       file: ./src/qiro-nft.ts
 templates:
   - name: WhitelistOperator

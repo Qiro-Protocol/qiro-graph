@@ -382,6 +382,8 @@ type NFTMinted @entity(immutable: false) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
+  metadataManager: Bytes # metadata manager of this NFT
+  minter: Bytes # address that minted this NFT
   metadata: NftMetadata @derivedFrom(field: "nft")
 }
 
@@ -759,6 +761,40 @@ type WHFundsWithdrawn @entity(immutable: false) {
   withdrawnBy: Bytes! # address
   contractAddress: Bytes! # address
   contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# QiroNFT Webhooks
+type WHPoolAdminUpdated @entity(immutable: false) {
+  id: Bytes!
+  admin: Bytes! # address
+  isAdmin: Boolean! # bool
+  contractAddress: Bytes!
+  contractName: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMetadataManagerUpdated @entity(immutable: false) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  manager: Bytes! # address 
+  contractAddress: Bytes! 
+  contractName: String! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMinterUpdated @entity(immutable: false) {
+  id: Bytes!
+  minter: Bytes! # address
+  isMinter: Boolean! # bool 
+  contractAddress: Bytes! 
+  contractName: String! 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
