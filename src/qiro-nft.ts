@@ -83,6 +83,7 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   let arweaveData = contract.getArweave(event.params.tokenId)
   entity.arweaveId = arweaveData;
   entity.nftContractAddress = event.address;
+  entity.minter = event.transaction.from; // minter of the NFT
 
   entity.save();
 
@@ -267,14 +268,14 @@ export function handleMetadataManagerUpdated(
   event: MetadataManagerUpdatedEvent
 ): void {
   // Link tokenId to metadataManager
-  let metadataId = _getNftId(event.params.tokenId);
-  let metadata = NftMetadata.load(metadataId);
-  if (metadata != null) {
-    metadata.metadataManager = event.params.manager;
-    metadata.save();
+  let nftId = _getNftId(event.params.tokenId);
+  let nft = NFTMinted.load(nftId);
+  if (nft != null) {
+    nft.metadataManager = event.params.manager;
+    nft.save();
   } else {
     log.warning(
-      "NftMetadata entity not found for tokenId {} in handleMetadataManagerUpdated",
+      "NFTMinted entity not found for tokenId {} in handleMetadataManagerUpdated",
       [event.params.tokenId.toString()]
     );
   }
