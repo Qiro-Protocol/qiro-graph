@@ -8,7 +8,7 @@ export function createWHPoolAdminUpdated(
     params.transactionHash.concatI32(params.logIndex.toI32())
   );
   entity.admin = params.admin;
-  entity.access = params.access;
+  entity.isAdmin = params.isAdmin;
   entity.contractAddress = params.contractAddress;
   entity.contractName = params.contractName;
   entity.blockNumber = params.block.number;
@@ -19,7 +19,7 @@ export function createWHPoolAdminUpdated(
 
 export class WHPoolAdminUpdatedParams {
   admin: Address;
-  access: boolean;
+  isAdmin: boolean;
   contractAddress: Address;
   contractName: string;
   block: ethereum.Block;

@@ -815,7 +815,7 @@
         "internalType": "address"
       },
       {
-        "name": "access",
+        "name": "isAdmin",
         "type": "bool",
         "internalType": "bool"
       }
@@ -1599,7 +1599,7 @@
         "internalType": "address"
       },
       {
-        "name": "access",
+        "name": "isAdmin",
         "type": "bool",
         "indexed": false,
         "internalType": "bool"

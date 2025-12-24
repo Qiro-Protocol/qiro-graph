@@ -770,9 +770,9 @@ type WHFundsWithdrawn @entity(immutable: false) {
 type WHPoolAdminUpdated @entity(immutable: false) {
   id: Bytes!
   admin: Bytes! # address
-  access: Boolean! # bool 
-  contractAddress: Bytes! 
-  contractName: String! 
+  isAdmin: Boolean! # bool
+  contractAddress: Bytes!
+  contractName: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

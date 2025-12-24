@@ -90,7 +90,6 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   // initialize metadata placeholder linked to this NFT
   let metadata = new NftMetadata(id);
   metadata.nft = id;
-  metadata.minter = event.transaction.from; // minter of the NFT
   metadata.save();
 }
 
@@ -255,7 +254,7 @@ export function handlePoolAdminUpdated(event: PoolAdminUpdatedEvent): void {
   // create webhook entity
   createWHPoolAdminUpdated({
     admin: event.params.admin,
-    access: event.params.access,
+    isAdmin: event.params.isAdmin,
     contractAddress: event.address,
     contractName: "QiroNFT",
     block: event.block,
@@ -274,10 +273,11 @@ export function handleMetadataManagerUpdated(
     nft.metadataManager = event.params.manager;
     nft.save();
   } else {
-    log.warning(
+    log.error(
       "NFTMinted entity not found for tokenId {} in handleMetadataManagerUpdated",
       [event.params.tokenId.toString()]
     );
+    return;
   }
 
   // create webhook entity
