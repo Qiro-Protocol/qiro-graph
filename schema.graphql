@@ -382,6 +382,8 @@ type NFTMinted @entity(immutable: false) {
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
+  metadataManager: Bytes # metadata manager of this NFT
+  minter: Bytes # address that minted this NFT
   metadata: NftMetadata @derivedFrom(field: "nft")
 }
 
@@ -421,10 +423,6 @@ type NftMetadata @entity(immutable: false) {
   filingJurisdiction: String
   perfectionMethod: String
   perfectionStatus: String
-  # metadata manager of this NFT
-  metadataManager: Bytes
-  # address that minted this NFT
-  minter: Bytes
 }
 
 # ___________________________________________________________
