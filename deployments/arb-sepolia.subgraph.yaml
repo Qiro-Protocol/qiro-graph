@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: arbitrum-sepolia
     source:
-      address: "0x957a561A441a1bfaF800215C15D66e417E548955"
+      address: "0xe02Fa3176c95b4e75686C1cf03a189CC9a1506C7"
       abi: QiroFactory
-      startBlock: 223164869
+      startBlock: 231956846
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -129,9 +129,9 @@ dataSources:
     name: "QiroNft"
     network: arbitrum-sepolia
     source:
-      address: "0xD49a677Baa6b1184fB0ec98aae8980372DD0b441"
+      address: "0x511a627dc6997F739754b554359dbefcD1be1CEc"
       abi: QiroNft
-      startBlock: 223164857
+      startBlock: 231956846
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -146,20 +146,19 @@ dataSources:
         - Rely
         - Transfer
         - UpdateNftData
+        - PoolAdminUpdated
+        - MetadataManagerUpdated
+        - MinterUpdated
       abis:
         - name: QiroNft
           file: ./abis/QiroNft.json
       eventHandlers:
         - event: ConsumerContractUpdated(address,address)
           handler: handleConsumerContractUpdated
-        - event: Deny(indexed address)
-          handler: handleDeny
         - event: File(bytes32,uint256,uint256)
           handler: handleFile
         - event: NFTMinted(indexed address,uint256,string,string,string)
           handler: handleNFTMinted
-        - event: Rely(indexed address)
-          handler: handleRely
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
         - event: UpdateNftData(uint256,uint256,uint256,uint256,uint256)
@@ -172,6 +171,16 @@ dataSources:
           handler: handleLegalLinkLayerMetadataSet
         - event: PerfectionAndRegistryMetadataSet(uint256)
           handler: handlePerfectionAndRegistryMetadataSet
+        - event: PoolAdminUpdated(address,bool)
+          handler: handlePoolAdminUpdated
+        - event: MetadataManagerUpdated(uint256,address)
+          handler: handleMetadataManagerUpdated
+        - event: MinterUpdated(address,bool)
+          handler: handleMinterUpdated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleQiroNftOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleQiroNftOwnershipTransferred
       file: ./src/qiro-nft.ts
 templates:
   - name: WhitelistOperator

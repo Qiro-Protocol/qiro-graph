@@ -6,7 +6,7 @@ SCHEMA_FILE = schema.graphql
 SUBGRAPH_YAML = subgraph.yaml
 
 # Subgraph details
-SUBGRAPH_NAME = qiro-v1-eth-sepolia-testnet/v1.0.3
+SUBGRAPH_NAME = qiro-v1-arb-sepolia-testnet/v1.0.3
 # SUBGRAPH_NAME = qiro-v1-amoy-testnet-webhooks/v1.0.1.3
 
 WEHBHOOK_URL = https://eon9o019ed06ccs.m.pipedream.net
