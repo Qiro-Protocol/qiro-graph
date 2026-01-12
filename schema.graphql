@@ -19,6 +19,7 @@ type PoolDeployed @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
+
 type SupplyRedeem @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
@@ -37,6 +38,7 @@ type SupplyRedeem @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
+
 enum PoolStatus {
   CAPITAL_FORMATION
   PENDING
@@ -397,7 +399,6 @@ type NftMetadata @entity(immutable: false) {
   issuerJurisdiction: String
   governingLaw: String
   enforcementJurisdiction: String
-  dateOfIssuance: BigInt
   principalAmount: BigInt
   yieldOrRate: BigInt
   assetClass: String
@@ -405,19 +406,12 @@ type NftMetadata @entity(immutable: false) {
   lienStatus: String
   collateralDescription: String
   underlyingAssetIdentifier: String
-  rightsEntitlementDescription: String
-  lifecycleEventLogic: String
   # Control Layer Metadata
   controlMechanismDescription: String
   controlLogicHash: Bytes
-  governanceKeysOrRoleMap: String
-  transferRestrictions: String
   # Legal Link Layer Metadata
   legalAgreementRefHash: Bytes
   agreementType: String
-  securedPartyName: String
-  securedPartyWalletAddress: Bytes
-  controlAgreementRefHash: Bytes
   # Perfection and Registry Metadata
   uccFilingReferenceNumber: String
   filingJurisdiction: String
