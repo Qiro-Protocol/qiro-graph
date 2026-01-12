@@ -390,11 +390,6 @@
             "internalType": "string"
           },
           {
-            "name": "dateOfIssuance",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
             "name": "principalAmount",
             "type": "uint256",
             "internalType": "uint256"
@@ -426,16 +421,6 @@
           },
           {
             "name": "underlyingAssetIdentifier",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "rightsEntitlementDescription",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "lifecycleEventLogic",
             "type": "string",
             "internalType": "string"
           }
@@ -690,16 +675,6 @@
             "name": "controlLogicHash",
             "type": "bytes32",
             "internalType": "bytes32"
-          },
-          {
-            "name": "governanceKeysOrRoleMap",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "transferRestrictions",
-            "type": "string",
-            "internalType": "string"
           }
         ]
       }
@@ -730,21 +705,6 @@
             "name": "agreementType",
             "type": "string",
             "internalType": "string"
-          },
-          {
-            "name": "securedPartyName",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "securedPartyWalletAddress",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "controlAgreementRefHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
           }
         ]
       }
@@ -913,16 +873,6 @@
         "name": "controlLogicHash",
         "type": "bytes32",
         "internalType": "bytes32"
-      },
-      {
-        "name": "governanceKeysOrRoleMap",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "transferRestrictions",
-        "type": "string",
-        "internalType": "string"
       }
     ],
     "stateMutability": "view"
@@ -1013,11 +963,6 @@
         "internalType": "string"
       },
       {
-        "name": "dateOfIssuance",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "principalAmount",
         "type": "uint256",
         "internalType": "uint256"
@@ -1051,16 +996,6 @@
         "name": "underlyingAssetIdentifier",
         "type": "string",
         "internalType": "string"
-      },
-      {
-        "name": "rightsEntitlementDescription",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "lifecycleEventLogic",
-        "type": "string",
-        "internalType": "string"
       }
     ],
     "stateMutability": "view"
@@ -1085,21 +1020,6 @@
         "name": "agreementType",
         "type": "string",
         "internalType": "string"
-      },
-      {
-        "name": "securedPartyName",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "securedPartyWalletAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "controlAgreementRefHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ],
     "stateMutability": "view"

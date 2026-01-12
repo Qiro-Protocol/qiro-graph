@@ -154,7 +154,6 @@ export function handleIdentityDealAssetLayerMetadataSet(
   metadata.governingLaw = metadataStruct.getGoverningLaw();
   metadata.enforcementJurisdiction =
     metadataStruct.getEnforcementJurisdiction();
-  metadata.dateOfIssuance = metadataStruct.getDateOfIssuance();
   metadata.principalAmount = metadataStruct.getPrincipalAmount();
   metadata.yieldOrRate = metadataStruct.getYieldOrRate();
   metadata.assetClass = metadataStruct.getAssetClass();
@@ -163,9 +162,6 @@ export function handleIdentityDealAssetLayerMetadataSet(
   metadata.collateralDescription = metadataStruct.getCollateralDescription();
   metadata.underlyingAssetIdentifier =
     metadataStruct.getUnderlyingAssetIdentifier();
-  metadata.rightsEntitlementDescription =
-    metadataStruct.getRightsEntitlementDescription();
-  metadata.lifecycleEventLogic = metadataStruct.getLifecycleEventLogic();
 
   metadata.save();
 }
@@ -190,9 +186,6 @@ export function handleControlLayerMetadataSet(
   metadata.controlMechanismDescription =
     metadataStruct.getControlMechanismDescription();
   metadata.controlLogicHash = metadataStruct.getControlLogicHash();
-  metadata.governanceKeysOrRoleMap =
-    metadataStruct.getGovernanceKeysOrRoleMap();
-  metadata.transferRestrictions = metadataStruct.getTransferRestrictions();
   metadata.save();
 }
 
@@ -215,11 +208,6 @@ export function handleLegalLinkLayerMetadataSet(
 
   metadata.legalAgreementRefHash = metadataStruct.getLegalAgreementRefHash();
   metadata.agreementType = metadataStruct.getAgreementType();
-  metadata.securedPartyName = metadataStruct.getSecuredPartyName();
-  metadata.securedPartyWalletAddress =
-    metadataStruct.getSecuredPartyWalletAddress();
-  metadata.controlAgreementRefHash =
-    metadataStruct.getControlAgreementRefHash();
 
   metadata.save();
 }
