@@ -8,9 +8,9 @@ dataSources:
     name: QiroFactory
     network: sepolia
     source:
-      address: "0x3915741e3F6996FFe13DFa85c9Ef6f232Ee39841"
+      address: "0x00598a23E21AD834478e17233d0fd63C23F96580"
       abi: QiroFactory
-      startBlock: 10003041
+      startBlock: 10027311
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -129,9 +129,9 @@ dataSources:
     name: "QiroNft"
     network: sepolia
     source:
-      address: "0xcdD4cC0202f2008E8f52d8C730394c0d17DCd95A"
+      address: "0x5358AD05545d82a869eFD81e4e395e15036A83aE"
       abi: QiroNft
-      startBlock: 10003041
+      startBlock: 10027311
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -418,3 +418,4 @@ templates:
           handler: handleReserveSupply
         - event: DepositEIS(uint256,indexed address,uint256)
           handler: handleReserveEisDeposit
+
