@@ -502,6 +502,11 @@ function handlePool(
     entity.outstandingShortfallInterestAmount = BigInt.fromI32(0);
     entity.outstandingShortfallPrincipalAmount = BigInt.fromI32(0);
     entity.servicerFeePaid = BigInt.fromI32(0);
+    entity.threshold = operator.threshold();
+    entity.originalLoanTermInterest = shelfContract!.totalInterestForLoanTerm();
+    entity.totalLoanTermInterest = shelfContract!.totalInterestForLoanTerm();
+    entity.lastProcessedPeriod = shelfContract!.lastProcessedPeriod();
+    entity.writeoffPeriodNumber = shelfContract!.writeOffPeriodNo();
   } else if (poolType == PoolType.SECURITISATION) {
     entity.borrower = securitisationShelfContract!.borrower();
     entity.originatorFeePaid =
