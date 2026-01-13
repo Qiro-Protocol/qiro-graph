@@ -162,6 +162,11 @@ type Pool @entity(immutable: false) {
   outstandingShortfallInterestAmount: BigInt! # uint256
   outstandingShortfallPrincipalAmount: BigInt! # uint256
   servicerFeePaid: BigInt! # uint256
+  threshold: BigInt! # uint256
+  originalLoanTermInterest: BigInt! # uint256
+  totalLoanTermInterest: BigInt! # uint256
+  lastProcessedPeriod: BigInt # uint256
+  writeoffPeriodNumber: BigInt # uint256
   # reserve related fields
   reserveBalance: BigInt! # uint256 - latest borrower's balance() from reserve contract - when latest borrower deposits cash collateral
   eisBalance: BigInt! # uint256 - eisBalance from reserve contract
@@ -327,6 +332,7 @@ type LoanWithdrawn @entity(immutable: false) {
   blockNumber: BigInt!
   transactionHash: Bytes!
 } #done
+
 type Lender @entity(immutable: false) {
   id: Bytes! # lenderAddress+poolId+trancheAddress
   address: Bytes! # address

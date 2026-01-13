@@ -90,6 +90,9 @@ export function handleLoanStarted(event: LoanStartedEvent): void {
   poolObject!.interestAmount = shelfContract.totalInterestForLoanTerm();
   poolObject!.nftTokenId = shelfContract.token().value1;
   poolObject!.startTimestamp = shelfContract.LOAN_START_TIMESTAMP();
+  poolObject!.originalLoanTermInterest = shelfContract.totalInterestForLoanTerm();
+  poolObject!.totalLoanTermInterest = shelfContract.totalInterestForLoanTerm();
+  poolObject!.prepaymentPeriod = shelfContract.prePaymentPeriod();
   poolObject!.save();
 
   let seniorTranche = TrancheEntity.load(poolAddresses!.seniorTranche);
@@ -260,7 +263,10 @@ export function handleLoanRepayed(event: LoanRepayedEvent): void {
   );
   // Regular Reserve doesn't have eisBalance, set to 0
   pool!.eisBalance = BigInt.fromI32(0);
-
+  pool!.totalLoanTermInterest = shelfContract.totalInterestForLoanTerm();
+  pool!.prepaymentPeriod = shelfContract.prePaymentPeriod();
+  pool!.lastProcessedPeriod = shelfContract.lastProcessedPeriod();
+  pool!.writeoffPeriodNumber = shelfContract.writeOffPeriodNo();
   pool!.save();
 
   createRepayTransaction(event);
@@ -462,6 +468,10 @@ function createPrepaymentAppliedTransaction(event: PrepaymentAppliedEvent): void
 }
 
 export function handleShelfWriteoff(event: WriteoffEvent): void {
+  let pool = getPool(event.params.poolId);
+  pool!.writeoffPeriodNumber = pool!.writeoffPeriodNumber.plus(BigInt.fromI32(1));
+  pool!.writeoffAmount = pool!.writeoffAmount.plus(event.params.fromPrincipal);
+  pool!.save();
   // pool is updated in handleLoanEnded
   // using this event to create webhook trigger
   createWHWriteoff({
