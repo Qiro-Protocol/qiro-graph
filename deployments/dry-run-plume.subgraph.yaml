@@ -50,6 +50,8 @@ dataSources:
           handler: handlePoolDeployed
         - event: FactoryCreated(address)
           handler: handleFactoryCreated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleFactoryOwnershipTransferStarted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleFactoryOwnershipTransferred
         - event: ProtocolPaused(indexed address)
@@ -72,6 +74,8 @@ dataSources:
           handler: handleUserKycUpdated
         - event: ProtocolContractUpdated(address,bool)
           handler: handleProtocolContractUpdated
+        - event: CreatePoolAccessUpdated(address,bool)
+          handler: handleSetCreatePoolAccess
       file: ./src/qiro-factory.ts
   - kind: ethereum
     name: Coordinator
@@ -185,6 +189,10 @@ templates:
           handler: handleWhitelistOperatorUpdateState
         - event: OperatorFiled(uint256,bytes32,address)
           handler: handleWhitelistOperatorFiled
+        - event: WhitelistedInvestor(address,address)
+          handler: handleInvestorWhitelist
+        - event: DeniedInvestor(uint256,address)
+          handler: handleInvestorWhitelistRevoked
   - name: InvestmentOperator
     kind: ethereum/contract
     network: plume-mainnet
@@ -268,6 +276,8 @@ templates:
           handler: handleShelfDepend
         - event: BorrowerAddressUpdated(uint256,address)
           handler: handleShelfUpdateBorrowerAddress
+        - event: WriteOff(uint256,uint256)
+          handler: handleShelfWriteoff
   - name: SecuritisationShelf
     kind: ethereum/contract
     network: plume-mainnet
@@ -335,6 +345,14 @@ templates:
       eventHandlers:
         - event: TimelockManagerUpdated(indexed address,indexed address)
           handler: handleTimelockManagerUpdated
+        - event: TimelockDelayUpdated(uint256,uint256)
+          handler: handleTimelockDelayUpdated
+        - event: DepositCreated(indexed address,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleTimelockDepositCreated
+        - event: DepositWithdrawn(indexed uint256)
+          handler: handleTimelockDepositWithdrawn
+        - event: FundsWithdrawn(indexed address,uint256,indexed address)
+          handler: handleTimelockFundsWithdrawn
   - name: ExitManager
     kind: ethereum/contract
     network: plume-mainnet
@@ -351,8 +369,14 @@ templates:
         - name: ExitManager
           file: ./abis/ExitManager.json
       eventHandlers:
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleExitManagerOwnershipTransferStarted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleExitManagerOwnershipTransferred
+        - event: EmergencyExitExecuted(uint256[])
+          handler: handleEmergencyExitExecuted
+        - event: BatchSizeUpdated(uint256,uint256)
+          handler: handleBatchSizeUpdated
   - name: Reserve
     kind: ethereum/contract
     network: plume-mainnet

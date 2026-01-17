@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import {
   Pool,
   PoolDeployed,
@@ -6,7 +6,6 @@ import {
   PoolAddresses,
   PoolCurrency,
   Borrower,
-  FactoryOwnershipTransferred,
   KycUser,
   WhitelistedProtocol,
 } from "../generated/schema";
@@ -27,7 +26,8 @@ import { Tranche as TrancheContract } from "../generated/QiroFactory/Tranche";
 import { SecuritisationTranche as SecuritisationTrancheContract } from "../generated/QiroFactory/SecuritisationTranche";
 import { ERC20 } from "../generated/QiroFactory/ERC20";
 import { TimelockVault as TimelockVaultContract } from "../generated/templates/TimelockVault/TimelockVault";
-import { ExitManager as ExitManagerContract } from "../generated/QiroFactory/ExitManager";
+import { ExitManager as ExitManagerContract, OwnershipTransferStarted } from "../generated/QiroFactory/ExitManager";
+import { createWHValueFiledOnContract } from "./webhooks/fileOnContract";
 import {
   getPoolId,
   TrancheType,
@@ -51,8 +51,18 @@ import {
   PoolAdminChanged as PoolAdminChangedEvent,
   UserKycUpdated as UserKycUpdatedEvent,
   ProtocolContractUpdated as ProtocolContractUpdatedEvent,
+  CreatePoolAccessUpdated as CreatePoolAccessUpdatedEvent,
 } from "../generated/QiroFactory/QiroFactory";
 import { QiroFactory } from "../generated/schema";
+import { createWHInvestorWhitelistedOrRevoked, WHInvestorWhitelistedParams } from "./webhooks/investorWhitelist";
+import { createWHSetCreatePoolAccess } from "./webhooks/setCreatePoolAccess";
+import { createWHOwnershipTransferStarted } from "./webhooks/ownershipTransfer.started";
+import { createWHOwnershipTransferComplete } from "./webhooks/ownershipTransfer.complete";
+import { createWHPoolAdminChanged } from "./webhooks/poolAdminChanged";
+import { createWHPauserChanged } from "./webhooks/pauserChanged";
+import { createWHWhitelistManagerChanged } from "./webhooks/whitelistManagerChanged";
+import { createWHProtocolPausedUnpaused } from "./webhooks/protocolPaused";
+import { createWHPoolPausedUnpaused } from "./webhooks/poolPaused";
 
 // FACTORY
 export function handleFactoryCreated(event: FactoryCreated): void {
@@ -117,10 +127,24 @@ export function handleFactoryFile(event: FactoryFileEvent): void {
     factory.nftContractAddress = value;
   } else if (what == "currency") {
     factory.currency = value;
+  } else if (what == "qiroConsumer") {
+    // create webhook entity
   } else {
     log.warning("Unknown parameter in factory file event: {}", [what]);
   }
   factory.save();
+
+  createWHValueFiledOnContract({
+    poolId: BigInt.fromI32(0),
+    poolType: "NA/ FACTORY LEVEL",
+    fieldName: what,
+    value: value.toHexString(),
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 }
 
 export function handleUpdateWhitelistManager(event: WhitelistManagerUpdatedEvent): void {
@@ -129,6 +153,17 @@ export function handleUpdateWhitelistManager(event: WhitelistManagerUpdatedEvent
     factory.whitelistManager = event.params.newManager;
     factory.save();
   }
+
+  // create webhook entity
+  createWHWhitelistManagerChanged({
+    oldWhitelistManager: event.params.oldManager,
+    newWhitelistManager: event.params.newManager,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
@@ -140,19 +175,33 @@ export function handleChangePoolAdmin(event: PoolAdminChangedEvent): void {
     poolAddresses.admin = event.params.newAdmin;
     poolAddresses.save();
   }
+
+  // create webhook entity
+  createWHPoolAdminChanged({
+    poolId: poolId,
+    oldAdmin: event.params.oldAdmin,
+    newAdmin: event.params.newAdmin,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 function getOrCreateKycUser(
   userAddress: Address,
   factoryAddress: Address,
-  blockTimestamp: BigInt
+  block: ethereum.Block
 ): KycUser {
   let kyc = KycUser.load(userAddress);
   if (kyc == null) {
     kyc = new KycUser(userAddress);
     kyc.address = userAddress;
     kyc.factory = factoryAddress;
-    kyc.blockTimestamp = blockTimestamp;
     kyc.isKyc = false;
+    kyc.blockTimestamp = block.timestamp;
+    kyc.transactionHash = block.hash;
+    kyc.blockNumber = block.number;
     kyc.save();
   }
   return kyc as KycUser;
@@ -161,10 +210,27 @@ function getOrCreateKycUser(
 export function handleUserKycUpdated(event: UserKycUpdatedEvent): void {
   // KYC user added
   let userId = event.params.user;
-  let kyc = getOrCreateKycUser(userId, event.address, event.block.timestamp);
+  let kyc = getOrCreateKycUser(userId, event.address, event.block);
   kyc.isKyc = event.params.isKycUser;
   kyc.blockTimestamp = event.block.timestamp;
+  kyc.blockNumber = event.block.number;
+  kyc.transactionHash = event.transaction.hash;
   kyc.save();
+
+  // Create webhook parameters
+  let params: WHInvestorWhitelistedParams = {
+    investor: userId, // address
+    trancheName: "NA",
+    level: "FACTORY_KYC",
+    whitelisted: event.params.isKycUser,
+    poolId: BigInt.fromI32(0), // 0 for factory KYC
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  };
+  createWHInvestorWhitelistedOrRevoked(params);
 }
 
 export function handleProtocolContractUpdated(
@@ -179,22 +245,13 @@ export function handleProtocolContractUpdated(
   }
   wl.isWhitelisted = event.params.isProtocolContract_;
   wl.blockTimestamp = event.block.timestamp;
+  wl.transactionHash = event.transaction.hash;
   wl.save();
 }
 
 export function handleFactoryOwnershipTransferred(
   event: OwnershipTransferred
 ): void {
-  let entity = new FactoryOwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.previousOwner = event.params.previousOwner;
-  entity.newOwner = event.params.newOwner;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-
   // update factory owner
   let factory = QiroFactory.load(event.address);
   if (factory != null) {
@@ -204,6 +261,34 @@ export function handleFactoryOwnershipTransferred(
   log.info("Factory ownership transferred to: {}", [
     event.params.newOwner.toHexString(),
   ]);
+
+  // create webhook entity
+  createWHOwnershipTransferComplete({
+    previousOwner: event.params.previousOwner, // previous owner
+    newOwner: event.params.newOwner, // new owner
+    roleName: "Factory owner aka SuperAdmin",
+    contractAddress: event.address, // factory address
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleFactoryOwnershipTransferStarted(
+  event: OwnershipTransferStarted
+): void {
+  // create webhook entity
+  createWHOwnershipTransferStarted({
+    currentOwner: event.params.previousOwner, // current owner
+    proposedOwner: event.params.newOwner, // proposed owner
+    roleName: "Factory owner aka SuperAdmin",
+    contractAddress: event.address, // factory address
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function getOrCreateCurrency(
@@ -233,6 +318,12 @@ function updatePoolCountInFactory(qiroFactory: Address): void {
 // POOL
 
 export function handlePoolDeployed(event: PoolDeployedEvent): void {
+  let factory = QiroFactoryContract.bind(event.address);
+  let factoryPool = factory.pools(event.params.poolId);
+
+  let poolType = getPoolTypeString(factoryPool.getPoolType());
+  let shelf = Shelf.bind(event.params.shelf);
+
   let entity = new PoolDeployed(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -246,15 +337,16 @@ export function handlePoolDeployed(event: PoolDeployedEvent): void {
   entity.operator = event.params.operator;
   entity.shelf = event.params.shelf;
 
+  entity.lateFeeInterestRate = shelf.lateFeeInterestRateInBps();
+  entity.performanceFeeRate = shelf.performanceFee();
+  entity.originatorFeeRate = BigInt.fromI32(shelf.allFees(BigInt.fromI32(1)).value1);
+  entity.loanTerm = shelf.loanTerm();
+  entity.currency = shelf.currency();
+  entity.poolType = poolType;
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
-
-  let factory = QiroFactoryContract.bind(event.address);
-  let factoryPool = factory.pools(event.params.poolId);
-
-  let poolType = getPoolTypeString(factoryPool.getPoolType());
 
   handlePool(
     entity as PoolDeployed,
@@ -410,6 +502,11 @@ function handlePool(
     entity.outstandingShortfallInterestAmount = BigInt.fromI32(0);
     entity.outstandingShortfallPrincipalAmount = BigInt.fromI32(0);
     entity.servicerFeePaid = BigInt.fromI32(0);
+    entity.threshold = operator.threshold();
+    entity.originalLoanTermInterest = shelfContract!.totalInterestForLoanTerm();
+    entity.totalLoanTermInterest = shelfContract!.totalInterestForLoanTerm();
+    entity.lastProcessedPeriod = shelfContract!.lastProcessedPeriod();
+    entity.writeoffPeriodNumber = shelfContract!.writeOffPeriodNo();
   } else if (poolType == PoolType.SECURITISATION) {
     entity.borrower = securitisationShelfContract!.borrower();
     entity.originatorFeePaid =
@@ -600,6 +697,16 @@ export function handleProtocolPaused(event: ProtocolPaused): void {
     factory.protocolPaused = true;
     factory.save();
   }
+
+  createWHProtocolPausedUnpaused({
+    protocolPaused: true,
+    pausedBy: event.params.by,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
@@ -608,6 +715,16 @@ export function handleProtocolUnpaused(event: ProtocolUnpaused): void {
     factory.protocolPaused = false;
     factory.save();
   }
+
+  createWHProtocolPausedUnpaused({
+    protocolPaused: false,
+    pausedBy: event.params.by,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePoolsPaused(event: PoolsPaused): void {
@@ -616,6 +733,17 @@ export function handlePoolsPaused(event: PoolsPaused): void {
     pool.isPaused = true;
     pool.save();
   }
+
+  createWHPoolPausedUnpaused({
+    poolId: event.params.poolId,
+    pausedBy: event.params.by,
+    isPaused: true,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePoolsUnpaused(event: PoolsUnpaused): void {
@@ -624,6 +752,17 @@ export function handlePoolsUnpaused(event: PoolsUnpaused): void {
     pool.isPaused = false;
     pool.save();
   }
+
+  createWHPoolPausedUnpaused({
+    poolId: event.params.poolId,
+    pausedBy: event.params.by,
+    isPaused: false,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePauserUpdated(event: PauserUpdated): void {
@@ -632,4 +771,29 @@ export function handlePauserUpdated(event: PauserUpdated): void {
     factory.pauserRole = event.params.newPauser;
     factory.save();
   }
+
+  // create webhook entity
+  createWHPauserChanged({
+    oldPauser: event.params.previousPauser,
+    newPauser: event.params.newPauser,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
+}
+
+export function handleSetCreatePoolAccess(event: CreatePoolAccessUpdatedEvent): void {
+  // create params for webhook trigger
+  createWHSetCreatePoolAccess({
+    address: event.params.user,
+    canCreatePool: event.params.access,
+    manager: event.transaction.from,
+    contractAddress: event.address,
+    contractName: "QiroFactory",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
 }

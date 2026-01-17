@@ -1,6 +1,6 @@
 type PoolDeployed @entity(immutable: false) {
   id: Bytes!
-  poolId: BigInt! # uint256
+  poolId: BigInt! # uint256 - webhook trigger
   pool: Pool! # uint256
   seniorRate: BigInt! # uint256
   interestRate: BigInt! # uint256
@@ -9,13 +9,21 @@ type PoolDeployed @entity(immutable: false) {
   gracePeriod: BigInt! # uint256
   operator: Bytes! # address
   shelf: Bytes! # address
+  lateFeeInterestRate: BigInt! # uint256 - webhook trigger
+  performanceFeeRate: BigInt! # uint256 - webhook trigger
+  originatorFeeRate: BigInt! # uint256 - webhook trigger
+  loanTerm: BigInt! # uint256 - webhook trigger
+  currency: PoolCurrency! # address - webhook trigger
+  poolType: PoolType! # enum - webhook trigger
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
+
 type SupplyRedeem @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - webhook trigger
   tranche: Tranche! # Tranche
   supplierOrReciever: Bytes! # address
   currencyAmount: BigInt!
@@ -30,6 +38,7 @@ type SupplyRedeem @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 } # done
+
 enum PoolStatus {
   CAPITAL_FORMATION
   PENDING
@@ -50,14 +59,6 @@ enum PoolType {
   SECURITISATION
 }
 
-type FactoryOwnershipTransferred @entity(immutable: false) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-} # done
 type QiroFactory @entity(immutable: false) {
   id: Bytes!
   shelfFab: Bytes! # address
@@ -92,6 +93,8 @@ type KycUser @entity(immutable: false) {
   address: Bytes! # address
   isKyc: Boolean!
   blockTimestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes! #last updated transaction hash
 }
 
 # Factory-scoped whitelisted protocol
@@ -101,7 +104,9 @@ type WhitelistedProtocol @entity(immutable: false) {
   address: Bytes! # address
   isWhitelisted: Boolean!
   blockTimestamp: BigInt!
+  transactionHash: Bytes! #last updated transaction hash
 }
+
 # main Schema
 type Pool @entity(immutable: false) {
   id: Bytes!
@@ -157,6 +162,11 @@ type Pool @entity(immutable: false) {
   outstandingShortfallInterestAmount: BigInt! # uint256
   outstandingShortfallPrincipalAmount: BigInt! # uint256
   servicerFeePaid: BigInt! # uint256
+  threshold: BigInt! # uint256
+  originalLoanTermInterest: BigInt! # uint256
+  totalLoanTermInterest: BigInt! # uint256
+  lastProcessedPeriod: BigInt # uint256
+  writeoffPeriodNumber: BigInt # uint256
   # reserve related fields
   reserveBalance: BigInt! # uint256 - latest borrower's balance() from reserve contract - when latest borrower deposits cash collateral
   eisBalance: BigInt! # uint256 - eisBalance from reserve contract
@@ -174,6 +184,7 @@ type Pool @entity(immutable: false) {
 
 type PrepaymentApplied @entity(immutable: true) {
   id: Bytes!
+  poolId: BigInt! # uint256
   pool: Pool! # uint256
   prepaymentPeriod: BigInt! # uint256
   prepaymentAbsorbedAmount: BigInt! # uint256
@@ -263,23 +274,38 @@ type Tranche @entity(immutable: false) {
   lastRepaidTimestamp: BigInt # uint256
   totalDaysRepaid: BigInt # uint256
 } # done
+
 type LoanStarted @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
+  nftContractAddress: Bytes! # address - for webhook trigger
+  nftId: BigInt! # uint256 - for webhook trigger
+  principalAmount: BigInt! # uint256 - for webhook trigger
+  takeOriginatorFeeFromPrincipal: Boolean! # bool
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
+
 type LoanEnded @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
+  principalRepaid: BigInt! # uint256
+  interestRepaid: BigInt! # uint256
+  lateFeeRepaid: BigInt! # uint256
+  seniorTotalRepaid: BigInt! # uint256
+  juniorTotalRepaid: BigInt! # uint256
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
+
 type LoanRepayed @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   borrower: Borrower! # address
   amountRepayed: BigInt!
   # includes principal repaid and prepayment principal repaid
@@ -293,16 +319,20 @@ type LoanRepayed @entity(immutable: false) {
   transactionHash: Bytes!
   blockNumber: BigInt!
 } #done
+
 type LoanWithdrawn @entity(immutable: false) {
   id: Bytes!
   pool: Pool! # uint256
+  poolId: BigInt! # uint256 - for webhook trigger
   borrower: Borrower! # address
   withdrawTo: Bytes! # address
-  amount: BigInt! # uint256
+  poolPrincipal: BigInt! # uint256
+  amount: BigInt! # uint256 - amount withdrawn from pool
   blockTimestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: Bytes!
 } #done
+
 type Lender @entity(immutable: false) {
   id: Bytes! # lenderAddress+poolId+trancheAddress
   address: Bytes! # address
@@ -355,14 +385,44 @@ type NFTMinted @entity(immutable: false) {
   name: String! # string
   desc: String! # string
   imageURI: String! # string
-  portfolioID: String! # string
-  totalPrincipalAmount: BigInt! # uint256
-  maturityDate: String! # string
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   nftContractAddress: Bytes! # address
   arweaveId: String! # string
+  metadataManager: Bytes # metadata manager of this NFT
+  minter: Bytes # address that minted this NFT
+  metadata: NftMetadata @derivedFrom(field: "nft")
+}
+
+# NFT metadata
+type NftMetadata @entity(immutable: false) {
+  id: Bytes!
+  nft: NFTMinted!
+  # Identity Deal Asset Layer Metadata
+  issuerName: String
+  issuerRegistrationNumber: String
+  issuerJurisdiction: String
+  governingLaw: String
+  enforcementJurisdiction: String
+  principalAmount: BigInt
+  yieldOrRate: BigInt
+  assetClass: String
+  maturityDate: String
+  lienStatus: String
+  collateralDescription: String
+  underlyingAssetIdentifier: String
+  # Control Layer Metadata
+  controlMechanismDescription: String
+  controlLogicHash: Bytes
+  # Legal Link Layer Metadata
+  legalAgreementRefHash: Bytes
+  agreementType: String
+  # Perfection and Registry Metadata
+  uccFilingReferenceNumber: String
+  filingJurisdiction: String
+  perfectionMethod: String
+  perfectionStatus: String
 }
 
 # ___________________________________________________________
@@ -453,10 +513,289 @@ type UpdateNftData @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
-# todo: @rahul7668gupta add entity to index all other data
-
 type ConsumerCoordinatorPair @entity(immutable: false) {
   id: ID!
   consumer: Bytes!
   coordinator: Bytes!
+}
+
+# ______________________________________________________________
+# _______________ Webhooks Schema ______________________________
+# Note: Some entities mentioned above are also used for webhooks
+# ______________________________________________________________
+
+type WHInvestorWhitelisted @entity(immutable: false) {
+  id: Bytes!
+  investor: Bytes! # address
+  trancheName: String! # string
+  level: String! # string (pool, kycOnFactory)
+  whitelisted: Boolean! # bool
+  poolId: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHWriteoff @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  writeoffAmount: BigInt! # uint256
+  writeoffTime: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHOriginatorFeePaid @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  amount: BigInt! # uint256
+  feeRateBps: BigInt! # uint256
+  principalAmount: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHSetCreatePoolAccess @entity(immutable: false) {
+  id: Bytes!
+  address: Bytes! # address - which can create pool
+  canCreatePool: Boolean! # bool
+  manager: Bytes! # address - address which gave access to create pool
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHValueFiledOnContract @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  poolType: String!
+  key: String! # string
+  value: String! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# CRITICAL
+type WHOwnershipTransferStarted @entity(immutable: false) {
+  id: Bytes!
+  currentOwner: Bytes! # address
+  proposedOwner: Bytes! # address (pending owner)
+  roleName: String! # string (factory owner aka superadmin, exit manager owner)
+  contractAddress: Bytes! # address (factory, exit manager)
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHOwnershipTransferComplete @entity(immutable: false) { #tranfer ownership complete, triggered by accept ownership call in ownable 2 step
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  roleName: String! # string (factory owner aka superadmin, exit manager owner)
+  contractAddress: Bytes! # address (factory, exit manager)
+  contractName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHPoolAdminChanged @entity(immutable: false) { # pool admin changed, triggered by changePoolAdmin call in factory contract
+  id: Bytes!
+  poolId: BigInt! # uint256
+  oldAdmin: Bytes! # address
+  newAdmin: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (shelf/securitisation shelf)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockVaultManagerChanged @entity(immutable: false) { # timelock vault manager changed, triggered by setTimelockManager call in timelock vault contract
+  id: Bytes!
+  oldManager: Bytes! # address
+  newManager: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockVaultDelayChanged @entity(immutable: false) { # timelock delay changed, triggered by setTimelockDelay call in timelock vault contract
+  id: Bytes!
+  oldDelay: BigInt! # uint256
+  newDelay: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHPauserChanged @entity(immutable: false) { # pauser changed, triggered by setPauser call in factory contract
+  id: Bytes!
+  oldPauser: Bytes! # address
+  newPauser: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHBorrowerChanged @entity(immutable: false) { # borrower changed, triggered by updateBorrowerAddress call in shelf/securitisation shelf contract
+  id: Bytes!
+  poolId: BigInt! # uint256
+  oldBorrower: Bytes! # address
+  newBorrower: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (shelf/securitisation shelf)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHWhitelistManagerChanged @entity(immutable: false) { # whitelist manager changed, triggered by updateWhitelistManager call in factory contract
+  id: Bytes!
+  oldWhitelistManager: Bytes! # address
+  newWhitelistManager: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# EMERGENCY_MECHANISM
+type WHProtocolPausedUnpaused @entity(immutable: false) {
+  id: Bytes!
+  protocolPaused: Boolean! # bool
+  pausedBy: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHPoolPausedUnpaused @entity(immutable: false) {
+  id: Bytes!
+  poolId: BigInt! # uint256
+  pool: Pool! # uint256
+  pausedBy: Bytes! # address
+  isPaused: Boolean!
+  contractAddress: Bytes! # address
+  contractName: String! # string (factory)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHEmergencyExitExecuted @entity(immutable: false) {
+  id: Bytes!
+  poolIds: [BigInt!]! # uint256[]
+  contractAddress: Bytes! # address
+  contractName: String! # string (exit manager)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHEmergencyExitBatchSizeChanged @entity(immutable: false) {
+  id: Bytes!
+  oldBatchSize: BigInt! # uint256
+  newBatchSize: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (exit manager)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockDepositCreated @entity(immutable: false) {
+  id: Bytes!
+  currency: Bytes! # address
+  amount: BigInt! # uint256
+  poolId: BigInt! # uint256
+  unlockAt: BigInt! # uint256
+  depositId: BigInt! # uint256
+  depositor: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHTimelockDepositWithdrawn @entity(immutable: false) {
+  id: Bytes!
+  depositId: BigInt! # uint256
+  amount: BigInt! # uint256
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHFundsWithdrawn @entity(immutable: false) {
+  id: Bytes!
+  currency: Bytes! # address
+  amount: BigInt! # uint256
+  recipient: Bytes! # address
+  withdrawnBy: Bytes! # address
+  contractAddress: Bytes! # address
+  contractName: String! # string (timelock vault)
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# QiroNFT Webhooks
+type WHPoolAdminUpdated @entity(immutable: false) {
+  id: Bytes!
+  admin: Bytes! # address
+  isAdmin: Boolean! # bool
+  contractAddress: Bytes!
+  contractName: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMetadataManagerUpdated @entity(immutable: false) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  manager: Bytes! # address 
+  contractAddress: Bytes! 
+  contractName: String! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WHMinterUpdated @entity(immutable: false) {
+  id: Bytes!
+  minter: Bytes! # address
+  isMinter: Boolean! # bool 
+  contractAddress: Bytes! 
+  contractName: String! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }

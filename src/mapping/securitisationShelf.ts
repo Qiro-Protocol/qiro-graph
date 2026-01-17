@@ -12,7 +12,7 @@ import { BorrowerAddressUpdated as BorrowerAddressUpdatedEvent } from "../../gen
 import { updateEisAndReserveBalance } from "./reserve";
 import { SecuritisationShelf } from "../../generated/templates/SecuritisationShelf/SecuritisationShelf";
 import { SecuritisationTranche } from "../../generated/QiroFactory/SecuritisationTranche";
-import { Tranche as TrancheEntity } from "../../generated/schema";
+import { PrepaymentApplied, Tranche as TrancheEntity } from "../../generated/schema";
 import { getCurrencyFromPoolId } from "./operator";
 import {
   LoanStarted,
@@ -23,7 +23,7 @@ import {
   PoolAddresses,
   Transaction,
 } from "../../generated/schema";
-import { BigInt, log, Address } from "@graphprotocol/graph-ts";
+import { BigInt, log, Address, Bytes } from "@graphprotocol/graph-ts";
 import { InvestmentOperator } from "../../generated/templates";
 import {
   getPoolId,
@@ -36,23 +36,31 @@ import { ERC20 } from "../../generated/QiroFactory/ERC20";
 import { WhitelistOperator } from "../../generated/templates/WhitelistOperator/WhitelistOperator";
 import { SecuritisationReserve } from "../../generated/QiroFactory/SecuritisationReserve";
 import { getOrCreateBorrower, getOrCreateCurrency } from "../qiro-factory";
+import { createWHOriginatorFeePaid } from "../webhooks/originatorFee";
+import { createWHValueFiledOnContract } from "../webhooks/fileOnContract";
+import { createWHBorrowerChanged } from "../webhooks/borrowerChanged";
 
 export function handleLoanStartedSecuritisationShelf(
   event: LoanStartedEventSecuritisationShelf
 ): void {
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let securitisationShelfContract = SecuritisationShelf.bind(
+    Address.fromBytes(poolAddresses!.shelf)
+  );
   let entity = new LoanStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.nftContractAddress = securitisationShelfContract.token().getValue0();
+  entity.nftId = securitisationShelfContract.token().getValue1();
+  entity.principalAmount = event.params.principalAmount;
+  entity.takeOriginatorFeeFromPrincipal = securitisationShelfContract.takeFeeFromPrincipal();
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.blockNumber = event.block.number;
   entity.save();
 
-  let poolAddresses = getPoolAddresses(event.params.poolId);
-  let securitisationShelfContract = SecuritisationShelf.bind(
-    Address.fromBytes(poolAddresses!.shelf)
-  );
   let operator = WhitelistOperator.bind(
     Address.fromBytes(poolAddresses!.operator)
   );
@@ -85,6 +93,7 @@ export function handleLoanStartedSecuritisationShelf(
   poolObject!.interestAmount =
     securitisationShelfContract.totalInterestForLoanTerm();
   poolObject!.nftTokenId = securitisationShelfContract.token().value1;
+  poolObject!.startTimestamp = securitisationShelfContract.LOAN_START_TIMESTAMP();
 
   // SecuritisationShelf-specific fields
   poolObject!.outstandingShortfallInterestAmount =
@@ -127,11 +136,6 @@ export function handleLoanEndedSecuritisationShelf(
   let entity = new LoanEnded(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
-  entity.pool = getPoolId(event.params.poolId);
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.blockNumber = event.block.number;
-  entity.save();
 
   let poolAddresses = getPoolAddresses(event.params.poolId);
   let securitisationShelfContract = SecuritisationShelf.bind(
@@ -141,6 +145,24 @@ export function handleLoanEndedSecuritisationShelf(
     Address.fromBytes(poolAddresses!.operator)
   );
   let currencyContract = ERC20.bind(Address.fromBytes(poolAddresses!.currency));
+  let seniorContract = SecuritisationTranche.bind(
+    Address.fromBytes(poolAddresses!.seniorTranche)
+  );
+  let juniorContract = SecuritisationTranche.bind(
+    Address.fromBytes(poolAddresses!.juniorTranche)
+  );
+
+  entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.principalRepaid = securitisationShelfContract.totalPrincipalRepayed();
+  entity.interestRepaid = securitisationShelfContract.totalInterestRepayed();
+  entity.lateFeeRepaid = securitisationShelfContract.totalLateFeePaid();
+  entity.seniorTotalRepaid = seniorContract.totalRepayedAmount();
+  entity.juniorTotalRepaid = juniorContract.totalRepayedAmount();
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.blockNumber = event.block.number;
+  entity.save();
 
   let pool = getPool(event.params.poolId);
   pool!.outstandingPrincipal =
@@ -159,22 +181,25 @@ export function handleLoanEndedSecuritisationShelf(
 export function handleLoanWithdrawnSecuritisationShelf(
   event: LoanWithdrawnEventSecuritisationShelf
 ): void {
+  let poolAddresses = getPoolAddresses(event.params.poolId);
+  let securitisationShelfContract = SecuritisationShelf.bind(
+    Address.fromBytes(poolAddresses!.shelf)
+  );
+
   let entity = new LoanWithdrawn(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.borrower = event.params.borrower;
   entity.withdrawTo = event.params.withdrawTo;
   entity.amount = event.params.currencyAmount;
+  entity.poolPrincipal = securitisationShelfContract.principalAmount();
   entity.blockTimestamp = event.block.timestamp;
   entity.blockNumber = event.block.number;
   entity.transactionHash = event.transaction.hash;
   entity.save();
 
-  let poolAddresses = getPoolAddresses(event.params.poolId);
-  let securitisationShelfContract = SecuritisationShelf.bind(
-    Address.fromBytes(poolAddresses!.shelf)
-  );
   let operator = WhitelistOperator.bind(
     Address.fromBytes(poolAddresses!.operator)
   );
@@ -218,6 +243,7 @@ export function handleLoanRepayedSecuritisationShelf(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
   entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
   entity.borrower = event.params.borrower;
   entity.amountRepayed = event.params.currencyAmount;
   entity.prePaymentPrincipal = event.params.prepaymentAbsorbedAmountThisTx;
@@ -319,10 +345,31 @@ export function handleOriginatorFeePaidSecuritisationShelf(
   let pool = getPool(event.params.poolId);
   pool!.originatorFeePaid = event.params.amount;
   pool!.save();
+
+  createWHOriginatorFeePaid({
+    poolId: event.params.poolId,
+    amount: event.params.amount,
+    feeRateBps: pool!.originatorFeeRate,
+    principalAmount: pool!.principalAmount || BigInt.fromI32(0),
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function getPool(poolId: BigInt): Pool | null {
   let pool = Pool.load(getPoolId(poolId));
+  if (pool == null) {
+    log.error("Pool not found for ID: {}", [poolId.toString()]);
+    return null;
+  }
+  return pool;
+}
+
+export function getPoolById(poolId: Bytes): Pool | null {
+  let pool = Pool.load(poolId);
   if (pool == null) {
     log.error("Pool not found for ID: {}", [poolId.toString()]);
     return null;
@@ -392,6 +439,18 @@ export function handleSecuritisationShelfFile(event: SecuritisationShelfFiledEve
 
   pool!.save();
 
+  createWHValueFiledOnContract({
+    poolId: poolId,
+    poolType: PoolType.SECURITISATION,
+    fieldName: event.params.what.toString(),
+    value: event.params.data.toString(),
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  })
+
   log.info("Updated pool {} with what: {}, data: {}", [
     poolId.toString(),
     event.params.what.toString(),
@@ -439,16 +498,43 @@ export function handleSecuritisationShelfUpdateBorrowerAddress(
   let poolId = shelf.poolId();
 
   let pool = getPool(poolId);
+  let oldBorrower = pool!.borrower;
   if (pool != null) {
     // Ensure Borrower entity exists
     getOrCreateBorrower(event.params.borrower, event.block.timestamp);
     pool.borrower = event.params.borrower;
     pool.save();
   }
+
+  // create webhook entity
+  createWHBorrowerChanged({
+    poolId: poolId,
+    oldBorrower: Address.fromBytes(oldBorrower),
+    newBorrower: event.params.borrower,
+    contractAddress: event.address,
+    contractName: "SecuritisationShelf",
+    block: event.block,
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+  });
 }
 
 export function handlePrepaymentAppliedSecuritisationShelf(event: PrepaymentAppliedEventSecuritisationEvent): void {
   let pool = getPool(event.params.poolId);
   pool!.prepaymentAbsorbedAmount = event.params.prepaymentAbsorbedAmount;
   pool!.save();
+
+  let entity = new PrepaymentApplied(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.pool = getPoolId(event.params.poolId);
+  entity.poolId = event.params.poolId;
+  entity.prepaymentPeriod = BigInt.fromI32(0);
+  entity.prepaymentAbsorbedAmount = event.params.prepaymentAbsorbedAmount;
+  entity.postPrePaymentOSPrincipal = BigInt.fromI32(0);
+  entity.totalInterestForLoanTerm = BigInt.fromI32(0);
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
 }
